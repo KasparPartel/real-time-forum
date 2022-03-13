@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Post(props) {
   return (
-    <div className="flex flex-col justify-between flex-1 basis-52 md:basis-80 basis-96 p-7 bg-blue-200">
+    <div className="flex flex-col justify-between flex-1 basis-52 md:basis-80 basis-96 p-7 bg-slate-50">
       <h2 className="mb-1 text-lg font-bold">
         <Link to="#!">{props.json.title}</Link>
       </h2>

@@ -8,6 +8,8 @@ export default function Header() {
     switch (location.pathname) {
       case "/":
         return "Post Feed";
+      case "/create":
+        return "Create a Post";
       case "/messages":
         return "Messages";
       case "/friends":

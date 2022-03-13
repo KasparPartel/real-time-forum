@@ -4,7 +4,7 @@ export default function Message(props) {
       <h3>Kaspar J. Pärtel</h3>
       <p>
         <span>2min ago - </span>
-        Ou mis teed?
+        Tsau kuidas läheb?
       </p>
     </div>
   );
