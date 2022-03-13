@@ -1,17 +1,19 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-import Nav from "./Nav";
-import Feed from "./Feed";
+import { Feed, Messages, Header, NavColumn, FriendsColumn } from "./components";
 
 export default function App() {
   return (
     <div className="flex">
-      <Nav />
-      <BrowserRouter>
+      <NavColumn />
+      <div className="grid px-10 basis-full min-h-screen bg-purple-100">
+        <Header />
         <Routes>
           <Route path="/" element={<Feed />} />
+          <Route path="/messages" element={<Messages />} />
         </Routes>
-      </BrowserRouter>
+      </div>
+      <FriendsColumn />
     </div>
   );
 }

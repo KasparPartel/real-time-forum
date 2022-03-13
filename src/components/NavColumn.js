@@ -1,15 +1,15 @@
-import { BrowserRouter, Link } from "react-router-dom";
-import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Fragment, useState } from "react";
 
 import { HiPlus } from "react-icons/hi";
 import { BiEnvelope, BiLayer, BiLogOut, BiUser } from "react-icons/bi";
 import { MdOutlinePeopleAlt } from "react-icons/md";
 
-export default function Nav() {
+export default function NavColumn() {
   const [active, setActive] = useState(false);
 
   return (
-    <BrowserRouter>
+    <Fragment>
       {active ? (
         <nav className="flex flex-col gap-20 sticky top-0 h-screen pl-4 pr-5 py-6 bg-red-100">
           <HiPlus
@@ -71,6 +71,6 @@ export default function Nav() {
           </Link>
         </nav>
       )}
-    </BrowserRouter>
+    </Fragment>
   );
 }
