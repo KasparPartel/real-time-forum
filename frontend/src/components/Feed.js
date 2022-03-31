@@ -10,9 +10,20 @@ export default function Feed() {
   }, []);
 
   const requestPosts = () => {
-    fetch("https://jsonplaceholder.typicode.com/posts")
+    // fetch("https://jsonplaceholder.typicode.com/posts")
+    //   .then((response) => {
+    //     if (response.ok) {
+    //       return response.json();
+    //     }
+    //     throw new Error("Something went wrong");
+    //   })
+    //   .then((json) => setPosts(json))
+    //   .catch((error) => console.log(error));
+
+    fetch("http://localhost:4000/posts")
       .then((response) => {
         if (response.ok) {
+          console.log("okay");
           return response.json();
         }
         throw new Error("Something went wrong");
@@ -24,7 +35,7 @@ export default function Feed() {
   return (
     <div className="flex flex-wrap py-5 gap-4">
       {posts.map((p) => (
-        <Post json={p} />
+        <Post key={p.id} json={p} />
       ))}
     </div>
   );

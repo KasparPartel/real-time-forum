@@ -1,3 +1,4 @@
+import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 import {
@@ -13,7 +14,7 @@ export default function App() {
   return (
     <div className="flex">
       <NavColumn />
-      <div className="grid px-10 basis-full min-h-screen bg-blue-200">
+      <div className="px-10 basis-full min-h-screen bg-blue-200">
         <Header />
         <Routes>
           <Route path="/create" element={<CreatePost />} />
