@@ -3,7 +3,6 @@ package model
 import "time"
 
 type User struct {
-	//UUID         uuid.UUID
 	ID        int    `json:"id,omitempty"`
 	FirstName string `json:"firstName,omitempty"`
 	LastName  string `json:"lastName,omitempty"`
@@ -20,7 +19,6 @@ type User struct {
 }
 
 type Post struct {
-	//UUID  uuid.UUID
 	ID            int       `json:"id,omitempty"`
 	Title         string    `json:"title,omitempty"`
 	Body          string    `json:"body,omitempty"`
@@ -29,13 +27,15 @@ type Post struct {
 	LikeAmount    int       `json:"likeAmount,omitempty"`
 	DislikeAmount int       `json:"dislikeAmount,omitempty"`
 	CommentAmount int       `json:"commentAmount,omitempty"`
+	Comments      []Comment `json:"comments"`
 	CreationTime  time.Time `json:"creationTime"`
 }
 
-//type Comment struct {
-//	ID            int
-//	Body          string
-//	Author        User
-//	LikeAmount    int
-//	DislikeAmount int
-//}
+type Comment struct {
+	ID            int    `json:"id,omitempty"`
+	Post          Post   `json:"post"`
+	Body          string `json:"body,omitempty"`
+	Author        User   `json:"author"`
+	LikeAmount    int    `json:"likeAmount,omitempty"`
+	DislikeAmount int    `json:"dislikeAmount,omitempty"`
+}
