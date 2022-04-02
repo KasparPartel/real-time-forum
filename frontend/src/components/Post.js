@@ -16,6 +16,12 @@ export default function Post(props) {
             {props.json.commentAmount ? props.json.commentAmount : 0} comments
           </Link>
         </span>
+        <span className="like-amount text-gray-500">
+          {props.json.likeAmount ? props.json.likeAmount : 0} likes
+        </span>
+        <span className="dislike-amount text-gray-500">
+          {props.json.dislikeAmount ? props.json.dislikeAmount : 0} dislikes
+        </span>
       </p>
     </div>
   );

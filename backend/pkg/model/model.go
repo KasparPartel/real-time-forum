@@ -32,8 +32,8 @@ type Post struct {
 }
 
 type Comment struct {
-	ID            int    `json:"id,omitempty"`
-	Post          Post   `json:"post"`
+	ID int `json:"id,omitempty"`
+	//Post          Post   `json:"post"`
 	Body          string `json:"body,omitempty"`
 	Author        User   `json:"author"`
 	LikeAmount    int    `json:"likeAmount,omitempty"`

@@ -71,7 +71,7 @@ var DummyPosts = []model.Post{
 var DummyComments = []model.Comment{
 	{
 		1,
-		DummyPosts[3],
+		//DummyPosts[3],
 		"Väga lahe postitus!",
 		DummyUsers[0],
 		4,
@@ -79,7 +79,7 @@ var DummyComments = []model.Comment{
 	},
 	{
 		2,
-		DummyPosts[2],
+		//DummyPosts[2],
 		"Cool värk!",
 		DummyUsers[0],
 		0,
@@ -87,7 +87,7 @@ var DummyComments = []model.Comment{
 	},
 	{
 		3,
-		DummyPosts[4],
+		//DummyPosts[4],
 		"Pole üldse lahe postitus!",
 		DummyUsers[1],
 		2,
@@ -95,7 +95,7 @@ var DummyComments = []model.Comment{
 	},
 	{
 		4,
-		DummyPosts[3],
+		//DummyPosts[3],
 		"BLAblablaBLALBalbabl lahe postitus!",
 		DummyUsers[1],
 		12,
