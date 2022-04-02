@@ -6,15 +6,18 @@ import (
 	"net/http"
 	"real-time-forum/internal/server/http/handlers"
 	config2 "real-time-forum/pkg/config"
+	"real-time-forum/pkg/logger"
 )
 
 func RunHTTPServer() {
+	// Load config from config pkg
 	cfg := &config2.Config
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/post/", handlers.PostHandler)
+	// Multiplexer handlers
+	mux.HandleFunc("api/post/", handlers.PostHandler)
 
-	fmt.Println("Server started at http://localhost:4000")
+	logger.InfoLogger.Printf("Server started at http://localhost:%s\n", cfg.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), mux))
 }

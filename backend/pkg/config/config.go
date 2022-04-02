@@ -8,4 +8,5 @@ type Configuration struct {
 	DB         string
 }
 
+// Config can be accessible from all parts of the application
 var Config Configuration
