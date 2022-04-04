@@ -116,6 +116,10 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			logger.InfoLogger.Printf("GET: post with id %s\n", id)
 
 			id, err := strconv.Atoi(id)
+			if err != nil {
+				return
+			}
+
 			var postExists bool
 
 			// Find correct post by looping over all posts

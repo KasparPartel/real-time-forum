@@ -10,7 +10,7 @@ export default function Feed() {
   }, []);
 
   const requestPosts = () => {
-    fetch("http://localhost:4000/posts")
+    fetch("http://localhost:4000/api/post")
       .then((response) => {
         if (response.ok) {
           console.log("okay");
