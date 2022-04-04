@@ -18,57 +18,87 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	logger.InfoLogger.Println("Endpoint hit: api/post")
 
 	// Extract id from URL
-	id := strings.TrimPrefix(r.URL.Path, "/post/")
+	id := strings.TrimPrefix(r.URL.Path, "/api/post/")
+
+	// All data from POST response body must be parsed to work with it
+	err := r.ParseForm()
+	if err != nil {
+		return
+	}
 
 	// Switch over request method - POST, GET, DELETE, UPDATE
 	switch r.Method {
 	case "POST":
-		logger.InfoLogger.Println("POST: create a post with form data")
+		// If there is id in URI then update a specific post
+		// Else create a new post
+		if len(id) != 0 {
+			id, err := strconv.Atoi(id)
+			if err != nil {
+				return
+			}
 
-		// All data from POST response body must be parsed to work with it
-		err := r.ParseForm()
-		if err != nil {
-			return
-		}
+			logger.InfoLogger.Println("POST: modify a post with form data")
 
-		// Convert data into right format
-		formID, err := strconv.Atoi(r.FormValue("formID"))
-		if err != nil {
-			fmt.Println(formID)
-			logger.ErrorLogger.Println("formID is not present or wrong format")
-			return
-		}
-		formLikeAmount, err := strconv.Atoi(r.FormValue("formLikeAmount"))
-		if err != nil {
-			logger.ErrorLogger.Println("formLikeAmount is not present or wrong format")
-			return
-		}
-		formDislikeAmount, err := strconv.Atoi(r.FormValue("formDislikeAmount"))
-		if err != nil {
-			logger.ErrorLogger.Println("formDislikeAmount is not present or wrong format")
-			return
-		}
-		formCommentAmount, err := strconv.Atoi(r.FormValue("formCommentAmount"))
-		if err != nil {
-			logger.ErrorLogger.Println("formCommentAmount is not present or wrong format")
-			return
-		}
+			var sliceItemIndex int
+			var postExists bool
 
-		post := model.Post{
-			ID:            formID,
-			Title:         r.FormValue("title"),
-			Body:          r.FormValue("body"),
-			Author:        db.DummyUsers[0],
-			Filename:      r.FormValue("image.jpg"),
-			LikeAmount:    formLikeAmount,
-			DislikeAmount: formDislikeAmount,
-			CommentAmount: formCommentAmount,
-			Comments:      nil,
-			CreationTime:  time.Now(),
-		}
+			for i, v := range data {
+				if v.ID == id {
+					sliceItemIndex = i
+					postExists = true
+					break
+				}
+			}
 
-		// Append created post into slice
-		data = append(data, post)
+			if postExists {
+				data[sliceItemIndex].Title = r.FormValue("title")
+				data[sliceItemIndex].Body = r.FormValue("body")
+				data[sliceItemIndex].Filename = r.FormValue("filename")
+			} else {
+				logger.ErrorLogger.Printf("Post with id %d does not exist", id)
+			}
+		} else {
+			logger.InfoLogger.Println("POST: create a post with form data")
+
+			// Convert data into right format
+			formID, err := strconv.Atoi(r.FormValue("formID"))
+			if err != nil {
+				fmt.Println(formID)
+				logger.ErrorLogger.Println("formID is not present or wrong format")
+				return
+			}
+			formLikeAmount, err := strconv.Atoi(r.FormValue("formLikeAmount"))
+			if err != nil {
+				logger.ErrorLogger.Println("formLikeAmount is not present or wrong format")
+				return
+			}
+			formDislikeAmount, err := strconv.Atoi(r.FormValue("formDislikeAmount"))
+			if err != nil {
+				logger.ErrorLogger.Println("formDislikeAmount is not present or wrong format")
+				return
+			}
+			formCommentAmount, err := strconv.Atoi(r.FormValue("formCommentAmount"))
+			if err != nil {
+				logger.ErrorLogger.Println("formCommentAmount is not present or wrong format")
+				return
+			}
+
+			post := model.Post{
+				ID:            formID,
+				Title:         r.FormValue("title"),
+				Body:          r.FormValue("body"),
+				Author:        db.DummyUsers[0],
+				Filename:      r.FormValue("filename"),
+				LikeAmount:    formLikeAmount,
+				DislikeAmount: formDislikeAmount,
+				CommentAmount: formCommentAmount,
+				Comments:      nil,
+				CreationTime:  time.Now(),
+			}
+
+			// Append created post into slice
+			data = append(data, post)
+		}
 
 	case "GET":
 		// Set correct headers so client can request data
@@ -80,6 +110,8 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		var json []byte
 		var err error
 
+		// If there is id then return specific post
+		// Else return all posts
 		if len(id) != 0 {
 			logger.InfoLogger.Printf("GET: post with id %s\n", id)
 
@@ -121,6 +153,8 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "DELETE":
+		// If there is id then delete specific post
+		// Else delete all posts
 		if len(id) != 0 {
 			logger.InfoLogger.Printf("DELETE: post with id %s\n", id)
 

@@ -16,7 +16,7 @@ func RunHTTPServer() {
 	mux := http.NewServeMux()
 
 	// Multiplexer handlers
-	mux.HandleFunc("api/post/", handlers.PostHandler)
+	mux.HandleFunc("/api/post/", handlers.PostHandler)
 
 	logger.InfoLogger.Printf("Server started at http://localhost:%s\n", cfg.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), mux))
