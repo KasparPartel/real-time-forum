@@ -11,9 +11,22 @@ import (
 	"time"
 )
 
+package handlers
+
+import (
+json2 "encoding/json"
+"fmt"
+"net/http"
+"real-time-forum/pkg/helper"
+"real-time-forum/pkg/logger"
+"real-time-forum/pkg/model"
+"strconv"
+"time"
+)
+
 var data []model.Post
 
-func PostHandler(w http.ResponseWriter, r *http.Request) {
+func UserHandler(w http.ResponseWriter, r *http.Request) {
 	logger.InfoLogger.Println("Endpoint hit: api/post")
 
 	// Extract id from URL
@@ -193,3 +206,4 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+

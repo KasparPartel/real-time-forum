@@ -22,12 +22,12 @@ type Post struct {
 	ID            int       `json:"id,omitempty"`
 	Title         string    `json:"title,omitempty"`
 	Body          string    `json:"body,omitempty"`
-	Author        User      `json:"author"`
+	AuthorId      int       `json:"author_id,omitempty"`
 	Filename      string    `json:"filename,omitempty"`
 	LikeAmount    int       `json:"likeAmount,omitempty"`
 	DislikeAmount int       `json:"dislikeAmount,omitempty"`
 	CommentAmount int       `json:"commentAmount,omitempty"`
-	Comments      []Comment `json:"comments"`
+	CommentID     string    `json:"comments"`
 	CreationTime  time.Time `json:"creationTime"`
 }
 
