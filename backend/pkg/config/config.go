@@ -5,7 +5,7 @@ type Configuration struct {
 	ServerName string
 	DBuser     string
 	DBpassword string
-	DB         string
+	DBfilename string
 }
 
 // Config can be accessible from all parts of the application

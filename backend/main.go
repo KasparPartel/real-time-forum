@@ -5,7 +5,7 @@ import (
 	config2 "real-time-forum/pkg/config"
 )
 
-func main() {
+func init() {
 	// Populate pointer to config so it is project-wide accessible
 	cfg := &config2.Config
 	*cfg = config2.Configuration{
@@ -13,8 +13,10 @@ func main() {
 		ServerName: "localhost",
 		DBuser:     "",
 		DBpassword: "",
-		DB:         "forum.db",
+		DBfilename: "db/forum.db",
 	}
+}
 
+func main() {
 	http.RunHTTPServer()
 }

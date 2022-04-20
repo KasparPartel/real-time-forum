@@ -13,7 +13,7 @@ export default function NavColumn() {
   return (
     <Fragment>
       {isActive ? (
-        <nav className="flex flex-col gap-20 sticky top-0 h-screen pl-4 pr-5 py-6  bg-red-100">
+        <nav className="flex flex-col gap-20 sticky top-0 h-screen pl-4 pr-5 py-6 bg-red-100">
           <RiMenu4Fill
             size="1.6em"
             className="self-end transition-transform duration-500  cursor-pointer"

@@ -3,32 +3,27 @@ package model
 import "time"
 
 type User struct {
-	ID        int    `json:"id,omitempty"`
-	FirstName string `json:"firstName,omitempty"`
-	LastName  string `json:"lastName,omitempty"`
-	Age       int    `json:"age,omitempty"`
-	Gender    string `json:"gender,omitempty"`
-	Username  string `json:"username,omitempty"`
-	Email     string `json:"email,omitempty"`
-	Password  string `json:"password,omitempty"`
-	//Posts     []Post `json:"posts"`
-	//Likes        []Like    `json:"likes"`
-	//Comments     []Comment `json:"comments"`
-	//Friends      []User    `json:"friends"`
-	CreationTime time.Time `json:"creationTime"`
+	ID           int       `json:"id,omitempty"`
+	Email        string    `json:"email,omitempty"`
+	Gender       string    `json:"gender,omitempty"`
+	FirstName    string    `json:"first_name,omitempty"`
+	LastName     string    `json:"last_name,omitempty"`
+	Username     string    `json:"username,omitempty"`
+	PasswordHash string    `json:"password,omitempty"`
+	CreationTime time.Time `json:"creation_time"`
+	LoginTime    time.Time `json:"login_Time"`
+	IsAdmin      string    `json:"is_admin"`
+	//Age          int       `json:"age,omitempty"`
 }
 
 type Post struct {
-	ID            int       `json:"id,omitempty"`
-	Title         string    `json:"title,omitempty"`
-	Body          string    `json:"body,omitempty"`
-	AuthorId      int       `json:"author_id,omitempty"`
-	Filename      string    `json:"filename,omitempty"`
-	LikeAmount    int       `json:"likeAmount,omitempty"`
-	DislikeAmount int       `json:"dislikeAmount,omitempty"`
-	CommentAmount int       `json:"commentAmount,omitempty"`
-	CommentID     string    `json:"comments"`
-	CreationTime  time.Time `json:"creationTime"`
+	ID           int       `json:"id,omitempty"`
+	Title        string    `json:"title,omitempty"`
+	Body         string    `json:"body,omitempty"`
+	UserID       int       `json:"user_id,omitempty"`
+	Filename     string    `json:"filename,omitempty"`
+	CreationTime time.Time `json:"creation_time"`
+	UpdatedTime  time.Time `json:"updated_time"`
 }
 
 type Comment struct {
