@@ -1,28 +1,31 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Route, Routes } from 'react-router-dom';
+import './App.css';
 
-import {
-  Feed,
-  Messages,
-  Header,
-  NavColumn,
-  FriendsColumn,
-  CreatePost,
-} from "./components";
+import Layout from './components/layout/Layout';
+import Feed from './pages/Feed';
+import CreatePost from './pages/CreatePost';
+import Messages from './pages/Messages';
+import Profile from './pages/Profile';
+import NotFound from './pages/NotFound';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
-export default function App() {
+function App() {
   return (
-    <div className="flex">
-      <NavColumn />
-      <div className="px-10 basis-full min-h-screen bg-blue-200">
-        <Header />
-        <Routes>
-          <Route path="/create" element={<CreatePost />} />
-          <Route path="/" element={<Feed />} />
-          <Route path="/messages" element={<Messages />} />
-        </Routes>
-      </div>
-      <FriendsColumn />
-    </div>
+    <Layout>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/" exact element={<Feed />} />
+        <Route path="/create-post" element={<CreatePost />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/profile" element={<Profile />} />
+        {/* <Route path="/myposts" element={<MyPosts />} /> */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Layout>
+    
   );
 }
+
+export default App;
