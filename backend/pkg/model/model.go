@@ -17,13 +17,13 @@ type User struct {
 }
 
 type Post struct {
-	ID           int       `json:"id,omitempty"`
-	Title        string    `json:"title,omitempty"`
-	Body         string    `json:"body,omitempty"`
-	UserID       int       `json:"user_id,omitempty"`
-	Filename     string    `json:"filename,omitempty"`
-	CreationTime time.Time `json:"creation_time"`
-	UpdatedTime  time.Time `json:"updated_time"`
+	ID           int    `json:"id,omitempty"`
+	Title        string `json:"title,omitempty"`
+	Body         string `json:"body,omitempty"`
+	UserID       int    `json:"user_id,omitempty"`
+	Filename     string `json:"filename,omitempty"`
+	CreationTime string `json:"creation_time"`
+	UpdatedTime  string `json:"updated_time"`
 }
 
 type Comment struct {
