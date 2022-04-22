@@ -81,6 +81,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			logger.InfoLogger.Println("POST: create a post with form data")
 
+			// lastId
 			var lastId int
 
 			row := db.QueryRow("SELECT post_id FROM post ORDER BY post_id DESC limit 1")
@@ -107,8 +108,6 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "GET":
-		logger.InfoLogger.Println("GET")
-
 		var json []byte
 		var err error
 		var data []model.Post

@@ -16,6 +16,13 @@ import (
 func UserHandler(w http.ResponseWriter, r *http.Request) {
 	logger.InfoLogger.Println("Endpoint hit: api/user")
 
+	// Set correct headers so client can request data
+	// Without correct headers there can be CORS errors etc.
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(http.StatusOK)
+
 	// Extract id from URL
 	id := helper.ExtractURLID(r, "user")
 
@@ -29,6 +36,18 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := db2.Open()
 	helper.CheckError(err)
 	defer db.Close()
+
+	// Variables to use for assignment from database
+	var userID int
+	var email string
+	var gender string
+	var firstName string
+	var lastName string
+	var username string
+	var passwordHash string
+	var createdDate string
+	var loginDate string
+	var isAdmin string
 
 	// Switch over request method - POST, GET, DELETE, UPDATE
 	switch r.Method {
@@ -87,27 +106,9 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	//	}
 
 	case "GET":
-		// Set correct headers so client can request data
-		// Without correct headers there can be CORS errors etc.
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.WriteHeader(http.StatusOK)
-
 		var json []byte
 		var err error
 		var data []model.User
-
-		var userID int
-		var email string
-		var gender string
-		var firstName string
-		var lastName string
-		var username string
-		var passwordHash string
-		var createdDate string
-		var loginDate string
-		var isAdmin string
 
 		// If there is id then return specific post
 		// Else return all posts

@@ -9,7 +9,7 @@ type User struct {
 	FirstName    string    `json:"first_name,omitempty"`
 	LastName     string    `json:"last_name,omitempty"`
 	Username     string    `json:"username,omitempty"`
-	PasswordHash string    `json:"password,omitempty"`
+	PasswordHash string    `json:"password_hash,omitempty"`
 	CreationTime time.Time `json:"creation_time"`
 	LoginTime    time.Time `json:"login_Time"`
 	IsAdmin      string    `json:"is_admin"`
