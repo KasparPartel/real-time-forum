@@ -24,15 +24,17 @@ function Profile() {
       .catch((error) => console.log(error));
   };
 
+  // console.log(users);
+
   return (
     <div>
       <h1>This is your user profile.</h1>
       <ul>
-        <li>Username: {users[0].username}</li>
-        <li>E-mail: {users[0].email}</li>
-        <li>First name: {users[0].first_name}</li>
-        <li>Last name: {users[0].last_name}</li>
-        <li>Gender: {users[0].gender}</li>
+        <li>Username: {users[0]?.username}</li>
+        <li>E-mail: {users[0]?.email}</li>
+        <li>First name: {users[0]?.first_name}</li>
+        <li>Last name: {users[0]?.last_name}</li>
+        <li>Gender: {users[0]?.gender}</li>
       </ul>
     </div>
   );

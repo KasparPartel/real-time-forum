@@ -32,7 +32,7 @@ function Userlist() {
         {users.map((user) => (
           //<Post key={p.id} json={p} />
           //<li className={classes.online}>{user.username}</li>
-          <ChatModal name={user.username} />
+          <ChatModal key={user.id} name={user.username} />
         ))}
       </ul>
     </div>

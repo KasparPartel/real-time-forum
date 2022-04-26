@@ -1,6 +1,6 @@
 function Login() {
   return (
-    <div class="registerBox">
+    <div className="registerBox">
       <header>Log in to our real-time-forum!</header>
       <form id="register" action="forum/register" method="POST">
         <div>
