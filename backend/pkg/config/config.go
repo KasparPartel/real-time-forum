@@ -6,6 +6,7 @@ type Configuration struct {
 	DBuser     string
 	DBpassword string
 	DBfilename string
+	Version    string
 }
 
 // Config can be accessible from all parts of the application

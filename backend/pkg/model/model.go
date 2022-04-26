@@ -1,18 +1,20 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
-	ID           int       `json:"id,omitempty"`
-	Email        string    `json:"email,omitempty"`
-	Gender       string    `json:"gender,omitempty"`
-	FirstName    string    `json:"first_name,omitempty"`
-	LastName     string    `json:"last_name,omitempty"`
-	Username     string    `json:"username,omitempty"`
-	PasswordHash string    `json:"password_hash,omitempty"`
-	CreationTime time.Time `json:"creation_time"`
-	LoginTime    time.Time `json:"login_Time"`
-	IsAdmin      string    `json:"is_admin"`
+	ID           int    `json:"id,omitempty"`
+	Email        string `json:"email,omitempty"`
+	Gender       string `json:"gender,omitempty"`
+	FirstName    string `json:"first_name,omitempty"`
+	LastName     string `json:"last_name,omitempty"`
+	Username     string `json:"username,omitempty"`
+	PasswordHash string `json:"password_hash,omitempty"`
+	CreationTime string `json:"creation_time"`
+	LoginTime    string `json:"login_Time"`
+	IsAdmin      string `json:"is_admin"`
 	//Age          int       `json:"age,omitempty"`
 }
 
@@ -34,3 +36,10 @@ type Comment struct {
 	LikeAmount    int    `json:"likeAmount,omitempty"`
 	DislikeAmount int    `json:"dislikeAmount,omitempty"`
 }
+
+type Session struct {
+	UserID     int
+	ExpiryTime time.Time
+}
+
+var Sessions = map[string]Session{}

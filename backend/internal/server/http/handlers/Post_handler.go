@@ -13,6 +13,9 @@ import (
 	"time"
 )
 
+// Time formatting string
+const longForm = "2006-01-02 15:04:05.000 -0700 PDT"
+
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	logger.InfoLogger.Println("Endpoint hit: api/post")
 
@@ -46,9 +49,6 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	var createdDate string
 	var updatedDate string
 
-	// Time formatting string
-	const longForm = "2006-01-02 15:04:05.000 -0700 PDT"
-
 	// Switch over request method - POST, GET, DELETE, UPDATE
 	switch r.Method {
 	case "POST":
@@ -81,7 +81,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			logger.InfoLogger.Println("POST: create a post with form data")
 
-			// lastId
+			// Last id from database table
 			var lastId int
 
 			row := db.QueryRow("SELECT post_id FROM post ORDER BY post_id DESC limit 1")

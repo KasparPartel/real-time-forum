@@ -14,6 +14,7 @@ func init() {
 		DBuser:     "",
 		DBpassword: "",
 		DBfilename: "db/forum.db",
+		Version:    "1",
 	}
 }
 
