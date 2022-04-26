@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import classes from "./Userlist.module.css";
+import ChatModal from "./ChatModal";
 
 function Userlist() {
   const [users, setUsers] = useState([]);
@@ -26,11 +27,12 @@ function Userlist() {
   };
 
   return (
-    <div className="flex flex-wrap py-5 gap-4">
+    <div className="user-list">
       <ul className={classes.userlist}>
         {users.map((user) => (
           //<Post key={p.id} json={p} />
-          <li className={classes.online}>{user.username}</li>
+          //<li className={classes.online}>{user.username}</li>
+          <ChatModal key={user.id} name={user.username} />
         ))}
       </ul>
     </div>

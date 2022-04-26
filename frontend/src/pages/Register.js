@@ -1,6 +1,6 @@
 function Register() {
   return (
-    <div class="registerBox">
+    <div className="registerBox">
       <header>Register to our real-time-forum!</header>
       <form id="register" action="forum/register" method="POST">
         <div>
@@ -30,7 +30,7 @@ function Register() {
           <select name="gender" id="gender">
             <option value="male">Male</option>
             <option value="female">Female</option>
-            <option value="unknown" selected="selected">
+            <option defaultValue="unknown" /* selected="selected" */>
               Prefer not to specify
             </option>
           </select>
