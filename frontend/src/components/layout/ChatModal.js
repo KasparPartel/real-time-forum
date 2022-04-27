@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import classes from "./ChatModal.module.css";
+import { webSocketConnect } from "../../websocket.js"
 
 function ChatModal(props) {
+  
+  webSocketConnect("ws://localhost:4000/ws");
+  
   const [modal, setModal] = useState(false);
 
   const toggleModal = () => {
