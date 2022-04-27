@@ -9,10 +9,8 @@ function Feed(props) {
   }, []);
 
   const requestPosts = () => {
-    fetch("http://localhost:4000/api/post/", {
+    fetch("http://localhost:4000/v1/api/post/", {
       method: "GET",
-      // headers: { "Content-Type": "application/json" },
-      // body: JSON.stringify(),
     })
       .then((response) => {
         if (response.ok) {

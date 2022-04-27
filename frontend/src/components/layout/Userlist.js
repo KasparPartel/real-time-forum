@@ -10,7 +10,7 @@ function Userlist() {
   }, []);
 
   const requestUsers = () => {
-    fetch("http://localhost:4000/api/user/", {
+    fetch("http://localhost:4000/v1/api/user/", {
       method: "GET",
       // headers: { "Content-Type": "application/json" },
       // body: JSON.stringify(),

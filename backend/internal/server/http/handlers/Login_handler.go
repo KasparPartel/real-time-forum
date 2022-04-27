@@ -14,7 +14,7 @@ import (
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := r.Cookie("session_token")
 	if err == nil {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "http://localhost:3000/", http.StatusSeeOther)
 		return
 	}
 
@@ -51,12 +51,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.SetCookie(w, &http.Cookie{
-			Name:   "login_token",
+			Name:   "session_token",
 			Value:  sessionToken,
+			Path:   "localhost:3000",
 			MaxAge: 600,
 		})
 
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, "http://localhost:3000/", http.StatusSeeOther)
 		return
 	}
 }
