@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import classes from "./ChatModal.module.css";
+import { webSocketConnect } from "../../websocket.js"
 
 function ChatModal(props) {
+  
+  webSocketConnect("ws://localhost:4000/ws");
+  
   const [modal, setModal] = useState(false);
 
   const toggleModal = () => {
@@ -28,8 +32,8 @@ function ChatModal(props) {
             <div className={classes.chatfield}>
               {/* <label for="chat-text"></label> */}
 
-              <textarea id="chat-text" name="chat-text" rows="4" cols="50">
-                Enter your message here
+              <textarea id="chat-text" name="chat-text" rows="4" cols="50" defaultValue="Enter your message here">
+                
               </textarea>
               <br></br>
               <button>Submit</button>
