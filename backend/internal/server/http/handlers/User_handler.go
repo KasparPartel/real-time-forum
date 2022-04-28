@@ -3,25 +3,16 @@ package handlers
 import (
 	"database/sql"
 	json2 "encoding/json"
-	"fmt"
 	"net/http"
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
 	"real-time-forum/pkg/logger"
 	"real-time-forum/pkg/model"
-	"strconv"
 	"time"
 )
 
 func UserHandler(w http.ResponseWriter, r *http.Request) {
 	logger.InfoLogger.Println("Endpoint hit: api/user")
-
-	// Set correct headers so client can request data
-	// Without correct headers there can be CORS errors etc.
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.WriteHeader(http.StatusOK)
 
 	// Extract id from URL
 	id := helper.ExtractURLID(r, "user")
@@ -49,9 +40,9 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	var loginDate string
 	var isAdmin string
 
-	// Switch over request method - POST, GET, DELETE, UPDATE
+	// Switch over request method - POST, GET, DELETE
 	switch r.Method {
-	case "POST":
+	case http.MethodPost:
 		// Validate form data
 		// Email Validation
 		if !helper.IsValidEmail(r.FormValue("email")) {
@@ -101,6 +92,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					user.Email, user.Gender, user.FirstName, user.LastName, user.Username, user.PasswordHash, user.ID)
 				if err != nil {
 					logger.ErrorLogger.Println(err)
+					return
 				}
 			}
 		} else {
@@ -110,9 +102,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			var lastId int
 
 			row := db.QueryRow("SELECT user_id FROM user ORDER BY user_id DESC limit 1")
-			if err = row.Scan(&lastId); err == sql.ErrNoRows {
-				logger.InfoLogger.Println("No users found")
-			}
+			_ = row.Scan(&lastId)
 
 			user := model.User{
 				ID:           lastId + 1,
@@ -131,10 +121,20 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 				"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", user.ID, user.Email, user.Gender, user.FirstName, user.LastName, user.Username, user.PasswordHash, user.CreationTime, user.LoginTime, user.IsAdmin)
 			if err != nil {
 				logger.ErrorLogger.Println(err)
+				w.WriteHeader(http.StatusBadRequest)
+				return
 			}
 		}
 
-	case "GET":
+		w.WriteHeader(http.StatusCreated)
+
+	case http.MethodGet:
+		// Set correct headers so client can request data
+		// Without correct headers there can be CORS errors etc.
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
 		var json []byte
 		var err error
 		var data []model.User
@@ -143,11 +143,6 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		// Else return all posts
 		if len(id) != 0 {
 			logger.InfoLogger.Printf("GET: user with id %s\n", id)
-
-			id, err := strconv.Atoi(id)
-			if err != nil {
-				return
-			}
 
 			row := db.QueryRow("SELECT * FROM user WHERE user_id=?", id)
 
@@ -201,20 +196,25 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			if len(data) == 0 {
 				logger.WarningLogger.Println("There are 0 posts")
 			}
-
 		}
 
 		// Write json to Response
 		json, err = json2.Marshal(data)
 		if err != nil {
-			fmt.Println(err)
+			logger.ErrorLogger.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
 		}
 		_, err = w.Write(json)
 		if err != nil {
+			logger.ErrorLogger.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		//case "DELETE":
+		w.WriteHeader(http.StatusOK)
+
+		//case http.MethodDelete:
 		//	// If there is id then delete specific post
 		//	// Else delete all posts
 		//	if len(id) != 0 {

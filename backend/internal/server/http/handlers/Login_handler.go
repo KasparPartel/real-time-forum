@@ -2,26 +2,38 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	uuid2 "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
-	"real-time-forum/pkg/model"
+	"real-time-forum/pkg/logger"
 	"time"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := r.Cookie("session_token")
-	if err == nil {
-		http.Redirect(w, r, "http://localhost:3000/", http.StatusSeeOther)
-		return
-	}
-
 	if r.Method == http.MethodPost {
+		type Login struct {
+			Username string
+			Email    string
+			Password string
+		}
+		var login Login
+
 		var userID int
 		var passwordHash string
-		var password = r.FormValue("password")
+		//var password = r.FormValue("password")
+
+		// All data from POST response body must be parsed to work with it
+		err := r.ParseForm()
+		if err != nil {
+			return
+		}
+
+		_ = json.Unmarshal([]byte(r.Form), &login)
+		fmt.Println(r.Form)
 
 		// Connect to database
 		db, err := db2.Open()
@@ -33,31 +45,30 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		if err = row.Scan(&userID, &passwordHash); err == sql.ErrNoRows {
 			http.Error(w, "User with this username/email does not exist", http.StatusForbidden)
+			logger.WarningLogger.Println("User with this username/email does not exist")
 			return
 		}
 
 		if err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)); err != nil {
 			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
+			logger.WarningLogger.Println("Username and/or password do not match")
 			return
 		}
 
 		// Create session
 		sessionToken := uuid2.NewV4().String()
-		expiresAt := time.Now().Add(600 * time.Second)
+		timeNow := time.Now().Format(longForm)
 
-		model.Sessions[sessionToken] = model.Session{
-			UserID:     userID,
-			ExpiryTime: expiresAt,
-		}
+		_, err = db.Exec("UPDATE user SET login_time=?, token=? WHERE user_id=?",
+			timeNow, sessionToken, userID)
 
 		http.SetCookie(w, &http.Cookie{
-			Name:   "session_token",
-			Value:  sessionToken,
-			Path:   "localhost:3000",
-			MaxAge: 600,
+			Name:     "session_token",
+			Value:    sessionToken,
+			MaxAge:   600,
+			HttpOnly: true,
 		})
 
-		http.Redirect(w, r, "http://localhost:3000/", http.StatusSeeOther)
-		return
+		w.WriteHeader(http.StatusOK)
 	}
 }
