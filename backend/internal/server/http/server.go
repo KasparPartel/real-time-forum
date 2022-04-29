@@ -16,9 +16,9 @@ func RunHTTPServer() {
 	mux := http.NewServeMux()
 
 	// Multiplexer handlers
-	mux.HandleFunc(fmt.Sprintf("/v%s/api/post/", cfg.Version), handlers.PostHandler)
-	mux.HandleFunc(fmt.Sprintf("/v%s/api/user/", cfg.Version), handlers.UserHandler)
-	mux.HandleFunc(fmt.Sprintf("/v%s/api/login/", cfg.Version), handlers.LoginHandler)
+	mux.HandleFunc("/api/post/", handlers.PostHandler)
+	mux.HandleFunc("/api/user/", handlers.UserHandler)
+	mux.HandleFunc("/api/message/", handlers.MessageHandler)
 	// Websocket handler
 	mux.HandleFunc(fmt.Sprintf("/v%s/api/ws", cfg.Version), handlers.WsEndpoint)
 

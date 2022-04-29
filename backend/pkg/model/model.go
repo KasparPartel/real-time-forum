@@ -43,3 +43,11 @@ type Session struct {
 }
 
 var Sessions = map[string]Session{}
+
+type Message struct {
+	ID           int    `json:"id,omitempty"`
+	Body         string `json:"body,omitempty"`
+	UserID       int    `json:"user_id"`
+	TargetID     int    `json:"target_id"`
+	CreationTime string `json:"creation_time"`
+}
