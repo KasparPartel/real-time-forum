@@ -18,6 +18,7 @@ func RunHTTPServer() {
 	// Multiplexer handlers
 	mux.HandleFunc("/api/post/", handlers.PostHandler)
 	mux.HandleFunc("/api/user/", handlers.UserHandler)
+	mux.HandleFunc("/api/message/", handlers.MessageHandler)
 	// Websocket handler
 	mux.HandleFunc("/ws", handlers.WsEndpoint)
 

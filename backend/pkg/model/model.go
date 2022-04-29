@@ -34,3 +34,11 @@ type Comment struct {
 	LikeAmount    int    `json:"likeAmount,omitempty"`
 	DislikeAmount int    `json:"dislikeAmount,omitempty"`
 }
+
+type Message struct {
+	ID           int    `json:"id,omitempty"`
+	Body         string `json:"body,omitempty"`
+	UserID       int    `json:"user_id"`
+	TargetID     int    `json:"target_id"`
+	CreationTime string `json:"creation_time"`
+}
