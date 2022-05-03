@@ -19,6 +19,8 @@ func RunHTTPServer() {
 	mux.HandleFunc(fmt.Sprintf("/v%s/api/post/", cfg.Version), handlers.PostHandler)
 	mux.HandleFunc(fmt.Sprintf("/v%s/api/user/", cfg.Version), handlers.UserHandler)
 	mux.HandleFunc(fmt.Sprintf("/v%s/api/login/", cfg.Version), handlers.LoginHandler)
+	// Websocket handler
+	mux.HandleFunc(fmt.Sprintf("/v%s/api/ws", cfg.Version), handlers.WsEndpoint)
 
 	logger.InfoLogger.Printf("Server started at http://localhost:%s\n", cfg.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), mux))

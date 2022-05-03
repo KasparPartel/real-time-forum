@@ -6,6 +6,7 @@ import (
 	"fmt"
 	uuid2 "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
+	"io/ioutil"
 	"net/http"
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
@@ -13,27 +14,46 @@ import (
 	"time"
 )
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		type Login struct {
-			Username string
-			Email    string
-			Password string
-		}
-		var login Login
+type Login struct {
+	Username string
+	Email    string
+	Password string
+}
 
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+
+	if _, err := r.Cookie("session_token"); err == nil {
+		w.WriteHeader(http.StatusSeeOther)
+		logger.InfoLogger.Println("User already logged in!")
+		return
+	}
+
+	if r.Method == http.MethodPost {
+		// Read body
+		b, err := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		var login Login
 		var userID int
 		var passwordHash string
-		//var password = r.FormValue("password")
 
 		// All data from POST response body must be parsed to work with it
-		err := r.ParseForm()
+		err = r.ParseForm()
 		if err != nil {
 			return
 		}
 
-		_ = json.Unmarshal([]byte(r.Form), &login)
-		fmt.Println(r.Form)
+		err = json.Unmarshal(b, &login)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
 
 		// Connect to database
 		db, err := db2.Open()
@@ -41,17 +61,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		row := db.QueryRow("SELECT user_id, password_hash FROM user WHERE username=? OR email=?",
-			r.FormValue("username"), r.FormValue("email"))
+			login.Username, login.Email)
 
 		if err = row.Scan(&userID, &passwordHash); err == sql.ErrNoRows {
 			http.Error(w, "User with this username/email does not exist", http.StatusForbidden)
-			logger.WarningLogger.Println("User with this username/email does not exist")
+			logger.InfoLogger.Println("User with this username/email does not exist")
 			return
 		}
 
-		if err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(password)); err != nil {
+		if err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(login.Password)); err != nil {
 			http.Error(w, "Username and/or password do not match", http.StatusForbidden)
-			logger.WarningLogger.Println("Username and/or password do not match")
+			logger.InfoLogger.Println("Username and/or password do not match")
 			return
 		}
 
@@ -59,16 +79,23 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		sessionToken := uuid2.NewV4().String()
 		timeNow := time.Now().Format(longForm)
 
-		_, err = db.Exec("UPDATE user SET login_time=?, token=? WHERE user_id=?",
+		_, err = db.Exec("UPDATE user SET login_date=?, token=? WHERE user_id=?",
 			timeNow, sessionToken, userID)
+		if err != nil {
+			http.Error(w, "Error writing to database", http.StatusInternalServerError)
+			logger.ErrorLogger.Println(err)
+			return
+		}
 
 		http.SetCookie(w, &http.Cookie{
 			Name:     "session_token",
 			Value:    sessionToken,
 			MaxAge:   600,
 			HttpOnly: true,
+			Path:     "/",
 		})
 
 		w.WriteHeader(http.StatusOK)
+		fmt.Println(w.Header())
 	}
 }
