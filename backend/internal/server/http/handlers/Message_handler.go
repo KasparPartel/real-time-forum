@@ -58,7 +58,7 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 			row := db.QueryRow("SELECT * FROM post WHERE message_id=?", id)
 
 			if err = row.Scan(&messageID, &body, &userID, &targetID, &createdDate); err == sql.ErrNoRows {
-				logger.ErrorLogger.Printf("Message with id %d does not exist", id)
+				logger.ErrorLogger.Printf("Message with id %s does not exist", id)
 			} else {
 				message := model.Message{
 					ID:           messageID,
@@ -79,24 +79,25 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 
 			var lastId int
 
-			row := db.QueryRow("SELECT post_id FROM post ORDER BY post_id DESC limit 1")
+			row := db.QueryRow("SELECT message_id FROM message ORDER BY message_id DESC limit 1")
 
 			if err = row.Scan(&lastId); err == sql.ErrNoRows {
-				logger.InfoLogger.Println("No posts found")
+				logger.InfoLogger.Println("No messages found")
 			}
 
-			post := model.Post{
-				ID:           lastId + 1,
-				Title:        r.FormValue("title"),
-				Body:         r.FormValue("body"),
-				UserID:       1,
-				Filename:     r.FormValue("filename"),
+			message := model.Message{
+				ID: lastId + 1,
+				//Title:        r.FormValue("title"),
+				Body:     r.FormValue("body"),
+				UserID:   1, // ??? why 1
+				TargetID: targetID,
+				//Filename:     r.FormValue("filename"),
 				CreationTime: time.Now().Format(longForm),
-				UpdatedTime:  time.Now().Format(longForm),
+				//UpdatedTime:  time.Now().Format(longForm),
 			}
 
-			_, err := db.Exec("INSERT INTO post(post_id, title, body, user_id, filename, created_date, updated_date)"+
-				"VALUES(?, ?, ?, ?, ?, ?, ?)", post.ID, post.Title, post.Body, post.UserID, post.Filename, post.CreationTime, post.UpdatedTime)
+			_, err := db.Exec("INSERT INTO message(message_id, body, user_id, target_id, created_date)"+
+				"VALUES(?, ?, ?, ?, ?)", message.ID, message.Body, message.UserID, message.TargetID, message.CreationTime)
 			if err != nil {
 				logger.ErrorLogger.Println(err)
 			}
@@ -107,66 +108,75 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 
 		var json []byte
 		var err error
-		var data []model.Post
+		var data []model.Message
 
-		// If there is id then return specific post
-		// Else return all posts
+		// If there is id then return specific message
+		// Else return all messages
 		if len(id) != 0 {
-			logger.InfoLogger.Printf("GET: post with id %s\n", id)
+			logger.InfoLogger.Printf("GET: message with id %s\n", id)
 
 			id, err := strconv.Atoi(id)
 			if err != nil {
 				return
 			}
 
-			row := db.QueryRow("SELECT * FROM post WHERE post_id=?", id)
+			row := db.QueryRow("SELECT * FROM message WHERE message_id=?", id)
 
-			if err = row.Scan(&postID, &title, &body, &userID, &filename, &createdDate, &updatedDate); err == sql.ErrNoRows {
-				logger.ErrorLogger.Printf("Post with id %d does not exist", id)
+			if err = row.Scan(&messageID, &body, &userID, &targetID, &createdDate); err == sql.ErrNoRows {
+				logger.ErrorLogger.Printf("Message with id %d does not exist", id)
 			} else {
-				post := model.Post{
-					ID:           postID,
-					Title:        title,
-					Body:         body,
-					UserID:       userID,
-					Filename:     filename,
+				// post := model.Post{
+				// 	ID:           postID,
+				// 	Title:        title,
+				// 	Body:         body,
+				// 	UserID:       userID,
+				// 	Filename:     filename,
+				// 	CreationTime: createdDate,
+				// 	UpdatedTime:  updatedDate,
+				// }
+
+				message := model.Message{
+					ID: messageID,
+					//Title:        r.FormValue("title"),
+					Body:     body,
+					UserID:   userID,
+					TargetID: targetID,
+					//Filename:     r.FormValue("filename"),
 					CreationTime: createdDate,
-					UpdatedTime:  updatedDate,
+					//UpdatedTime:  time.Now().Format(longForm),
 				}
 
-				data = append(data, post)
+				data = append(data, message)
 			}
 
 		} else {
-			logger.InfoLogger.Println("GET: all posts")
+			logger.InfoLogger.Println("GET: all messages")
 
 			// Select every row from post table
-			rows, err := db.Query("SELECT * FROM post ORDER BY title")
+			rows, err := db.Query("SELECT * FROM message ORDER BY userID") // title --> userID
 			helper.CheckError(err)
 			defer rows.Close()
 
 			// Loop over every row
 			for rows.Next() {
-				err := rows.Scan(&postID, &title, &body, &userID, &filename, &createdDate, &updatedDate)
+				err := rows.Scan(&messageID, &body, &userID, &targetID, &createdDate)
 				if err != nil {
 					logger.ErrorLogger.Println(err)
 				}
 
-				post := model.Post{
-					ID:           postID,
-					Title:        title,
+				message := model.Message{
+					ID:           messageID,
 					Body:         body,
 					UserID:       userID,
-					Filename:     filename,
+					TargetID:     targetID,
 					CreationTime: createdDate,
-					UpdatedTime:  updatedDate,
 				}
 
-				data = append(data, post)
+				data = append(data, message)
 			}
 
 			if len(data) == 0 {
-				logger.WarningLogger.Println("There are 0 posts")
+				logger.WarningLogger.Println("There are 0 messages")
 			}
 		}
 
@@ -180,27 +190,27 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-	case "DELETE":
-		// If there is id then delete specific post
-		// Else delete all posts
-		if len(id) != 0 {
-			logger.InfoLogger.Printf("DELETE: post with id %s\n", id)
+		// case "DELETE":
+		// 	// If there is id then delete specific post
+		// 	// Else delete all posts
+		// 	if len(id) != 0 {
+		// 		logger.InfoLogger.Printf("DELETE: post with id %s\n", id)
 
-			_, err := db.Exec("DELETE FROM post WHERE post_id=?", id)
-			if err != nil {
-				logger.ErrorLogger.Println(err)
-			} else {
-				logger.InfoLogger.Println("Post deleted")
-			}
-		} else {
-			logger.InfoLogger.Println("DELETE: all posts")
+		// 		_, err := db.Exec("DELETE FROM post WHERE post_id=?", id)
+		// 		if err != nil {
+		// 			logger.ErrorLogger.Println(err)
+		// 		} else {
+		// 			logger.InfoLogger.Println("Post deleted")
+		// 		}
+		// 	} else {
+		// 		logger.InfoLogger.Println("DELETE: all posts")
 
-			_, err := db.Exec("DELETE FROM post")
-			if err != nil {
-				logger.ErrorLogger.Println(err)
-			} else {
-				logger.InfoLogger.Println("All posts deleted")
-			}
-		}
+		// 		_, err := db.Exec("DELETE FROM post")
+		// 		if err != nil {
+		// 			logger.ErrorLogger.Println(err)
+		// 		} else {
+		// 			logger.InfoLogger.Println("All posts deleted")
+		// 		}
+		// 	}
 	}
 }
