@@ -1,4 +1,4 @@
-import {Link, Navigate, Route, Routes} from 'react-router-dom';
+import {/* Link, Navigate, */ Route, Routes} from 'react-router-dom';
 import './App.css';
 import { webSocketConnect } from "./websocket"
 // import React, { useEffect } from "react";
@@ -29,7 +29,7 @@ function App() {
             <Routes>
                 <Route path="/" exact element={<Feed/>}/>
                 <Route path="/login" element={<Login />} />
-                <Route path="/logout" element={<Logout />} />
+                {/* <Route path="/logout" element={<Logout />} /> */}
                 <Route path="/register" element={<Register/>}/>
                 <Route path="/create-post" element={<CreatePost/>}/>
                 <Route path="/messages" element={<Messages/>}/>

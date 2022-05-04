@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import classes from "./ChatModal.module.css";
-// import { webSocketConnect } from "../../websocket.js"
+import { webSocketConnect } from "../../websocket.js"
 
 function ChatModal(props) {
   
@@ -41,7 +41,7 @@ function ChatModal(props) {
                 
               </textarea>
               <br></br>
-              <button>Submit</button>
+              <button id="chat-submit-button" onClick={webSocketConnect.sendMessage}>Submit</button>
               <button className={classes.closemodal} onClick={toggleModal}>
                 CLOSE
               </button>
