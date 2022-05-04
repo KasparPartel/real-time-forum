@@ -4,7 +4,7 @@ import { webSocketConnect } from "../../websocket.js"
 
 function ChatModal(props) {
   
-  webSocketConnect("ws://localhost:4000/ws");
+  webSocketConnect("ws://localhost:4000/v1/api/ws");
   
   const [modal, setModal] = useState(false);
 

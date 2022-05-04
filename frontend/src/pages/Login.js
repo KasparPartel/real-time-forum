@@ -1,8 +1,7 @@
 import {useState} from "react";
 
-function Login() {
+export default function Login() {
     const [formData, setFormData] = useState({})
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
 
     const handleChange = (e) => {
         let formDataCopy = Object.assign({}, formData)
@@ -15,26 +14,26 @@ function Login() {
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        console.log(formData)
-
         fetch("http://localhost:4000/v1/api/login/", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
-                // 'Content-Type': 'application/x-www-form-urlencoded',
             },
+            credentials: "include",
             body: JSON.stringify(formData)
         })
             .then(res => {
                 if (res.ok) {
-                    setIsLoggedIn(true)
                     console.log("Login successful!")
+                    return
+                } else if (res.status === 303) {
+                    // Must do redirect
+                    console.log("User already logged in!")
                     return
                 }
                 throw new Error("Login unsuccessful!")
             })
     }
-
     return (
         <div className="registerBox">
             <header>Log in to our real-time-forum!</header>
@@ -69,6 +68,3 @@ function Login() {
         </div>
     );
 }
-
-
-export default Login;

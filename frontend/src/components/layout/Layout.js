@@ -4,16 +4,14 @@ import Userlist from './Userlist';
 import classes from './Layout.module.css';
 
 function Layout(props) {
-  return (
-    <div>
-      <MainNavigation />
-      {/* <div class="pagebody"> */}
-        <PagesNavigation />
-        <main className={classes.main}>{props.children}</main>
-        <Userlist />
-      {/* </div> */}
-    </div>
-  );
+    return (
+        <div>
+            <MainNavigation />
+            <PagesNavigation loginState={props.loginState}/>
+            <main className={classes.main}>{props.children}</main>
+            <Userlist/>
+        </div>
+    );
 }
 
 export default Layout;
