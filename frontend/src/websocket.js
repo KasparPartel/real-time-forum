@@ -10,7 +10,7 @@ export function webSocketConnect(port) {
         console.log("Successfully Connected to Websocket");
         // socket.send("Hello from the FrontEnd!")
         let testMessage = composeMessage(
-            1,
+            // 1,
             "Test message body",
             1,
             2,
@@ -35,9 +35,9 @@ export function webSocketConnect(port) {
 
     }
 
-    function composeMessage (Id, Body, User_id, Target_id, Creation_time) {
+    function composeMessage (/* Id, */ Body, User_id, Target_id, Creation_time) {
         let msg = {
-            id: String(Id),
+            // id: String(Id),
             body: String(Body),
             user_id: String(User_id),
             target_id: String(Target_id),
@@ -50,4 +50,6 @@ export function webSocketConnect(port) {
         socket.send(string)
     }
 }
+
+
 
