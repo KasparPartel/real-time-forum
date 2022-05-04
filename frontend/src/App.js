@@ -1,5 +1,7 @@
 import {Link, Navigate, Route, Routes} from 'react-router-dom';
 import './App.css';
+import { webSocketConnect } from "./websocket"
+// import React, { useEffect } from "react";
 
 import Layout from './components/layout/Layout';
 import Feed from './pages/Feed';
@@ -18,6 +20,10 @@ function App() {
         setLoggedIn(true)
     }, [])
 
+    useEffect(() => {
+      webSocketConnect("ws://localhost:4000/ws");
+    }, []);
+
     return (
         <Layout loginState={loggedIn}>
             <Routes>
@@ -32,6 +38,8 @@ function App() {
             </Routes>
         </Layout>
     );
+  
+  
 }
 
 export default App;

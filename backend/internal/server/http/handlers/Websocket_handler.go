@@ -21,6 +21,14 @@ func reader(conn *websocket.Conn) {
 
 		// this the action with incoming message, rewrite to func -> db
 		log.Println(string(p))
+		// log.Println(p)
+		// log.Println("Here?")
+		saveMessage(string(p))
+
+		log.Println(tempMessages)
+		for i := 0; i < len(tempMessages); i++ {
+			log.Println(tempMessages[i])
+		}
 
 		// this repeats incoming message back to frontend
 		if err := conn.WriteMessage(messageType, p); err != nil {
@@ -31,6 +39,12 @@ func reader(conn *websocket.Conn) {
 
 }
 
+var tempMessages = []string{}
+
+func saveMessage(message string) {
+	tempMessages = append(tempMessages, message)
+}
+
 func WsEndpoint(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true } // avoid CORS error
 
@@ -38,7 +52,7 @@ func WsEndpoint(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("Client Successfully Connected to WebSocket...")
+	log.Println("Backend: Client Successfully Connected to WebSocket...")
 
 	reader(ws)
 }
