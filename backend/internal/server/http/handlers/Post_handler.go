@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	json2 "encoding/json"
-	"fmt"
 	"net/http"
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
@@ -13,15 +12,11 @@ import (
 	"time"
 )
 
+// Time formatting string
+const longForm = "2006-01-02 15:04:05.000 -0700 PDT"
+
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	logger.InfoLogger.Println("Endpoint hit: api/post")
-
-	// Set correct headers so client can request data
-	// Without correct headers there can be CORS errors etc.
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.WriteHeader(http.StatusOK)
 
 	// Extract id from URL
 	id := helper.ExtractURLID(r, "post")
@@ -46,12 +41,9 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	var createdDate string
 	var updatedDate string
 
-	// Time formatting string
-	const longForm = "2006-01-02 15:04:05.000 -0700 PDT"
-
-	// Switch over request method - POST, GET, DELETE, UPDATE
+	// Switch over request method - POST, GET, DELETE
 	switch r.Method {
-	case "POST":
+	case http.MethodPost:
 		// If there is id in URI then update a specific post
 		// Else create a new post
 		if len(id) != 0 {
@@ -76,11 +68,14 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 					post.Title, post.Body, post.Filename, post.UpdatedTime, post.ID)
 				if err != nil {
 					logger.ErrorLogger.Println(err)
+					w.WriteHeader(http.StatusBadRequest)
+					return
 				}
 			}
 		} else {
 			logger.InfoLogger.Println("POST: create a post with form data")
 
+			// Last id from database table
 			var lastId int
 
 			row := db.QueryRow("SELECT post_id FROM post ORDER BY post_id DESC limit 1")
@@ -103,11 +98,19 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 				"VALUES(?, ?, ?, ?, ?, ?, ?)", post.ID, post.Title, post.Body, post.UserID, post.Filename, post.CreationTime, post.UpdatedTime)
 			if err != nil {
 				logger.ErrorLogger.Println(err)
+				w.WriteHeader(http.StatusBadRequest)
+				return
 			}
 		}
 
-	case "GET":
-		logger.InfoLogger.Println("GET")
+		w.WriteHeader(http.StatusCreated)
+
+	case http.MethodGet:
+		// Set correct headers so client can request data
+		// Without correct headers there can be CORS errors etc.
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		var json []byte
 		var err error
@@ -177,14 +180,20 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		// Write json to Response
 		json, err = json2.Marshal(data)
 		if err != nil {
-			fmt.Println(err)
+			logger.ErrorLogger.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
 		}
 		_, err = w.Write(json)
 		if err != nil {
+			logger.ErrorLogger.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-	case "DELETE":
+		w.WriteHeader(http.StatusOK)
+
+	case http.MethodDelete:
 		// If there is id then delete specific post
 		// Else delete all posts
 		if len(id) != 0 {
@@ -206,5 +215,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 				logger.InfoLogger.Println("All posts deleted")
 			}
 		}
+
+		w.WriteHeader(http.StatusOK)
 	}
 }

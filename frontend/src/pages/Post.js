@@ -4,7 +4,7 @@ function Post(props) {
   return (
     <div className="card">
       <h2 className="mb-1 text-lg font-bold">
-        <Link to={`localhost:4000/post/${props.json.id}`}>
+        <Link to={`localhost:4000/v1/post/${props.json.id}`}>
           {props.json.title}
         </Link>
       </h2>
