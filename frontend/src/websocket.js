@@ -43,7 +43,7 @@ export function webSocketConnect(port) {
             // 1,
             document.querySelector("#chat-text").value,
             1,
-            2,
+            document.querySelector("#target-name").getAttribute('data-id'),
             Date(Date.now())
         )
         

@@ -32,13 +32,16 @@ function ChatModal(props) {
         <div className={classes.chatmodal}>
           <div onClick={toggleModal} className={classes.overlay}></div>
           <div className={classes.chatmodalcontent}>
-            <h2>You're chatting with: {props.name}</h2>
+            <h2 id="target-name" data-id={props.target} >You're chatting with: {props.name}</h2>
+            <div id="chat-history">
             <p>Here we will put the chat history with this user.</p>
+
+            </div>
             <div className={classes.chatfield}>
               {/* <label for="chat-text"></label> */}
 
-              <textarea id="chat-text" name="chat-text" rows="4" cols="50" defaultValue="Enter your message here">
-                
+              <textarea id="chat-text" name="chat-text" 
+              rows="4" cols="50" placeholder="Enter your message here">
               </textarea>
               <br></br>
               <button id="chat-submit-button" onClick={webSocketConnect.sendMessage}>Submit</button>
