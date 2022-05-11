@@ -3,14 +3,28 @@ import {Fragment} from "react";
 
 import classes from './PagesNavigation.module.css';
 
-function PagesNavigation({loginState}) {
+export default function PagesNavigation({user}) {
     return (
         <nav className={classes.pages}>
             <ul>
-                {loginState ? (
-                    <li>
-                        <Link to='/logout'>Logout</Link>
-                    </li>
+                <li>
+                    <Link to='/'>Feed</Link>
+                </li>
+                {user ? (
+                    <Fragment>
+                        <li>
+                            <Link to='/create-post'>Create new post</Link>
+                        </li>
+                        <li>
+                            <Link to='/messages'>Private messages</Link>
+                        </li>
+                        <li>
+                            <Link to='/profile'>User profile</Link>
+                        </li>
+                        <li>
+                            <Link to='/logout'>Logout</Link>
+                        </li>
+                    </Fragment>
                 ) : (
                     <Fragment>
                         <li>
@@ -21,23 +35,8 @@ function PagesNavigation({loginState}) {
                         </li>
                     </Fragment>
                 )}
-                <li>
-                    <Link to='/'>Feed</Link>
-                </li>
-                <li>
-                    <Link to='/create-post'>Create new post</Link>
-                </li>
-                <li>
-                    <Link to='/messages'>Private messages</Link>
-                </li>
-                <li>
-                    <Link to='/profile'>User profile</Link>
-                </li>
-
             </ul>
         </nav>
 
     );
 }
-
-export default PagesNavigation;

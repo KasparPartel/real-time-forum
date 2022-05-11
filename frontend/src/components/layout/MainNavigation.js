@@ -1,24 +1,23 @@
-// import { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 import classes from './MainNavigation.module.css';
-// import FavoritesContext from '../../store/favorites-context';
 
-function MainNavigation() {
-  // const favoritesCtx = useContext(FavoritesContext);
-
-  return (
-    <header className={classes.header}>
-      <div className={classes.logo}>real-time-forum</div>
-      <nav>
-        <ul>
-          <li>
-            <Link to='/'>All posts</Link>
-          </li>
-          <li>
-            <Link to='/create-post'>Add new post</Link>
-          </li>
-          {/* <li>
+function MainNavigation({user}) {
+    return (
+        <header className={classes.header}>
+            <div className={classes.logo}>real-time-forum</div>
+            <nav>
+                <ul>
+                    <li>
+                        <Link to='/'>All posts</Link>
+                    </li>
+                    <li>
+                        <Link to='/create-post'>Add new post</Link>
+                    </li>
+                    <li>
+                        <Link to="/profile">{user ? user.username : ""}</Link>
+                    </li>
+                    {/* <li>
             <Link to='/favorites'>
               My Favorites
               <span className={classes.badge}>
@@ -26,10 +25,10 @@ function MainNavigation() {
               </span>
             </Link>
           </li> */}
-        </ul>
-      </nav>
-    </header>
-  );
+                </ul>
+            </nav>
+        </header>
+    );
 }
 
 export default MainNavigation;

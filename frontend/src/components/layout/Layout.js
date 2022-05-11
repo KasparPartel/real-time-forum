@@ -1,14 +1,15 @@
 import MainNavigation from './MainNavigation';
 import PagesNavigation from './PagesNavigation';
 import Userlist from './Userlist';
+
 import classes from './Layout.module.css';
 
-function Layout(props) {
+function Layout({user, children}) {
     return (
         <div>
-            <MainNavigation />
-            <PagesNavigation loginState={props.loginState}/>
-            <main className={classes.main}>{props.children}</main>
+            <MainNavigation userName={user} />
+            <PagesNavigation user={user}/>
+            <main className={classes.main}>{children}</main>
             <Userlist/>
         </div>
     );

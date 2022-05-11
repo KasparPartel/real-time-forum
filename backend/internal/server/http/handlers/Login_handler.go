@@ -87,13 +87,33 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		//type SessionToken struct {
+		//	token string
+		//}
+		//
+		//json, err := json.Marshal(SessionToken{token: sessionToken})
+		//if err != nil {
+		//
+		//}
+		//
+		//w.Write(sessionToken)
+
 		http.SetCookie(w, &http.Cookie{
-			Name:     "session_token",
-			Value:    sessionToken,
-			MaxAge:   600,
-			HttpOnly: true,
-			Path:     "/",
+			Name:   "session_token",
+			Value:  sessionToken,
+			MaxAge: 600,
+			//HttpOnly: true,
+			Path:   "/",
+			Secure: true,
 		})
+
+		//http.SetCookie(w, &http.Cookie{
+		//	Name:   "logged_in",
+		//	Value:  "true",
+		//	MaxAge: 600,
+		//	Path:   "/",
+		//
+		//})
 
 		w.WriteHeader(http.StatusOK)
 		fmt.Println(w.Header())

@@ -11,10 +11,11 @@ type User struct {
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
 	Username     string `json:"username,omitempty"`
-	PasswordHash string `json:"password_hash,omitempty"`
+	PasswordHash string `json:"-"`
 	CreationTime string `json:"creation_time"`
 	LoginTime    string `json:"login_Time"`
 	IsAdmin      string `json:"is_admin"`
+	Token        string `json:"-"`
 	//Age          int       `json:"age,omitempty"`
 }
 
