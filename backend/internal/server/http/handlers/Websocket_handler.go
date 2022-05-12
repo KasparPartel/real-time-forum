@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"database/sql"
+
 	"github.com/gorilla/websocket"
+
 	// "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
 	db2 "real-time-forum/db"
+
 	// config2 "real-time-forum/pkg/config"
 	"real-time-forum/pkg/helper"
 	// "real-time-forum/pkg/logger"
@@ -76,7 +79,7 @@ func reader(conn *websocket.Conn) {
 			incomingMessage.Creation_time,
 		)
 
-		readMessageFromDB(database, incomingMessage.User_id)
+		transmitMessageFromDB(database, incomingMessage.User_id)
 
 		log.Println(tempMessages)
 		for i := 0; i < len(tempMessages); i++ {
@@ -128,7 +131,7 @@ func saveMessage(db *sql.DB, body string, user_id string, target_id string, crea
 
 }
 
-func readMessageFromDB(db *sql.DB, user_id string) {
+func transmitMessageFromDB(db *sql.DB, user_id string) {
 
 	ID, _ := strconv.Atoi(user_id)
 	rows, _ := db.Query(`SELECT body FROM messages WHERE user_id=?`, ID)

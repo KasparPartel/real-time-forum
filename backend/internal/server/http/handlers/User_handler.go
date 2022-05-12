@@ -73,7 +73,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			row := db.QueryRow("SELECT * FROM post WHERE user_id=?", id)
 
 			if err = row.Scan(&userID, &email, &gender, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, isAdmin); err == sql.ErrNoRows {
-				logger.ErrorLogger.Printf("User with id %d does not exist", id)
+				//logger.ErrorLogger.Printf("User with id %d does not exist", id)
 			} else {
 				user := model.User{
 					ID:           userID,
@@ -147,7 +147,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			row := db.QueryRow("SELECT * FROM user WHERE user_id=?", id)
 
 			if err = row.Scan(&userID, &email, &gender, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &isAdmin); err == sql.ErrNoRows {
-				logger.ErrorLogger.Printf("User with id %d does not exist", id)
+				//logger.ErrorLogger.Printf("User with id %d does not exist", id)
 			} else {
 
 				user := model.User{
