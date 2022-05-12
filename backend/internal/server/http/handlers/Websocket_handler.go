@@ -12,6 +12,7 @@ import (
 	// "real-time-forum/pkg/logger"
 	// "real-time-forum/pkg/model"
 	"encoding/json"
+	"strconv"
 )
 
 // func connectDatabase() {
@@ -75,6 +76,8 @@ func reader(conn *websocket.Conn) {
 			incomingMessage.Creation_time,
 		)
 
+		readMessageFromDB(database, incomingMessage.User_id)
+
 		log.Println(tempMessages)
 		for i := 0; i < len(tempMessages); i++ {
 			log.Println(tempMessages[i])
@@ -121,6 +124,20 @@ func saveMessage(db *sql.DB, body string, user_id string, target_id string, crea
 	_, err = query.Exec(body, user_id, target_id, creation_time)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+}
+
+func readMessageFromDB(db *sql.DB, user_id string) {
+
+	ID, _ := strconv.Atoi(user_id)
+	rows, _ := db.Query(`SELECT body FROM messages WHERE user_id=?`, ID)
+
+	var messageBody string
+
+	for rows.Next() {
+		rows.Scan(&messageBody)
+		log.Println("Scanned from messages table: " + messageBody)
 	}
 
 }
