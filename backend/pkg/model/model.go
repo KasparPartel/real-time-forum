@@ -47,7 +47,7 @@ var Sessions = map[string]Session{}
 type Message struct {
 	ID           int    `json:"id,omitempty"`
 	Body         string `json:"body,omitempty"`
-	UserID       int    `json:"user_id"`
-	TargetID     int    `json:"target_id"`
-	CreationTime string `json:"creation_time"`
+	UserID       int    `json:"user_id,omitempty"`
+	TargetID     int    `json:"target_id,omitempty"`
+	CreationTime string `json:"creation_time,omitempty"`
 }

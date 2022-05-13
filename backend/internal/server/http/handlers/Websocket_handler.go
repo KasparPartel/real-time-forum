@@ -15,7 +15,6 @@ import (
 	// "real-time-forum/pkg/logger"
 	// "real-time-forum/pkg/model"
 	"encoding/json"
-	"strconv"
 )
 
 // func connectDatabase() {
@@ -46,6 +45,7 @@ func reader(conn *websocket.Conn) {
 	type Message struct {
 
 		// defining struct variables
+		Type          string
 		Body          string
 		User_id       string
 		Target_id     string
@@ -68,18 +68,34 @@ func reader(conn *websocket.Conn) {
 		}
 
 		// this the action with incoming message, rewrite to func -> db
+		log.Println(p)
 		log.Println(string(p))
 		// log.Println(p)
 		// log.Println("Here?")
-		saveMessage(
-			database,
-			incomingMessage.Body,
-			incomingMessage.User_id,
-			incomingMessage.Target_id,
-			incomingMessage.Creation_time,
-		)
 
-		transmitMessageFromDB(database, incomingMessage.User_id)
+		if incomingMessage.Type == "wsSaveChatMessage" {
+			saveMessage(
+				database,
+				incomingMessage.Body,
+				incomingMessage.User_id,
+				incomingMessage.Target_id,
+				incomingMessage.Creation_time,
+			)
+
+		}
+
+		if incomingMessage.Type == "wsGetUsers" {
+			// saveMessage(
+			// 	database,
+			// 	incomingMessage.Body,
+			// 	incomingMessage.User_id,
+			// 	incomingMessage.Target_id,
+			// 	incomingMessage.Creation_time,
+			// )
+			log.Println("Got wsGetUsers from frontend")
+		}
+
+		// transmitMessageFromDB(database, incomingMessage.User_id)
 
 		log.Println(tempMessages)
 		for i := 0; i < len(tempMessages); i++ {
@@ -131,19 +147,19 @@ func saveMessage(db *sql.DB, body string, user_id string, target_id string, crea
 
 }
 
-func transmitMessageFromDB(db *sql.DB, user_id string) {
+// func transmitMessageFromDB(db *sql.DB, user_id string) {
 
-	ID, _ := strconv.Atoi(user_id)
-	rows, _ := db.Query(`SELECT body FROM messages WHERE user_id=?`, ID)
+// 	ID, _ := strconv.Atoi(user_id)
+// 	rows, _ := db.Query(`SELECT body FROM messages WHERE user_id=?`, ID)
 
-	var messageBody string
+// 	var messageBody string
 
-	for rows.Next() {
-		rows.Scan(&messageBody)
-		log.Println("Scanned from messages table: " + messageBody)
-	}
+// 	for rows.Next() {
+// 		rows.Scan(&messageBody)
+// 		log.Println("Scanned from messages table: " + messageBody)
+// 	}
 
-}
+// }
 
 func WsEndpoint(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true } // avoid CORS error
