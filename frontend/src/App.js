@@ -1,4 +1,4 @@
-import {Route, Routes} from 'react-router-dom';
+import {Route, Routes, useNavigate} from 'react-router-dom';
 import {useEffect, useState} from "react";
 import {useCookies} from "react-cookie";
 import {UserContext} from "./UserContext";
@@ -17,6 +17,7 @@ import './App.css';
 function App() {
     const [cookies, setCookie, removeCookie] = useCookies(['session_token']);
     const [user, setUser] = useState({})
+    const navigate = useNavigate()
 
     useEffect(() => {
         cookies["session_token"] ? getUser() : setUser(null)
@@ -24,8 +25,7 @@ function App() {
 
     const getUser = async () => {
         const res = await fetch("http://localhost:4000/v1/api/user/me", {
-            method: "GET",
-            credentials: "include"
+            method: "GET", credentials: "include"
         })
 
         if (!res.ok) {
@@ -41,25 +41,33 @@ function App() {
     }
 
     const Logout = () => {
-        removeCookie("session_token")
+        fetch(`http://localhost:4000/v1/api/logout/${user.id}`, {
+            method: "POST"
+        })
+            .then(res => {
+                if (res.ok) {
+                    removeCookie("session_token")
+                    navigate("/", {replace: true})
+                } else {
+                    console.log("Cannot logout user!")
+                }
+            })
     }
 
-    return (
-        <UserContext.Provider value={{user, setUser}}>
-            <Layout>
-                <Routes>
-                    <Route path="/" exact element={<Feed/>}/>
-                    <Route path="/login" element={<Login setCookie={setCookie}/>}/>
-                    <Route path="/logout" element={<Logout/>}/>
-                    <Route path="/register" element={<Register/>}/>
-                    <Route path="/create-post" element={<CreatePost/>}/>
-                    <Route path="/messages" element={<Messages/>}/>
-                    <Route path="/profile" element={<Profile/>}/>
-                    <Route path="*" element={<NotFound/>}/>
-                </Routes>
-            </Layout>
-        </UserContext.Provider>
-    );
+    return (<UserContext.Provider value={{user, setUser}}>
+        <Layout>
+            <Routes>
+                <Route path="/" exact element={<Feed/>}/>
+                <Route path="/login" element={<Login setCookie={setCookie}/>}/>
+                <Route path="/logout" element={<Logout/>}/>
+                <Route path="/register" element={<Register/>}/>
+                <Route path="/create-post" element={<CreatePost/>}/>
+                <Route path="/messages" element={<Messages/>}/>
+                <Route path="/profile" element={<Profile/>}/>
+                <Route path="*" element={<NotFound/>}/>
+            </Routes>
+        </Layout>
+    </UserContext.Provider>);
 }
 
 export default App;

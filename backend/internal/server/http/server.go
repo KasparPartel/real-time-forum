@@ -20,6 +20,7 @@ func RunHTTPServer() {
 	mux.HandleFunc(fmt.Sprintf("/v%s/api/user/", cfg.Version), handlers.UserHandler)
 	mux.HandleFunc(fmt.Sprintf("/v%s/api/user/me", cfg.Version), handlers.MeHandler)
 	mux.HandleFunc(fmt.Sprintf("/v%s/api/login/", cfg.Version), handlers.LoginHandler)
+	mux.HandleFunc(fmt.Sprintf("/v%s/api/logout/", cfg.Version), handlers.LogoutHandler)
 	// Websocket handler
 	mux.HandleFunc(fmt.Sprintf("/v%s/api/ws", cfg.Version), handlers.WsEndpoint)
 

@@ -39,7 +39,6 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	var createdDate string
 	var loginDate string
 	var isAdmin string
-	var token string
 
 	// Switch over request method - POST, GET, DELETE
 	switch r.Method {
