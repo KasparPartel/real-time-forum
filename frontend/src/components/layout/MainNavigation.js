@@ -17,14 +17,6 @@ function MainNavigation({user}) {
                     <li>
                         <Link to="/profile">{user ? user.username : ""}</Link>
                     </li>
-                    {/* <li>
-            <Link to='/favorites'>
-              My Favorites
-              <span className={classes.badge}>
-                {favoritesCtx.totalFavorites}
-              </span>
-            </Link>
-          </li> */}
                 </ul>
             </nav>
         </header>

@@ -3,11 +3,15 @@ import PagesNavigation from './PagesNavigation';
 import Userlist from './Userlist';
 
 import classes from './Layout.module.css';
+import {useContext} from "react";
+import {UserContext} from "../../UserContext";
 
-function Layout({user, children}) {
+function Layout({children}) {
+    const {user, setUser} = useContext(UserContext)
+
     return (
         <div>
-            <MainNavigation userName={user} />
+            <MainNavigation user={user} />
             <PagesNavigation user={user}/>
             <main className={classes.main}>{children}</main>
             <Userlist/>

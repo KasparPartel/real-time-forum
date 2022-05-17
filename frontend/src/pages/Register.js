@@ -1,4 +1,15 @@
+import {useContext} from "react";
+import {UserContext} from "../UserContext";
+import {useNavigate} from "react-router-dom";
+
 function Register() {
+  const {user} = useContext(UserContext)
+  const navigate = useNavigate()
+
+  if (user) {
+    navigate("/", {replace: true})
+  }
+
   return (
     <div className="registerBox">
       <header>Register to our real-time-forum!</header>

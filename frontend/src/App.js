@@ -1,5 +1,7 @@
 import {Route, Routes} from 'react-router-dom';
 import {useEffect, useState} from "react";
+import {useCookies} from "react-cookie";
+import {UserContext} from "./UserContext";
 
 import Layout from './components/layout/Layout';
 import Feed from './pages/Feed';
@@ -11,7 +13,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 
 import './App.css';
-import {useCookies} from "react-cookie";
 
 function App() {
     const [cookies, setCookie, removeCookie] = useCookies(['session_token']);
@@ -44,18 +45,20 @@ function App() {
     }
 
     return (
-        <Layout user={user}>
-            <Routes>
-                <Route path="/" exact element={<Feed/>}/>
-                <Route path="/login" element={<Login/>}/>
-                <Route path="/logout" element={<Logout/>}/>
-                <Route path="/register" element={<Register/>}/>
-                <Route path="/create-post" element={<CreatePost/>}/>
-                <Route path="/messages" element={<Messages/>}/>
-                <Route path="/profile" element={<Profile user={user}/>}/>
-                <Route path="*" element={<NotFound/>}/>
-            </Routes>
-        </Layout>
+        <UserContext.Provider value={{user, setUser}}>
+            <Layout>
+                <Routes>
+                    <Route path="/" exact element={<Feed/>}/>
+                    <Route path="/login" element={<Login setCookie={setCookie}/>}/>
+                    <Route path="/logout" element={<Logout/>}/>
+                    <Route path="/register" element={<Register/>}/>
+                    <Route path="/create-post" element={<CreatePost/>}/>
+                    <Route path="/messages" element={<Messages/>}/>
+                    <Route path="/profile" element={<Profile/>}/>
+                    <Route path="*" element={<NotFound/>}/>
+                </Routes>
+            </Layout>
+        </UserContext.Provider>
     );
 }
 

@@ -1,7 +1,15 @@
-import {useState} from "react";
+import {useContext, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {UserContext} from "../UserContext";
 
-export default function Login() {
+export default function Login({setCookie}) {
     const [formData, setFormData] = useState({})
+    const {user} = useContext(UserContext)
+    const navigate = useNavigate()
+
+    if (user) {
+        navigate("/", {replace: true})
+    }
 
     const handleChange = (e) => {
         let formDataCopy = Object.assign({}, formData)
@@ -24,16 +32,20 @@ export default function Login() {
         })
             .then(res => {
                 if (res.ok) {
-                    console.log("Login successful!")
-                    return
+                    return res.json()
                 } else if (res.status === 303) {
                     // Must do redirect
                     console.log("User already logged in!")
-                    return
+                    return navigate("/", {replace: true})
                 }
-                throw new Error("Login unsuccessful!")
+            })
+            .then(data => {
+                console.log("Login successful!")
+                setCookie("session_token", data.token, {path: "/"})
+                return navigate("/", {replace: true})
             })
     }
+
     return (
         <div className="registerBox">
             <header>Log in to our real-time-forum!</header>
