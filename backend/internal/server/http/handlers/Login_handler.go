@@ -23,6 +23,8 @@ type Login struct {
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
 
 	if _, err := r.Cookie("session_token"); err == nil {
 		w.WriteHeader(http.StatusSeeOther)
@@ -87,25 +89,24 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		//type SessionToken struct {
-		//	token string
-		//}
-		//
-		//json, err := json.Marshal(SessionToken{token: sessionToken})
-		//if err != nil {
-		//
-		//}
-		//
-		//w.Write(sessionToken)
+		token := map[string]string{"token": sessionToken}
 
-		http.SetCookie(w, &http.Cookie{
-			Name:   "session_token",
-			Value:  sessionToken,
-			MaxAge: 600,
-			//HttpOnly: true,
-			Path:   "/",
-			Secure: true,
-		})
+		jsonToken, err := json.Marshal(token)
+		if err != nil {
+			fmt.Println(err)
+			w.WriteHeader(http.StatusBadRequest)
+		}
+
+		w.Write(jsonToken)
+
+		//http.SetCookie(w, &http.Cookie{
+		//	Name:   "session_token",
+		//	Value:  sessionToken,
+		//	MaxAge: 600,
+		//	//HttpOnly: true,
+		//	Path:   "/",
+		//	Secure: true,
+		//})
 
 		//http.SetCookie(w, &http.Cookie{
 		//	Name:   "logged_in",
@@ -114,8 +115,5 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		//	Path:   "/",
 		//
 		//})
-
-		w.WriteHeader(http.StatusOK)
-		fmt.Println(w.Header())
 	}
 }
