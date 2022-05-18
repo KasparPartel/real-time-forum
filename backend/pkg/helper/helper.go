@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
-	"net/mail"
 	"strings"
 )
 
@@ -20,12 +19,6 @@ func ExtractURLID(r *http.Request, endpoint string) string {
 	return strings.TrimPrefix(r.URL.Path, fmt.Sprintf("/v1/api/%s/", endpoint))
 }
 
-// IsValidEmail validates email
-func IsValidEmail(email string) bool {
-	_, err := mail.ParseAddress(email)
-	return err == nil
-}
-
 // GeneratePasswordHash returns hash from password
 func GeneratePasswordHash(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -33,4 +26,8 @@ func GeneratePasswordHash(password string) (string, error) {
 		return "", err
 	}
 	return string(hash), nil
+}
+
+func EnableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 }

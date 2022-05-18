@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	json2 "encoding/json"
+	"io/ioutil"
 	"net/http"
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
@@ -12,6 +13,8 @@ import (
 )
 
 func UserHandler(w http.ResponseWriter, r *http.Request) {
+	helper.EnableCors(&w)
+
 	logger.InfoLogger.Println("Endpoint hit: api/user")
 
 	// Extract id from URL
@@ -43,23 +46,45 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	// Switch over request method - POST, GET, DELETE
 	switch r.Method {
 	case http.MethodPost:
-		// Validate form data
-		// Email Validation
-		if !helper.IsValidEmail(r.FormValue("email")) {
-			logger.ErrorLogger.Println("Email is not valid!")
+		type Register struct {
+			email     string
+			username  string
+			gender    string
+			firstName string
+			lastName  string
+			password  string
+		}
+
+		var register Register
+
+		// Read body
+		b, err := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), 500)
 			return
 		}
+
+		err = json2.Unmarshal(b, &register)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		// Validate form data
 		// Username validation
-		if len(r.FormValue("username")) < 5 {
+		if len(register.username) < 5 {
 			logger.ErrorLogger.Println("Username must be at least 5 characters long!")
+			http.Error(w, "Username must be at least 5 characters!", http.StatusBadRequest)
 			return
 		}
 		// Password validation and hashing
-		if len(r.FormValue("password")) < 8 {
+		if len(register.password) < 8 {
 			logger.ErrorLogger.Println("Password must be at least 5 characters long!")
+			http.Error(w, "Password must be at least 5 characters!", http.StatusBadRequest)
 			return
 		}
-		passwordHash, err = helper.GeneratePasswordHash(r.FormValue("password"))
+		passwordHash, err = helper.GeneratePasswordHash(register.password)
 		if err != nil {
 			logger.ErrorLogger.Println("Cannot hash password!")
 			return
@@ -77,11 +102,11 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				user := model.User{
 					ID:           userID,
-					Email:        r.FormValue("email"),
-					Gender:       r.FormValue("gender"),
-					FirstName:    r.FormValue("first_name"),
-					LastName:     r.FormValue("last_name"),
-					Username:     r.FormValue("username"),
+					Email:        register.email,
+					Gender:       register.gender,
+					FirstName:    register.firstName,
+					LastName:     register.lastName,
+					Username:     register.username,
 					PasswordHash: passwordHash,
 					CreationTime: createdDate,
 					LoginTime:    loginDate,
@@ -106,11 +131,11 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 			user := model.User{
 				ID:           lastId + 1,
-				Email:        r.FormValue("email"),
-				Gender:       r.FormValue("gender"),
-				FirstName:    r.FormValue("first_name"),
-				LastName:     r.FormValue("last_name"),
-				Username:     r.FormValue("username"),
+				Email:        register.email,
+				Gender:       register.gender,
+				FirstName:    register.firstName,
+				LastName:     register.lastName,
+				Username:     register.username,
 				PasswordHash: passwordHash,
 				CreationTime: time.Now().Format(longForm),
 				LoginTime:    "",

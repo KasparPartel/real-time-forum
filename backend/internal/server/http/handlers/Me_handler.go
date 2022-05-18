@@ -11,8 +11,9 @@ import (
 )
 
 func MeHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	helper.EnableCors(&w)
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	var tokenCookie *http.Cookie
 	var err error

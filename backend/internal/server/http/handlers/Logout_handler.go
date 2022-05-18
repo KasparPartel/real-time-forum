@@ -8,6 +8,8 @@ import (
 )
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	helper.EnableCors(&w)
+
 	// Extract id from URL
 	id := helper.ExtractURLID(r, "logout")
 

@@ -21,10 +21,9 @@ type Login struct {
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	helper.EnableCors(&w)
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
-	w.Header().Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	if _, err := r.Cookie("session_token"); err == nil {
 		w.WriteHeader(http.StatusSeeOther)
