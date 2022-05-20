@@ -26,6 +26,8 @@ function Userlist() {
       .catch((error) => console.log(error));
   };
 
+  console.log(users);
+
   return (
     <div className="user-list">
       <ul className={classes.userlist}>

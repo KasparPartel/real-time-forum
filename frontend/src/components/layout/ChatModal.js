@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import classes from "./ChatModal.module.css";
-import { webSocketConnect } from "../../websocket.js"
+// import { webSocketConnect } from "../../websocket.js"
 
 function ChatModal(props) {
   
-  webSocketConnect("ws://localhost:4000/v1/api/ws");
+  // webSocketConnect("ws://localhost:4000/v1/api/ws");
   
   const [modal, setModal] = useState(false);
 
