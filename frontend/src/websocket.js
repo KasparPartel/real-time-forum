@@ -26,12 +26,15 @@ export function webSocketConnect(port) {
         console.log("WebSocket Error: ", err);
     }
 
+    // let wsUserList
+
     socket.onmessage = (msg) => {
         console.log("Backend has responded: ", msg);
         console.log("Backend has responded with data: ", msg.data);
         // console.log("Backend has responded with data.body: ", msg.data.body);
         let incomingJson = JSON.parse(msg.data)
         console.log(incomingJson);
+        console.log(incomingJson.body[1]);
     }
 
     webSocketConnect.sendMessage = sendMessage;
