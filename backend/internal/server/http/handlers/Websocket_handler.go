@@ -91,7 +91,16 @@ func reader(conn *websocket.Conn) {
 		log.Println(string(p))
 
 		// this repeats incoming message back to frontend
-		if err := conn.WriteMessage(messageType, p); err != nil {
+
+		returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
+		returnedusers = append(returnedusers, readUsers(database)...)
+		returnedusers = append(returnedusers, []byte(`}`)...)
+
+		log.Println(string(returnedusers))
+
+		// if err := conn.WriteMessage(messageType, p); err != nil {
+		// if err := conn.WriteMessage(messageType, readUsers(database)); err != nil {
+		if err := conn.WriteMessage(messageType, returnedusers); err != nil {
 			log.Println(err)
 			return
 		}

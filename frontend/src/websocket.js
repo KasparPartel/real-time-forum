@@ -29,6 +29,9 @@ export function webSocketConnect(port) {
     socket.onmessage = (msg) => {
         console.log("Backend has responded: ", msg);
         console.log("Backend has responded with data: ", msg.data);
+        // console.log("Backend has responded with data.body: ", msg.data.body);
+        let incomingJson = JSON.parse(msg.data)
+        console.log(incomingJson);
     }
 
     webSocketConnect.sendMessage = sendMessage;
