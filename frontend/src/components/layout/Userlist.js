@@ -40,9 +40,8 @@ function Userlist({user}) {
       <div className="user-list">
         <ul className={classes.userlist}>
           {wsUserList.map((person) => (
-            //<Post key={p.id} json={p} />
-            //<li className={classes.online}>{user.username}</li>
-            <ChatModal key={person.id} name={person.username} user={user}/>
+            person.id !== user.id &&
+              <ChatModal key={person.id} name={person.username} user={user}/>
           ))}
         </ul>
       </div>
