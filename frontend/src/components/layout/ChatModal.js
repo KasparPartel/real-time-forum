@@ -5,7 +5,7 @@ import classes from "./ChatModal.module.css";
 function ChatModal(props) {
   
   // webSocketConnect("ws://localhost:4000/v1/api/ws");
-  
+
   const [modal, setModal] = useState(false);
 
   const toggleModal = () => {

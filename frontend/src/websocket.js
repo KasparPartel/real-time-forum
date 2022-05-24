@@ -1,5 +1,7 @@
 //import
 
+export let wsUserList
+
 export function webSocketConnect(port) {
 
     //let socket = new WebSocket("ws://localhost:4000/ws")
@@ -26,16 +28,23 @@ export function webSocketConnect(port) {
         console.log("WebSocket Error: ", err);
     }
 
-    // let wsUserList
-
+    
     socket.onmessage = (msg) => {
         console.log("Backend has responded: ", msg);
         console.log("Backend has responded with data: ", msg.data);
         // console.log("Backend has responded with data.body: ", msg.data.body);
         let incomingJson = JSON.parse(msg.data)
-        console.log(incomingJson);
-        console.log(incomingJson.body[1]);
+        // console.log(incomingJson);
+        // console.log(incomingJson.body[1]);
+        if (incomingJson.type === "wsReturnedUsers") {
+            wsUserList = incomingJson.body
+        }
+        console.log("wsUserList =", wsUserList);
     }
+
+    // function wsUserList(data) {
+    //     return JSON.parse(data.body)
+    // }
 
     webSocketConnect.sendMessage = sendMessage;
     webSocketConnect.wsGetUsers = wsGetUsers;
