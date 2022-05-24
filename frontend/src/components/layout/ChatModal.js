@@ -2,8 +2,13 @@ import React, { useState } from "react";
 import classes from "./ChatModal.module.css";
 // import { webSocketConnect } from "../../websocket.js"
 
+// import {useContext} from "react";
+// import {UserContext} from "../../UserContext";
+
 function ChatModal(props) {
   
+  //const [user, setUser] = useState({})
+
   // webSocketConnect("ws://localhost:4000/v1/api/ws");
 
   const [modal, setModal] = useState(false);
@@ -18,6 +23,8 @@ function ChatModal(props) {
     document.body.classList.remove("active-modal");
   }
 
+  console.log("Chatmodal var user is:", props.user);
+
   return (
     <>
       <p className={classes.username} onClick={toggleModal}>
@@ -27,7 +34,7 @@ function ChatModal(props) {
         <div className={classes.chatmodal}>
           <div onClick={toggleModal} className={classes.overlay}></div>
           <div className={classes.chatmodalcontent}>
-            <h2>You're chatting with: {props.name}</h2>
+            <h2>{props.user.username}, you're chatting with: {props.name}</h2>
             <p>Here we will put the chat history with this user.</p>
             <div className={classes.chatfield}>
               {/* <label for="chat-text"></label> */}
@@ -45,6 +52,7 @@ function ChatModal(props) {
         </div>
       )}
     </>
+
   );
 }
 

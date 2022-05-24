@@ -4,7 +4,7 @@ import classes from "./Userlist.module.css";
 import ChatModal from "./ChatModal";
 import { wsUserList/* , webSocketConnect */ } from "../../websocket.js"
 
-function Userlist() {
+function Userlist({user}) {
   // const [users, setUsers] = useState([]);
 
   // useEffect(() => {
@@ -39,10 +39,10 @@ function Userlist() {
     return (
       <div className="user-list">
         <ul className={classes.userlist}>
-          {wsUserList.map((user) => (
+          {wsUserList.map((person) => (
             //<Post key={p.id} json={p} />
             //<li className={classes.online}>{user.username}</li>
-            <ChatModal key={user.id} name={user.username} />
+            <ChatModal key={person.id} name={person.username} user={user}/>
           ))}
         </ul>
       </div>

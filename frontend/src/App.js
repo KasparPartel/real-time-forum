@@ -26,20 +26,7 @@ function App() {
 
     useEffect(() => {
         webSocketConnect("ws://localhost:4000/v1/api/ws")
-        
-        // async function wsFetchUsers() {
-        //     return await webSocketConnect("ws://localhost:4000/v1/api/ws")
-        //     // console.log(connection);
-        //     .then(() => webSocketConnect.wsGetUsers())
-        // }
-
-        // wsFetchUsers()
-        
     }, []);
-    
-    // useEffect(() => {
-    //     webSocketConnect.wsGetUsers();
-    // }, []);
 
     const getUser = async () => {
         const res = await fetch("http://localhost:4000/v1/api/user/me", {
