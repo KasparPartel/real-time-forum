@@ -10,6 +10,7 @@ type User struct {
 	Gender       string `json:"gender,omitempty"`
 	FirstName    string `json:"first_name,omitempty"`
 	LastName     string `json:"last_name,omitempty"`
+	Age          int    `json:"age,omitempty"`
 	Username     string `json:"username,omitempty"`
 	PasswordHash string `json:"-"`
 	CreationTime string `json:"creation_time"`
@@ -17,7 +18,6 @@ type User struct {
 	LogoutTime   string `json:"logout_time"`
 	IsAdmin      string `json:"is_admin"`
 	Token        string `json:"-"`
-	//Age          int       `json:"age,omitempty"`
 }
 
 type Post struct {

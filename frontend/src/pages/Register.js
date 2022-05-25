@@ -29,6 +29,7 @@ function Register() {
       headers: {
         "Content-Type": "application/json"
       },
+      credentials: "include",
       body: JSON.stringify(formData)
     })
     .then(res => {
@@ -57,16 +58,17 @@ function Register() {
             id="username"
             name="username"
             pattern="^[a-zA-Z0-9]+$"
+            minLength="5"
             title="Alphanumerical characters only."
             onChange={handleChange}
             required
           />
         </div>
 
-        {/* <div>
+        <div>
           <label>Age: </label>
-          <input type="number" min="1" max="120" id="age" name="age" onChange={handleChange} required />
-        </div> */}
+          <input type="number" pattern="^[0-9]+$" min="1" max="120" id="age" name="age" onChange={handleChange} required />
+        </div>
 
         <div>
           <label>Gender: </label>
@@ -91,7 +93,7 @@ function Register() {
 
         <div>
           <label>Password: </label>
-          <input type="password" id="password" name="password" onChange={handleChange} required />
+          <input type="password" id="password" name="password" minLength="5" onChange={handleChange} required />
         </div>
 
         {/* <div>

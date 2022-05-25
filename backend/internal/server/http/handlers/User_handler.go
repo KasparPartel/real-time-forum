@@ -9,6 +9,7 @@ import (
 	"real-time-forum/pkg/helper"
 	"real-time-forum/pkg/logger"
 	"real-time-forum/pkg/model"
+	"strconv"
 	"time"
 )
 
@@ -42,26 +43,24 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	var createdDate string
 	var loginDate string
 	var isAdmin string
+	var age int
 
 	// Switch over request method - POST, GET, DELETE
 	switch r.Method {
 	case http.MethodPost:
-		type Register struct {
-			email     string
-			username  string
-			gender    string
-			firstName string
-			lastName  string
-			password  string
-		}
-
-		var register Register
+		var register map[string]string
 
 		// Read body
 		b, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
 			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		// All data from POST response body must be parsed to work with it
+		err = r.ParseForm()
+		if err != nil {
 			return
 		}
 
@@ -73,18 +72,24 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Validate form data
 		// Username validation
-		if len(register.username) < 5 {
+		if len(register["username"]) < 5 {
 			logger.ErrorLogger.Println("Username must be at least 5 characters long!")
 			http.Error(w, "Username must be at least 5 characters!", http.StatusBadRequest)
 			return
 		}
 		// Password validation and hashing
-		if len(register.password) < 8 {
+		if len(register["password"]) < 8 {
 			logger.ErrorLogger.Println("Password must be at least 5 characters long!")
 			http.Error(w, "Password must be at least 5 characters!", http.StatusBadRequest)
 			return
 		}
-		passwordHash, err = helper.GeneratePasswordHash(register.password)
+		age, err = strconv.Atoi(register["age"])
+		if err != nil {
+			logger.ErrorLogger.Println("Age is not a number!")
+			http.Error(w, "Age is not a number!", http.StatusBadRequest)
+			return
+		}
+		passwordHash, err = helper.GeneratePasswordHash(register["password"])
 		if err != nil {
 			logger.ErrorLogger.Println("Cannot hash password!")
 			return
@@ -102,11 +107,11 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				user := model.User{
 					ID:           userID,
-					Email:        register.email,
-					Gender:       register.gender,
-					FirstName:    register.firstName,
-					LastName:     register.lastName,
-					Username:     register.username,
+					Email:        register["email"],
+					Gender:       register["gender"],
+					FirstName:    register["first_name"],
+					LastName:     register["last_name"],
+					Username:     register["username"],
 					PasswordHash: passwordHash,
 					CreationTime: createdDate,
 					LoginTime:    loginDate,
@@ -123,6 +128,19 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			logger.InfoLogger.Println("POST: create a user with form data")
 
+			var myId string
+			if err = db.QueryRow("SELECT user_id FROM user WHERE username=?", register["username"]).Scan(&myId); err == nil {
+				logger.ErrorLogger.Println(err)
+				logger.InfoLogger.Println("User with this username already exists!")
+				http.Error(w, "User with this username already exists!", http.StatusBadRequest)
+				return
+			}
+			if err = db.QueryRow("SELECT user_id FROM user WHERE email=?", register["email"]).Scan(&myId); err == nil {
+				logger.InfoLogger.Println("User with this email already exists!")
+				http.Error(w, "User with this email already exists!", http.StatusBadRequest)
+				return
+			}
+
 			// Last id from database table
 			var lastId int
 
@@ -131,11 +149,12 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 			user := model.User{
 				ID:           lastId + 1,
-				Email:        register.email,
-				Gender:       register.gender,
-				FirstName:    register.firstName,
-				LastName:     register.lastName,
-				Username:     register.username,
+				Email:        register["email"],
+				Gender:       register["gender"],
+				FirstName:    register["first_name"],
+				LastName:     register["last_name"],
+				Age:          register["age"],
+				Username:     register["username"],
 				PasswordHash: passwordHash,
 				CreationTime: time.Now().Format(longForm),
 				LoginTime:    "",
