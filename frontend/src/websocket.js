@@ -10,13 +10,7 @@ export function webSocketConnect(port) {
     
     socket.onopen = () => {
         console.log("Successfully Connected to Websocket on port:", port);
-        // socket.send("Hello from the FrontEnd!")
-        let msg = {
-            type: "wsGetUsers",
-            body: "get users query string here!",
-            };
-    
-        socket.send(JSON.stringify(msg));
+        wsGetUsers()
     
     }
     
@@ -62,10 +56,10 @@ export function webSocketConnect(port) {
         }
 
         let newMessage = composeMessage(
-        "saveChatMessage",
+        "wsSaveChatMessage",
         document.querySelector("#chat-text").value,
-        1,
-        document.querySelector("#target-name").getAttribute("data-id"),
+        document.querySelector("#send-button").getAttribute("data-user-id"),
+        document.querySelector("#send-button").getAttribute("data-target-id"),
         Date(Date.now())
         );
 

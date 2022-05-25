@@ -55,58 +55,41 @@ func reader(conn *websocket.Conn) {
 		log.Println("incomingMessage.Type: ", incomingMessage.Type)
 		log.Println("incomingMessage.Body: ", incomingMessage.Body)
 
-		// if incomingMessage.Type == "wsSaveChatMessage" {
-		// 	saveMessage(
-		// 		database,
-		// 		incomingMessage.Body,
-		// 		incomingMessage.User_id,
-		// 		incomingMessage.Target_id,
-		// 		incomingMessage.Creation_time,
-		// 	)
+		if incomingMessage.Type == "wsSaveChatMessage" {
+			saveMessage(
+				database,
+				incomingMessage.Body,
+				incomingMessage.User_id,
+				incomingMessage.Target_id,
+				incomingMessage.Creation_time,
+			)
 
-		// }
+		}
 
 		if incomingMessage.Type == "wsGetUsers" {
-			// saveMessage(
-			// 	database,
-			// 	incomingMessage.Body,
-			// 	incomingMessage.User_id,
-			// 	incomingMessage.Target_id,
-			// 	incomingMessage.Creation_time,
-			// )
-			log.Println("Got wsGetUsers from frontend")
 
-			// log.Println(json2.Unmarshal(readUsers(database), nil))
+			log.Println("Got wsGetUsers request from frontend")
 			log.Println(string(readUsers(database)))
 
+			// this the action with incoming message, rewrite to func -> db
+			log.Println("Printing out received message: ")
+			log.Println(string(p))
+
+			returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
+			returnedusers = append(returnedusers, readUsers(database)...)
+			returnedusers = append(returnedusers, []byte(`}`)...)
+
+			log.Println("returnedusers:", string(returnedusers))
+
+			// this send userlist from db back to frontend
+			if err := conn.WriteMessage(messageType, returnedusers); err != nil {
+				log.Println(err)
+				return
+			}
 		}
 
-		// log.Println(tempMessages)
-		// for i := 0; i < len(tempMessages); i++ {
-		// 	log.Println(tempMessages[i])
-		// }
-
-		// this the action with incoming message, rewrite to func -> db
-		log.Println("Printing out received message: ")
-		log.Println(string(p))
-
-		// this repeats incoming message back to frontend
-
-		returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
-		returnedusers = append(returnedusers, readUsers(database)...)
-		returnedusers = append(returnedusers, []byte(`}`)...)
-
-		log.Println(string(returnedusers))
-
-		// if err := conn.WriteMessage(messageType, p); err != nil {
-		// if err := conn.WriteMessage(messageType, readUsers(database)); err != nil {
-		if err := conn.WriteMessage(messageType, returnedusers); err != nil {
-			log.Println(err)
-			return
-		}
 	}
 
-	// log.Println("Printing out received message: ")
 }
 
 func WsEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -116,7 +99,7 @@ func WsEndpoint(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println("Backend: Client Successfully Connected to WebSocket...THE FUCK?")
+	log.Println("Backend: Client Successfully Connected to WebSocket...")
 	log.Println("Backend: Attempting reader(ws)")
 
 	reader(ws)
@@ -214,21 +197,19 @@ func readUsers(db *sql.DB) []byte {
 
 }
 
-// func albumsByArtist(artist string) ([]Album, error) {
-// }
-
 // var tempMessages = []string{}
 
-// func saveMessage(db *sql.DB, body string, user_id string, target_id string, creation_time string) {
+func saveMessage(db *sql.DB, body string, user_id string, target_id string, creation_time string) {
 
-// 	message := `INSERT INTO messages(body, user_id, target_id, creation_time) VALUES (?, ?, ?, ?)`
-// 	query, err := db.Prepare(message)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	_, err = query.Exec(body, user_id, target_id, creation_time)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+	message := `INSERT INTO messages(body, user_id, target_id, creation_time) VALUES (?, ?, ?, ?)`
+	query, err := db.Prepare(message)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = query.Exec(body, user_id, target_id, creation_time)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// }
+	log.Println("Saved message to db: ", body)
+}

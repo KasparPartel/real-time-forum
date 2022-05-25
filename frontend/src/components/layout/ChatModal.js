@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import classes from "./ChatModal.module.css";
-// import { webSocketConnect } from "../../websocket.js"
+import { webSocketConnect } from "../../websocket.js"
 
 // import {useContext} from "react";
 // import {UserContext} from "../../UserContext";
@@ -39,11 +39,14 @@ function ChatModal(props) {
             <div className={classes.chatfield}>
               {/* <label for="chat-text"></label> */}
 
-              <textarea id="chat-text" name="chat-text" rows="4" cols="50" defaultValue="Enter your message here">
+              <textarea id="chat-text" name="chat-text" rows="4" cols="50" placeholder="Enter your message here">
                 
               </textarea>
               <br></br>
-              <button>Submit</button>
+              <button id="send-button" onClick={webSocketConnect.sendMessage} 
+                data-user-id={props.user.id} data-target-id={props.id}>
+                Submit
+                </button>
               <button className={classes.closemodal} onClick={toggleModal}>
                 CLOSE
               </button>

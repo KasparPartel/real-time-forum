@@ -5,49 +5,22 @@ import ChatModal from "./ChatModal";
 import { wsUserList/* , webSocketConnect */ } from "../../websocket.js"
 
 function Userlist({user}) {
-  // const [users, setUsers] = useState([]);
-
-  // useEffect(() => {
-  //   requestUsers();
-  // }, []);
-
-  // const requestUsers = () => {
-  //   fetch("http://localhost:4000/v1/api/user/", {
-  //     method: "GET",
-  //     // headers: { "Content-Type": "application/json" },
-  //     // body: JSON.stringify(),
-  //   })
-  //     .then((response) => {
-  //       if (response.ok) {
-  //         console.log("okay");
-  //         return response.json();
-  //       }
-  //       throw new Error("Something went wrong");
-  //     })
-  //     .then((json) => setUsers(json))
-  //     .catch((error) => console.log(error));
-  // };
-
-  // console.log(users);
-
-  // useEffect(() => {
-  //   webSocketConnect.wsGetUsers();
-  //   console.log(wsUserList);
-  // }, []); 
-
-  if (wsUserList) {
+  // !!! this need to be rewritten to render compoment after wsUserList is retrieved from db
+  // !!! also needs to get new wsUserList status periodically
+  if (wsUserList && user) {
     return (
       <div className="user-list">
         <ul className={classes.userlist}>
           {wsUserList.map((person) => (
             person.id !== user.id &&
-              <ChatModal key={person.id} name={person.username} user={user}/>
+              <ChatModal key={person.id} id={person.id} name={person.username} user={user}/>
           ))}
         </ul>
       </div>
     );
   } else {
-    // empty user list sidebar
+    // empty user list sidebar if not logged in
+    // !!! need to check for login
     return (
       <div className="user-list">
         <ul className={classes.userlist}>
