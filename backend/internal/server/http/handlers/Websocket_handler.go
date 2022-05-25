@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	json2 "encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -64,6 +65,17 @@ func reader(conn *websocket.Conn) {
 				incomingMessage.Creation_time,
 			)
 
+			returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
+			returnedmessages = append(returnedmessages, readMessages(database, incomingMessage.User_id, incomingMessage.Target_id)...)
+			returnedmessages = append(returnedmessages, []byte(`}`)...)
+
+			log.Println("returnedmessages:", string(returnedmessages))
+
+			// this send userlist from db back to frontend
+			if err := conn.WriteMessage(messageType, returnedmessages); err != nil {
+				log.Println(err)
+				return
+			}
 		}
 
 		if incomingMessage.Type == "wsGetUsers" {
@@ -212,4 +224,70 @@ func saveMessage(db *sql.DB, body string, user_id string, target_id string, crea
 	}
 
 	log.Println("Saved message to db: ", body)
+}
+
+func readMessages(db *sql.DB, messageUser string, messageTarget string) []byte {
+
+	type Wsmessage struct {
+		ID            int    `json:"id"`
+		Body          string `json:"body"`
+		User_id       string `json:"user_id"`
+		Target_id     string `json:"target_id"`
+		Creation_time string `json:"creation_time"`
+	}
+
+	var data []Wsmessage
+	var json []byte
+	var err error
+
+	// Variables to use for assignment from database
+	var msgID int
+	var msgBody string
+	var msgUser string
+	var msgTarget string
+	var msgCreationTime string
+
+	logger.InfoLogger.Println("GET: all messages with current user and target")
+
+	queryString := fmt.Sprintf("%s%s%s%s%s%s%s%s",
+		"SELECT * from messages WHERE user_id=",
+		messageUser,
+		" AND target_id=",
+		messageTarget,
+		" OR user_id=",
+		messageTarget,
+		" AND target_id=",
+		messageUser)
+
+	rows, err := db.Query(queryString)
+	helper.CheckError(err)
+	defer rows.Close()
+
+	// Loop over every row
+	for rows.Next() {
+
+		message := Wsmessage{
+			ID:            msgID,
+			Body:          msgBody,
+			User_id:       msgUser,
+			Target_id:     msgTarget,
+			Creation_time: msgCreationTime,
+		}
+		rows.Scan(&msgID, &msgBody, &msgUser, &msgTarget, &msgCreationTime)
+
+		data = append(data, message)
+	}
+
+	if len(data) == 0 {
+		logger.WarningLogger.Println("There are 0 corresponding messages")
+	}
+
+	// Write json to return
+	json, err = json2.Marshal(data)
+	if err != nil {
+		logger.ErrorLogger.Println(err)
+	}
+
+	return json
+
 }

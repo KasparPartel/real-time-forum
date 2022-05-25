@@ -11,9 +11,9 @@ function Userlist({user}) {
     return (
       <div className="user-list">
         <ul className={classes.userlist}>
-          {wsUserList.map((person) => (
-            person.id !== user.id &&
-              <ChatModal key={person.id} id={person.id} name={person.username} user={user}/>
+          {wsUserList.map((target) => (
+            target.id !== user.id &&
+              <ChatModal key={target.id} id={target.id} name={target.username} user={user}/>
           ))}
         </ul>
       </div>

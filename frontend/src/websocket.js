@@ -1,6 +1,7 @@
 //import
 
 export let wsUserList
+export let wsMessageList
 
 export function webSocketConnect(port) {
 
@@ -33,7 +34,11 @@ export function webSocketConnect(port) {
         if (incomingJson.type === "wsReturnedUsers") {
             wsUserList = incomingJson.body
         }
+        if (incomingJson.type === "wsReturnedMessages") {
+            wsMessageList = incomingJson.body
+        }
         console.log("wsUserList =", wsUserList);
+        console.log("wsMessageList =", wsMessageList);
     }
 
     // function wsUserList(data) {

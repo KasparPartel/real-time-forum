@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import classes from "./ChatModal.module.css";
+import ChatText from "./ChatText";
 import { webSocketConnect } from "../../websocket.js"
 
 // import {useContext} from "react";
@@ -36,6 +37,7 @@ function ChatModal(props) {
           <div className={classes.chatmodalcontent}>
             <h2>{props.user.username}, you're chatting with: {props.name}</h2>
             <p>Here we will put the chat history with this user.</p>
+            <ChatText /* key={target.id} id={target.id} name={target.username} user={user} *//>
             <div className={classes.chatfield}>
               {/* <label for="chat-text"></label> */}
 
