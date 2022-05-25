@@ -37,6 +37,15 @@ export function webSocketConnect(port) {
         if (incomingJson.type === "wsReturnedMessages") {
             wsMessageList = incomingJson.body
         }
+        if (incomingJson.type === "wsMessageSaved") {
+            console.log("Sending wsGetChatMessages");
+            let msg = {
+                type: "wsGetChatMessages",
+                // body: "get users query string here!",
+            };
+        
+            socket.send(JSON.stringify(msg));
+        }
         console.log("wsUserList =", wsUserList);
         console.log("wsMessageList =", wsMessageList);
     }

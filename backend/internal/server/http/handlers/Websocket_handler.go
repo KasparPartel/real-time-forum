@@ -10,6 +10,7 @@ import (
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
 	"real-time-forum/pkg/logger"
+	"time"
 	// "real-time-forum/pkg/model"
 )
 
@@ -37,6 +38,9 @@ func reader(conn *websocket.Conn) {
 		Creation_time string
 	}
 
+	var incomingUser string
+	var incomingTarget string
+
 	for {
 		messageType, p, err := conn.ReadMessage() // p == incoming message
 
@@ -46,6 +50,7 @@ func reader(conn *websocket.Conn) {
 		}
 
 		var incomingMessage Message
+
 		err2 := json2.Unmarshal(p, &incomingMessage)
 		if err2 != nil {
 			log.Println(err)
@@ -65,8 +70,40 @@ func reader(conn *websocket.Conn) {
 				incomingMessage.Creation_time,
 			)
 
+			time.Sleep(5 * time.Second)
+
+			incomingUser = incomingMessage.User_id
+			incomingTarget = incomingMessage.Target_id
+
+			log.Println("incomingUser:", incomingUser)
+			log.Println("incomingTarget:", incomingTarget)
+
+			// this send "Message saved" back to frontend
+			// if err := conn.WriteMessage(messageType, []byte(`"type":"wsMessageSaved"`)); err != nil {
+			if err := conn.WriteMessage(messageType, []byte(`{"type":"wsMessageSaved"}`)); err != nil {
+				log.Println(err)
+				return
+			}
+
+			// returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
+			// returnedmessages = append(returnedmessages, readMessages(database, incomingMessage.User_id, incomingMessage.Target_id)...)
+			// returnedmessages = append(returnedmessages, []byte(`}`)...)
+
+			// log.Println("returnedmessages:", string(returnedmessages))
+
+			// // this send userlist from db back to frontend
+			// if err := conn.WriteMessage(messageType, returnedmessages); err != nil {
+			// 	log.Println(err)
+			// 	return
+			// }
+		}
+
+		if incomingMessage.Type == "wsGetChatMessages" {
+			log.Println("incomingUser2:", incomingUser)
+			log.Println("incomingTarget2:", incomingTarget)
+
 			returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
-			returnedmessages = append(returnedmessages, readMessages(database, incomingMessage.User_id, incomingMessage.Target_id)...)
+			returnedmessages = append(returnedmessages, readMessages(database, incomingUser, incomingTarget)...)
 			returnedmessages = append(returnedmessages, []byte(`}`)...)
 
 			log.Println("returnedmessages:", string(returnedmessages))
@@ -258,6 +295,8 @@ func readMessages(db *sql.DB, messageUser string, messageTarget string) []byte {
 		messageTarget,
 		" AND target_id=",
 		messageUser)
+
+	log.Println("queryString:", queryString)
 
 	rows, err := db.Query(queryString)
 	helper.CheckError(err)
