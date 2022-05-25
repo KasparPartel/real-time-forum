@@ -14,6 +14,7 @@ type User struct {
 	PasswordHash string `json:"-"`
 	CreationTime string `json:"creation_time"`
 	LoginTime    string `json:"login_Time"`
+	LogoutTime   string `json:"logout_time"`
 	IsAdmin      string `json:"is_admin"`
 	Token        string `json:"-"`
 	//Age          int       `json:"age,omitempty"`

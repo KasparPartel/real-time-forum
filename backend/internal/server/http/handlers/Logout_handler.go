@@ -5,21 +5,25 @@ import (
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
 	"real-time-forum/pkg/logger"
+	"time"
 )
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	helper.EnableCors(&w)
-
-	// Extract id from URL
-	id := helper.ExtractURLID(r, "logout")
-
-	// Connect to database
-	db, err := db2.Open()
-	helper.CheckError(err)
-	defer db.Close()
 
 	if r.Method == http.MethodPost {
-		_, err := db.Exec("UPDATE user SET token=? WHERE user_id=?", "", id)
+		helper.EnableCors(&w)
+
+		// Extract id from URL
+		id := helper.ExtractURLID(r, "logout")
+
+		// Connect to database
+		db, err := db2.Open()
+		helper.CheckError(err)
+		defer db.Close()
+
+		timeNow := time.Now().Format(longForm)
+
+		_, err = db.Exec("UPDATE user SET token=?, logout_date=? WHERE user_id=?", "", timeNow, id)
 		if err != nil {
 			logger.ErrorLogger.Println(err)
 			return

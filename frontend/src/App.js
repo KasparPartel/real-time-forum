@@ -37,7 +37,7 @@ function App() {
 
         const user = await res.json()
         setUser(user)
-        console.log(user)
+        console.log("User object", user)
     }
 
     const Logout = () => {
