@@ -1,7 +1,7 @@
-//import
+import { changeMessages } from "./components/layout/ChatModal";
 
 export let wsUserList
-export let wsMessageList
+export let wsMessageList = []
 
 export function webSocketConnect(port) {
 
@@ -12,7 +12,7 @@ export function webSocketConnect(port) {
     socket.onopen = () => {
         console.log("Successfully Connected to Websocket on port:", port);
         wsGetUsers()
-    
+        // wsGetChatMessages()
     }
     
     socket.onclose = (e) => {
@@ -23,7 +23,6 @@ export function webSocketConnect(port) {
         console.log("WebSocket Error: ", err);
     }
 
-    
     socket.onmessage = (msg) => {
         console.log("Backend has responded: ", msg);
         console.log("Backend has responded with data: ", msg.data);
@@ -36,16 +35,12 @@ export function webSocketConnect(port) {
         }
         if (incomingJson.type === "wsReturnedMessages") {
             wsMessageList = incomingJson.body
+            changeMessages()
         }
-        if (incomingJson.type === "wsMessageSaved") {
-            console.log("Sending wsGetChatMessages");
-            let msg = {
-                type: "wsGetChatMessages",
-                // body: "get users query string here!",
-            };
-        
-            socket.send(JSON.stringify(msg));
-        }
+        // if (incomingJson.type === "wsMessageSaved") {
+        //     wsGetChatMessages()
+        // }
+
         console.log("wsUserList =", wsUserList);
         console.log("wsMessageList =", wsMessageList);
     }
@@ -56,6 +51,7 @@ export function webSocketConnect(port) {
 
     webSocketConnect.sendMessage = sendMessage;
     webSocketConnect.wsGetUsers = wsGetUsers;
+    webSocketConnect.wsGetChatMessages = wsGetChatMessages;
 
     function sendMessage() {
         function composeMessage(Type, Body, User_id, Target_id, Creation_time) {
@@ -79,6 +75,12 @@ export function webSocketConnect(port) {
 
         socket.send(newMessage);
 
+        wsGetChatMessages(
+            document.querySelector("#send-button").getAttribute("data-user-id"),
+            document.querySelector("#send-button").getAttribute("data-target-id")
+        )
+        changeMessages()
+
         document.getElementById("chat-text").textContent = "";
     }
 
@@ -86,9 +88,20 @@ export function webSocketConnect(port) {
         //JSON for getting users from db query
         let msg = {
         type: "wsGetUsers",
-        body: "get users query string here!",
+        // body: "get users query string here!",
         };
 
+        socket.send(JSON.stringify(msg));
+    }
+    
+    function wsGetChatMessages(usr, trgt) {
+        console.log("Sending wsGetChatMessages", usr, trgt);
+        let msg = {
+            type: "wsGetChatMessages",
+            body: "empty",
+            user_id: String(usr),
+            target_id: String(trgt),
+        };     
         socket.send(JSON.stringify(msg));
     }
 

@@ -5,14 +5,25 @@ import classes from "./ChatText.module.css";
 
 function ChatText(props) {
 
-
-    return (
-        <>
-          <p className={classes.usermessage}>
-            Example text (replaced with db history)
-          </p>
-        </>
-    );
+    //if (props.user === props.loginuser) {
+        return (
+            <>
+              <p className={classes.usermessage}>
+                {props.body}
+              </p>
+            </>
+        );
+    //}
+    
+    // if (props.user === props.target) {
+    //     return (
+    //         <>
+    //           <p className={classes.targetmessage}>
+    //             {props.body}
+    //           </p>
+    //         </>
+    //     );
+    // }
 
 }
 

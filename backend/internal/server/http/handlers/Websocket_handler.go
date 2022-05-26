@@ -10,7 +10,7 @@ import (
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
 	"real-time-forum/pkg/logger"
-	"time"
+	// "time"
 	// "real-time-forum/pkg/model"
 )
 
@@ -60,6 +60,11 @@ func reader(conn *websocket.Conn) {
 		log.Println(incomingMessage)
 		log.Println("incomingMessage.Type: ", incomingMessage.Type)
 		log.Println("incomingMessage.Body: ", incomingMessage.Body)
+		log.Println("incomingMessage.User_id: ", incomingMessage.User_id)
+		log.Println("incomingMessage.Target_id: ", incomingMessage.Target_id)
+
+		incomingUser = incomingMessage.User_id
+		incomingTarget = incomingMessage.Target_id
 
 		if incomingMessage.Type == "wsSaveChatMessage" {
 			saveMessage(
@@ -70,10 +75,7 @@ func reader(conn *websocket.Conn) {
 				incomingMessage.Creation_time,
 			)
 
-			time.Sleep(5 * time.Second)
-
-			incomingUser = incomingMessage.User_id
-			incomingTarget = incomingMessage.Target_id
+			// time.Sleep(5 * time.Second)
 
 			log.Println("incomingUser:", incomingUser)
 			log.Println("incomingTarget:", incomingTarget)
@@ -172,17 +174,9 @@ func createMessageTable(db *sql.DB) {
 func readUsers(db *sql.DB) []byte {
 
 	type Wsuser struct {
-		ID int `json:"id"`
-		// Email        string `json:"email,omitempty"`
-		// Gender       string `json:"gender,omitempty"`
-		// FirstName    string `json:"first_name,omitempty"`
-		// LastName     string `json:"last_name,omitempty"`
-		Username string `json:"username"`
-		// PasswordHash string `json:"-"`
-		// CreationTime string `json:"creation_time"`
+		ID        int    `json:"id"`
+		Username  string `json:"username"`
 		LoginTime string `json:"login_Time"`
-		// IsAdmin      string `json:"is_admin"`
-		// Token        string `json:"-"`
 	}
 	var data []Wsuser
 	var json []byte
@@ -190,15 +184,8 @@ func readUsers(db *sql.DB) []byte {
 
 	// Variables to use for assignment from database
 	var userID int
-	// var email string
-	// var gender string
-	// var firstName string
-	// var lastName string
 	var username string
-	// var passwordHash string
-	// var createdDate string
 	var loginDate string
-	// var isAdmin string
 
 	logger.InfoLogger.Println("GET: all users")
 
@@ -214,18 +201,11 @@ func readUsers(db *sql.DB) []byte {
 	for rows.Next() {
 
 		user := Wsuser{
-			ID: userID,
-			// Email:        email,
-			// Gender:       gender,
-			// FirstName:    firstName,
-			// LastName:     lastName,
-			Username: username,
-			// PasswordHash: passwordHash,
-			// CreationTime: createdDate,
+			ID:        userID,
+			Username:  username,
 			LoginTime: loginDate,
-			// IsAdmin:      isAdmin,
 		}
-		rows.Scan(&userID /* &email, &gender, &firstName, &lastName, */, &username /* &passwordHash, &createdDate, */, &loginDate /* , &isAdmin */)
+		rows.Scan(&userID, &username, &loginDate)
 
 		data = append(data, user)
 	}
@@ -238,15 +218,11 @@ func readUsers(db *sql.DB) []byte {
 	json, err = json2.Marshal(data)
 	if err != nil {
 		logger.ErrorLogger.Println(err)
-		// w.WriteHeader(http.StatusBadRequest)
-		// return
 	}
 
 	return json
 
 }
-
-// var tempMessages = []string{}
 
 func saveMessage(db *sql.DB, body string, user_id string, target_id string, creation_time string) {
 
