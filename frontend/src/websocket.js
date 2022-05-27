@@ -1,6 +1,7 @@
-import { changeMessages } from "./components/layout/ChatModal";
+import { msgUpdate } from "./components/layout/ChatModal";
+import { usrUpdate } from "./components/layout/Userlist";
 
-export let wsUserList
+export let wsUserList = []
 export let wsMessageList = []
 
 export function webSocketConnect(port) {
@@ -12,6 +13,7 @@ export function webSocketConnect(port) {
     socket.onopen = () => {
         console.log("Successfully Connected to Websocket on port:", port);
         wsGetUsers()
+        usrUpdate()
         // wsGetChatMessages()
     }
     
@@ -32,10 +34,14 @@ export function webSocketConnect(port) {
         // console.log(incomingJson.body[1]);
         if (incomingJson.type === "wsReturnedUsers") {
             wsUserList = incomingJson.body
+            usrUpdate()
         }
         if (incomingJson.type === "wsReturnedMessages") {
             wsMessageList = incomingJson.body
-            changeMessages()
+            msgUpdate()
+            // setMessagelist(wsMessageList)
+            // changeMessages()
+            // useForceUpdate()
         }
         // if (incomingJson.type === "wsMessageSaved") {
         //     wsGetChatMessages()
@@ -79,7 +85,9 @@ export function webSocketConnect(port) {
             document.querySelector("#send-button").getAttribute("data-user-id"),
             document.querySelector("#send-button").getAttribute("data-target-id")
         )
-        changeMessages()
+        msgUpdate()
+        // changeMessages()
+        // setMessagelist(wsMessageList)
 
         document.getElementById("chat-text").textContent = "";
     }

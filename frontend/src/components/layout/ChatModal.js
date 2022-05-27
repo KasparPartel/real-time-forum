@@ -3,72 +3,21 @@ import classes from "./ChatModal.module.css";
 import ChatText from "./ChatText";
 import { webSocketConnect, wsMessageList } from "../../websocket.js"
 
-// import {useContext} from "react";
-// import {UserContext} from "../../UserContext";
-
-let messages = []
-
-export function changeMessages() {
-  messages = wsMessageList
-}
-
-// export function forceUpdate() {
-//   useForceUpdate()
-// }
-
-function useForceUpdate(){
-  const [value, setValue] = useState(0); // integer state
-  return () => setValue(value => value + 1); // update the state to force render
-}
-
 function ChatModal(props) {
-  
-  const forceUpdate = useForceUpdate()
 
   useEffect(() => {
     webSocketConnect.wsGetChatMessages(props.user.id, props.id)
   }, [props.user.id, props.id])
 
-  // useEffect(() => {
-  //   useForceUpdate()
-  // }, [messages])
-
-  // const [messages, setMessages] = useState([])
-  
-  // useEffect(() => {
-    //   retrieveMessages(props.user.id, props.id)
-  // }, [props.user.id, props.id])
-  
-  // async function retrieveMessages(usr, trgt) {
-    //   try {
-
-  //   } catch {
-    //     console.log("Error retrieving messages")
-    //   }
-    // }
-
-  // const [messages, setMessages] = useState([])
-  
-  // useEffect(() => {
-  //   webSocketConnect.wsGetChatMessages(props.user.id, props.id)
-  //   setMessages(wsMessageList)
-  // }, [props.user.id, props.id])
-
-
+  const [messagelist, setMessagelist] = useState(wsMessageList)
   const [modal, setModal] = useState(false);
   const toggleModal = () => {
     setModal(!modal);
     if (modal) {
       webSocketConnect.wsGetChatMessages(props.user.id, props.id)
-      // setMessages(wsMessageList)
-      changeMessages()
+      setMessagelist(wsMessageList)
     }
-    forceUpdate()
   };
-
-  useEffect(() => {
-
-  }, [modal])
 
   if (modal) {
     document.body.classList.add("active-modal");
@@ -77,6 +26,8 @@ function ChatModal(props) {
   }
 
   console.log("Chatmodal var user is:", props.user.username);
+
+  ChatModal.setMessagelist = setMessagelist;
 
   return (
     <>
@@ -91,7 +42,7 @@ function ChatModal(props) {
             <p>Here we will put the chat history with this user.</p>
 
             
-              {messages.map((message) => (
+              {messagelist.map((message) => (
                 <ChatText key={message.id} body={message.body} user={message.user_id} 
                 target={message.target} time={message.creation_time} loginuser={props.user}/>
               ))}
@@ -118,6 +69,10 @@ function ChatModal(props) {
     </>
 
   );
+}
+
+export function msgUpdate() {
+  ChatModal.setMessagelist(wsMessageList)
 }
 
 export default ChatModal;
