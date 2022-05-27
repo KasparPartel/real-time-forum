@@ -5,7 +5,7 @@ import classes from "./ChatText.module.css";
 
 function ChatText(props) {
 
-    //if (props.user === props.loginuser) {
+    if (props.userid === String(props.loginuser)) {
         return (
             <>
               <p className={classes.usermessage}>
@@ -13,7 +13,15 @@ function ChatText(props) {
               </p>
             </>
         );
-    //}
+    } else {
+      return (
+        <>
+          <p className={classes.targetmessage}>
+            {props.body}
+          </p>
+        </>
+    );
+    }
     
     // if (props.user === props.target) {
     //     return (

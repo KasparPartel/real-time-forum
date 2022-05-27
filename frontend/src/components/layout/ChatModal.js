@@ -43,8 +43,8 @@ function ChatModal(props) {
 
             
               {messagelist.map((message) => (
-                <ChatText key={message.id} body={message.body} user={message.user_id} 
-                target={message.target} time={message.creation_time} loginuser={props.user}/>
+                <ChatText key={message.id} body={message.body} userid={message.user_id} 
+                target={message.target} time={message.creation_time} loginuser={props.user.id}/>
               ))}
             
 
