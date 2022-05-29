@@ -28,10 +28,8 @@ export function webSocketConnect(port) {
     socket.onmessage = (msg) => {
         console.log("Backend has responded: ", msg);
         console.log("Backend has responded with data: ", msg.data);
-        // console.log("Backend has responded with data.body: ", msg.data.body);
         let incomingJson = JSON.parse(msg.data)
-        // console.log(incomingJson);
-        // console.log(incomingJson.body[1]);
+
         if (incomingJson.type === "wsReturnedUsers") {
             wsUserList = incomingJson.body
             usrUpdate()
@@ -39,21 +37,11 @@ export function webSocketConnect(port) {
         if (incomingJson.type === "wsReturnedMessages") {
             wsMessageList = incomingJson.body
             msgUpdate()
-            // setMessagelist(wsMessageList)
-            // changeMessages()
-            // useForceUpdate()
         }
-        // if (incomingJson.type === "wsMessageSaved") {
-        //     wsGetChatMessages()
-        // }
 
         console.log("wsUserList =", wsUserList);
         console.log("wsMessageList =", wsMessageList);
     }
-
-    // function wsUserList(data) {
-    //     return JSON.parse(data.body)
-    // }
 
     webSocketConnect.sendMessage = sendMessage;
     webSocketConnect.wsGetUsers = wsGetUsers;
@@ -86,8 +74,6 @@ export function webSocketConnect(port) {
             document.querySelector("#send-button").getAttribute("data-target-id")
         )
         msgUpdate()
-        // changeMessages()
-        // setMessagelist(wsMessageList)
 
         document.getElementById("chat-text").textContent = "";
     }
@@ -96,7 +82,6 @@ export function webSocketConnect(port) {
         //JSON for getting users from db query
         let msg = {
         type: "wsGetUsers",
-        // body: "get users query string here!",
         };
 
         socket.send(JSON.stringify(msg));
@@ -106,11 +91,10 @@ export function webSocketConnect(port) {
         console.log("Sending wsGetChatMessages", usr, trgt);
         let msg = {
             type: "wsGetChatMessages",
-            body: "empty",
+            // body: "empty",
             user_id: String(usr),
             target_id: String(trgt),
         };     
         socket.send(JSON.stringify(msg));
     }
-
 }

@@ -26,6 +26,7 @@ function ChatModal(props) {
   }
 
   console.log("Chatmodal var user is:", props.user.username);
+  console.log("Chatmodal messagelist length is:", messagelist?.length);
 
   ChatModal.setMessagelist = setMessagelist;
 
@@ -34,25 +35,19 @@ function ChatModal(props) {
       <p className={classes.username} onClick={toggleModal}>
         {props.name}
       </p>
-      {modal && (
+      {(modal && messagelist) && (
         <div className={classes.chatmodal}>
           <div onClick={toggleModal} className={classes.overlay}></div>
           <div className={classes.chatmodalcontent}>
             <h2>{props.user.username}, you're chatting with: {props.name}</h2>
-            <p>Here we will put the chat history with this user.</p>
 
-            
               {messagelist.map((message) => (
                 <ChatText key={message.id} body={message.body} userid={message.user_id} 
                 target={message.target} time={message.creation_time} loginuser={props.user.id}/>
               ))}
-            
 
             <div className={classes.chatfield}>
-              {/* <label for="chat-text"></label> */}
-
               <textarea id="chat-text" name="chat-text" rows="4" cols="50" placeholder="Enter your message here">
-                
               </textarea>
               <br></br>
               <button id="send-button" onClick={webSocketConnect.sendMessage} 
@@ -67,7 +62,6 @@ function ChatModal(props) {
         </div>
       )}
     </>
-
   );
 }
 
