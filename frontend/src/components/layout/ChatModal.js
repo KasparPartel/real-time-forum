@@ -1,15 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import classes from "./ChatModal.module.css";
-import { webSocketConnect } from "../../websocket.js"
+import ChatText from "./ChatText";
+import { webSocketConnect, wsMessageList } from "../../websocket.js"
 
 function ChatModal(props) {
-  
-  webSocketConnect("ws://localhost:4000/v1/api/ws");
-  
-  const [modal, setModal] = useState(false);
 
+  useEffect(() => {
+    webSocketConnect.wsGetChatMessages(props.user.id, props.id)
+  }, [props.user.id, props.id])
+
+  const [messagelist, setMessagelist] = useState(wsMessageList)
+  const [modal, setModal] = useState(false);
   const toggleModal = () => {
     setModal(!modal);
+    if (modal) {
+      webSocketConnect.wsGetChatMessages(props.user.id, props.id)
+      setMessagelist(wsMessageList)
+    }
   };
 
   if (modal) {
@@ -18,25 +25,35 @@ function ChatModal(props) {
     document.body.classList.remove("active-modal");
   }
 
+  console.log("Chatmodal var user is:", props.user.username);
+  console.log("Chatmodal messagelist length is:", messagelist?.length);
+
+  ChatModal.setMessagelist = setMessagelist;
+
   return (
     <>
       <p className={classes.username} onClick={toggleModal}>
         {props.name}
       </p>
-      {modal && (
+      {(modal && messagelist) && (
         <div className={classes.chatmodal}>
           <div onClick={toggleModal} className={classes.overlay}></div>
           <div className={classes.chatmodalcontent}>
-            <h2>You're chatting with: {props.name}</h2>
-            <p>Here we will put the chat history with this user.</p>
-            <div className={classes.chatfield}>
-              {/* <label for="chat-text"></label> */}
+            <h2>{props.user.username}, you're chatting with: {props.name}</h2>
 
-              <textarea id="chat-text" name="chat-text" rows="4" cols="50" defaultValue="Enter your message here">
-                
+              {messagelist.map((message) => (
+                <ChatText key={message.id} body={message.body} userid={message.user_id} 
+                target={message.target} time={message.creation_time} loginuser={props.user.id}/>
+              ))}
+
+            <div className={classes.chatfield}>
+              <textarea id="chat-text" name="chat-text" rows="4" cols="50" placeholder="Enter your message here">
               </textarea>
               <br></br>
-              <button>Submit</button>
+              <button id="send-button" onClick={webSocketConnect.sendMessage} 
+                data-user-id={props.user.id} data-target-id={props.id}>
+                Submit
+                </button>
               <button className={classes.closemodal} onClick={toggleModal}>
                 CLOSE
               </button>
@@ -46,6 +63,10 @@ function ChatModal(props) {
       )}
     </>
   );
+}
+
+export function msgUpdate() {
+  ChatModal.setMessagelist(wsMessageList)
 }
 
 export default ChatModal;

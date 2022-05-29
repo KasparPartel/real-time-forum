@@ -1,42 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import classes from "./Userlist.module.css";
 import ChatModal from "./ChatModal";
+import { wsUserList } from "../../websocket.js"
 
-function Userlist() {
-  const [users, setUsers] = useState([]);
+function Userlist({user}) {
+  
+  const [userlist, setUserlist] = useState(wsUserList)
+  
+  console.log("userlist:", userlist)
+  console.log("wsUserList:", wsUserList)
 
   useEffect(() => {
-    requestUsers();
-  }, []);
+    setUserlist(wsUserList)
+  }, [])
+  
+  Userlist.setUserlist = setUserlist;
 
-  const requestUsers = () => {
-    fetch("http://localhost:4000/v1/api/user/", {
-      method: "GET",
-      // headers: { "Content-Type": "application/json" },
-      // body: JSON.stringify(),
-    })
-      .then((response) => {
-        if (response.ok) {
-          console.log("okay");
-          return response.json();
-        }
-        throw new Error("Something went wrong");
-      })
-      .then((json) => setUsers(json))
-      .catch((error) => console.log(error));
-  };
+  if (user) {
+    return (
+      <div className="user-list">
+        <ul className={classes.userlist}>
+          {userlist.map((target) => (
+            target.id !== user.id &&
+              <ChatModal key={target.id} id={target.id} name={target.username} user={user}/>
+          ))}
+        </ul>
+      </div>
+    );
+  } else {
+    // empty user list sidebar if not logged in
+    return (
+      <div className="user-list">
+        <ul className={classes.userlist}>
+        </ul>
+      </div>
+    )
+  }
+}
 
-  return (
-    <div className="user-list">
-      <ul className={classes.userlist}>
-        {users.map((user) => (
-          //<Post key={p.id} json={p} />
-          //<li className={classes.online}>{user.username}</li>
-          <ChatModal key={user.id} name={user.username} />
-        ))}
-      </ul>
-    </div>
-  );
+export function usrUpdate() {
+  Userlist.setUserlist(wsUserList)
 }
 
 export default Userlist;

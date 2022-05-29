@@ -7,14 +7,14 @@ import {useContext} from "react";
 import {UserContext} from "../../UserContext";
 
 function Layout({children}) {
-    const {user, setUser} = useContext(UserContext)
+    const {user} = useContext(UserContext)
 
     return (
         <div>
-            <MainNavigation user={user} />
+            <MainNavigation user={user}/>
             <PagesNavigation user={user}/>
             <main className={classes.main}>{children}</main>
-            <Userlist/>
+            <Userlist user={user}/>
         </div>
     );
 }

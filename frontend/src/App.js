@@ -2,6 +2,7 @@ import {Route, Routes, useNavigate} from 'react-router-dom';
 import {useEffect, useState} from "react";
 import {useCookies} from "react-cookie";
 import {UserContext} from "./UserContext";
+import { webSocketConnect } from "./websocket"
 
 import Layout from './components/layout/Layout';
 import Feed from './pages/Feed';
@@ -22,6 +23,10 @@ function App() {
     useEffect(() => {
         cookies["session_token"] ? getUser() : setUser(null)
     }, [cookies])
+
+    useEffect(() => {
+        webSocketConnect("ws://localhost:4000/v1/api/ws")
+    }, []);
 
     const getUser = async () => {
         const res = await fetch("http://localhost:4000/v1/api/user/me", {
