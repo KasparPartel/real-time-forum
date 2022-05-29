@@ -1,5 +1,22 @@
 package db
 
+// Dummy users 29.05.2022
+
+// Villu Frank
+// villu@frank.ee
+// VFrank
+// Parool123
+
+// Meelu Timukas
+// meelu@timukas.ee
+// Mtimuk
+// Parool321
+
+// Proovi Juuser
+// proovi@juuser.ee
+// PJuuser
+// Parool456
+
 //
 //import (
 //	"real-time-forum/pkg/model"
