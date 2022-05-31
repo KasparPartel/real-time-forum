@@ -13,8 +13,8 @@ import (
 // Load config from config pkg
 var cfg = &config2.Config
 
-func CheckDB(path string) error {
-	file, err := os.Open(path + cfg.DBfilename)
+func CheckDB() error {
+	file, err := os.Open(cfg.DBfilename)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func OpenDB() (*sql.DB, error) {
 	return db, nil
 }
 
-func CreateDB(path string) {
+func CreateDB() {
 	file, err := os.Create(cfg.DBfilename)
 	if err != nil {
 		log.Fatal(err)

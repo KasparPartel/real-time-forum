@@ -3,7 +3,7 @@ import {UserContext} from "../UserContext";
 import {useNavigate} from "react-router-dom";
 
 function Register() {
-  const [formData, setFormData] = useState(null)
+  const [formData, setFormData] = useState({gender: "male"})
   const {user} = useContext(UserContext)
   const navigate = useNavigate()
 
