@@ -23,7 +23,7 @@ func reader(conn *websocket.Conn) {
 
 	log.Println("Reader started")
 
-	database, err := db2.Open()
+	database, err := db2.OpenDB()
 	helper.CheckError(err)
 	createMessageTable(database)
 	defer database.Close()

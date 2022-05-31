@@ -57,11 +57,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Connect to database
-		db, err := db2.Open()
+		db, err := db2.OpenDB()
 		helper.CheckError(err)
 		defer db.Close()
 
-		row := db.QueryRow("SELECT user_id, password_hash FROM user WHERE username=? OR email=?",
+		row := db.QueryRow("SELECT id, password_hash FROM user WHERE username=? OR email=?",
 			login.Username, login.Email)
 
 		if err = row.Scan(&userID, &passwordHash); err == sql.ErrNoRows {
@@ -78,9 +78,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Create session
 		sessionToken := uuid2.NewV4().String()
-		timeNow := time.Now().Format(longForm)
+		timeNow := time.Now().Format(LongForm)
 
-		_, err = db.Exec("UPDATE user SET login_date=?, token=? WHERE user_id=?",
+		_, err = db.Exec("UPDATE user SET login_date=?, token=? WHERE id=?",
 			timeNow, sessionToken, userID)
 		if err != nil {
 			http.Error(w, "Error writing to database", http.StatusInternalServerError)

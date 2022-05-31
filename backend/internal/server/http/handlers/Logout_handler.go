@@ -17,13 +17,13 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		id := helper.ExtractURLID(r, "logout")
 
 		// Connect to database
-		db, err := db2.Open()
+		db, err := db2.OpenDB()
 		helper.CheckError(err)
 		defer db.Close()
 
-		timeNow := time.Now().Format(longForm)
+		timeNow := time.Now().Format(LongForm)
 
-		_, err = db.Exec("UPDATE user SET token=?, logout_date=? WHERE user_id=?", "", timeNow, id)
+		_, err = db.Exec("UPDATE user SET token=?, logout_date=? WHERE id=?", "", timeNow, id)
 		if err != nil {
 			logger.ErrorLogger.Println(err)
 			return

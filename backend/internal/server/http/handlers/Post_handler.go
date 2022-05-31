@@ -13,7 +13,7 @@ import (
 )
 
 // Time formatting string
-const longForm = "2006-01-02 15:04:05.000 -0700 PDT"
+const LongForm = "2006-01-02 15:04:05.000 -0700 PDT"
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	helper.EnableCors(&w)
@@ -30,7 +30,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Connect to database
-	db, err := db2.Open()
+	db, err := db2.OpenDB()
 	helper.CheckError(err)
 	defer db.Close()
 
@@ -51,7 +51,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		if len(id) != 0 {
 			logger.InfoLogger.Println("POST: modify a post with form data")
 
-			row := db.QueryRow("SELECT * FROM post WHERE post_id=?", id)
+			row := db.QueryRow("SELECT * FROM post WHERE id=?", id)
 
 			if err = row.Scan(&postID, &title, &body, &userID, &filename, &createdDate, &updatedDate); err == sql.ErrNoRows {
 				logger.ErrorLogger.Printf("Post with id %d does not exist", id)
@@ -63,10 +63,10 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 					UserID:       userID,
 					Filename:     r.FormValue("filename"),
 					CreationTime: createdDate,
-					UpdatedTime:  time.Now().Format(longForm),
+					UpdatedTime:  time.Now().Format(LongForm),
 				}
 
-				_, err := db.Exec("UPDATE post SET title=?, body=?, filename=?, updated_date=? WHERE post_id=?",
+				_, err := db.Exec("UPDATE post SET title=?, body=?, filename=?, updated_date=? WHERE id=?",
 					post.Title, post.Body, post.Filename, post.UpdatedTime, post.ID)
 				if err != nil {
 					logger.ErrorLogger.Println(err)
@@ -80,7 +80,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			// Last id from database table
 			var lastId int
 
-			row := db.QueryRow("SELECT post_id FROM post ORDER BY post_id DESC limit 1")
+			row := db.QueryRow("SELECT id FROM post ORDER BY id DESC limit 1")
 
 			if err = row.Scan(&lastId); err == sql.ErrNoRows {
 				logger.InfoLogger.Println("No posts found")
@@ -92,11 +92,11 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 				Body:         r.FormValue("body"),
 				UserID:       1,
 				Filename:     r.FormValue("filename"),
-				CreationTime: time.Now().Format(longForm),
-				UpdatedTime:  time.Now().Format(longForm),
+				CreationTime: time.Now().Format(LongForm),
+				UpdatedTime:  time.Now().Format(LongForm),
 			}
 
-			_, err := db.Exec("INSERT INTO post(post_id, title, body, user_id, filename, created_date, updated_date)"+
+			_, err := db.Exec("INSERT INTO post(id, title, body, user_id, filename, created_date, updated_date)"+
 				"VALUES(?, ?, ?, ?, ?, ?, ?)", post.ID, post.Title, post.Body, post.UserID, post.Filename, post.CreationTime, post.UpdatedTime)
 			if err != nil {
 				logger.ErrorLogger.Println(err)
@@ -128,7 +128,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			row := db.QueryRow("SELECT * FROM post WHERE post_id=?", id)
+			row := db.QueryRow("SELECT * FROM post WHERE id=?", id)
 
 			if err = row.Scan(&postID, &title, &body, &userID, &filename, &createdDate, &updatedDate); err == sql.ErrNoRows {
 				logger.ErrorLogger.Printf("Post with id %d does not exist", id)
@@ -201,7 +201,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		if len(id) != 0 {
 			logger.InfoLogger.Printf("DELETE: post with id %s\n", id)
 
-			_, err := db.Exec("DELETE FROM post WHERE post_id=?", id)
+			_, err := db.Exec("DELETE FROM post WHERE id=?", id)
 			if err != nil {
 				logger.ErrorLogger.Println(err)
 			} else {

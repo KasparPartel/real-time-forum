@@ -1,6 +1,7 @@
 package main
 
 import (
+	"real-time-forum/db"
 	//"github.com/gorilla/websocket"
 	"real-time-forum/internal/server/http"
 	config2 "real-time-forum/pkg/config"
@@ -20,5 +21,12 @@ func init() {
 }
 
 func main() {
+	// Check if db exists and if not create it
+	pathToDB := "/db/"
+
+	if err := db.CheckDB(pathToDB); err != nil {
+		db.CreateDB(pathToDB)
+	}
+
 	http.RunHTTPServer()
 }

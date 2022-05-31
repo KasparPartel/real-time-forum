@@ -15,6 +15,8 @@ import (
 
 func UserHandler(w http.ResponseWriter, r *http.Request) {
 	helper.EnableCors(&w)
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	logger.InfoLogger.Println("Endpoint hit: api/user")
 
@@ -28,7 +30,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Connect to database
-	db, err := db2.Open()
+	db, err := db2.OpenDB()
 	helper.CheckError(err)
 	defer db.Close()
 
@@ -44,6 +46,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	var loginDate string
 	var isAdmin string
 	var age int
+	var token string
 	// var age string // ET: trying to fix User_handler.go
 
 	// Switch over request method - POST, GET, DELETE
@@ -80,8 +83,8 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		// Password validation and hashing
 		if len(register["password"]) < 8 {
-			logger.ErrorLogger.Println("Password must be at least 5 characters long!")
-			http.Error(w, "Password must be at least 5 characters!", http.StatusBadRequest)
+			logger.ErrorLogger.Println("Password must be at least 8 characters long!")
+			http.Error(w, "Password must be at least 8 characters!", http.StatusBadRequest)
 			return
 		}
 		age, err = strconv.Atoi(register["age"])
@@ -101,19 +104,18 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		if len(id) != 0 {
 			logger.InfoLogger.Println("POST: modify a user with form data")
 
-			row := db.QueryRow("SELECT * FROM post WHERE user_id=?", id)
+			row := db.QueryRow("SELECT * FROM post WHERE id=?", id)
 
-			if err = row.Scan(&userID, &email, &gender, &firstName, &lastName, &age, &username, &passwordHash, &createdDate, &loginDate, isAdmin); err == sql.ErrNoRows {
+			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &isAdmin); err == sql.ErrNoRows {
 				logger.ErrorLogger.Printf("User with id %d does not exist", id)
 			} else {
 				user := model.User{
-					ID:        userID,
-					Email:     register["email"],
-					Gender:    register["gender"],
-					FirstName: register["first_name"],
-					LastName:  register["last_name"],
-					Age:       age,
-					// Age:          register["age"],
+					ID:           userID,
+					Email:        register["email"],
+					Gender:       register["gender"],
+					FirstName:    register["first_name"],
+					LastName:     register["last_name"],
+					Age:          age,
 					Username:     register["username"],
 					PasswordHash: passwordHash,
 					CreationTime: createdDate,
@@ -121,7 +123,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					IsAdmin:      isAdmin,
 				}
 
-				_, err := db.Exec("UPDATE user SET email=?, gender=?, first_name=?, age=?, last_name=?, username=?, password_hash=? WHERE user_id=?",
+				_, err := db.Exec("UPDATE user SET email=?, gender=?, first_name=?, age=?, last_name=?, username=?, password_hash=? WHERE id=?",
 					user.Email, user.Gender, user.FirstName, user.LastName, user.Age, user.Username, user.PasswordHash, user.ID)
 				if err != nil {
 					logger.ErrorLogger.Println(err)
@@ -132,13 +134,13 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			logger.InfoLogger.Println("POST: create a user with form data")
 
 			var myId string
-			if err = db.QueryRow("SELECT user_id FROM user WHERE username=?", register["username"]).Scan(&myId); err == nil {
+			if err = db.QueryRow("SELECT id FROM user WHERE username=?", register["username"]).Scan(&myId); err == nil {
 				logger.ErrorLogger.Println(err)
 				logger.InfoLogger.Println("User with this username already exists!")
 				http.Error(w, "User with this username already exists!", http.StatusBadRequest)
 				return
 			}
-			if err = db.QueryRow("SELECT user_id FROM user WHERE email=?", register["email"]).Scan(&myId); err == nil {
+			if err = db.QueryRow("SELECT id FROM user WHERE email=?", register["email"]).Scan(&myId); err == nil {
 				logger.InfoLogger.Println("User with this email already exists!")
 				http.Error(w, "User with this email already exists!", http.StatusBadRequest)
 				return
@@ -147,25 +149,24 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			// Last id from database table
 			var lastId int
 
-			row := db.QueryRow("SELECT user_id FROM user ORDER BY user_id DESC limit 1")
+			row := db.QueryRow("SELECT id FROM user ORDER BY id DESC limit 1")
 			_ = row.Scan(&lastId)
 
 			user := model.User{
-				ID:        lastId + 1,
-				Email:     register["email"],
-				Gender:    register["gender"],
-				FirstName: register["first_name"],
-				LastName:  register["last_name"],
-				Age:       age,
-				// Age:          register["age"],
+				ID:           lastId + 1,
+				Email:        register["email"],
+				Gender:       register["gender"],
+				FirstName:    register["first_name"],
+				LastName:     register["last_name"],
+				Age:          age,
 				Username:     register["username"],
 				PasswordHash: passwordHash,
-				CreationTime: time.Now().Format(longForm),
+				CreationTime: time.Now().Format(LongForm),
 				LoginTime:    "",
 				IsAdmin:      "no",
 			}
 
-			_, err := db.Exec("INSERT INTO user(user_id, email, gender, first_name, last_name, age, username, password_hash, created_date, login_date, administrator)"+
+			_, err := db.Exec("INSERT INTO user(id, email, gender, first_name, last_name, age, username, password_hash, created_date, login_date, administrator)"+
 				"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", user.ID, user.Email, user.Gender, user.FirstName, user.LastName, user.Age, user.Username, user.PasswordHash, user.CreationTime, user.LoginTime, user.IsAdmin)
 			if err != nil {
 				logger.ErrorLogger.Println(err)
@@ -177,12 +178,6 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
 
 	case http.MethodGet:
-		// Set correct headers so client can request data
-		// Without correct headers there can be CORS errors etc.
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-
 		var json []byte
 		var err error
 		var data []model.User
@@ -192,9 +187,9 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 		if len(id) != 0 {
 			logger.InfoLogger.Printf("GET: user with id %s\n", id)
 
-			row := db.QueryRow("SELECT * FROM user WHERE user_id=?", id)
+			row := db.QueryRow("SELECT * FROM user WHERE id=?", id)
 
-			if err = row.Scan(&userID, &email, &gender, &firstName, &lastName, &age, &username, &passwordHash, &createdDate, &loginDate, &isAdmin); err == sql.ErrNoRows {
+			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &isAdmin, &token); err == sql.ErrNoRows {
 				logger.ErrorLogger.Printf("User with id %d does not exist", id)
 			} else {
 
@@ -210,6 +205,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					CreationTime: createdDate,
 					LoginTime:    loginDate,
 					IsAdmin:      isAdmin,
+					Token:        token,
 				}
 
 				data = append(data, user)
@@ -224,7 +220,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 			// Loop over every row
 			for rows.Next() {
-				rows.Scan(&userID, &email, &gender, &firstName, &lastName, &age, &username, &passwordHash, &createdDate, &loginDate, &isAdmin)
+				rows.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &isAdmin, &token)
 
 				user := model.User{
 					ID:           userID,
@@ -238,6 +234,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					CreationTime: createdDate,
 					LoginTime:    loginDate,
 					IsAdmin:      isAdmin,
+					Token:        token,
 				}
 
 				data = append(data, user)

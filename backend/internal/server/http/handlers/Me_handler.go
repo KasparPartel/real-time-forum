@@ -25,7 +25,7 @@ func MeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Connect to database
-	db, err := db2.Open()
+	db, err := db2.OpenDB()
 	helper.CheckError(err)
 	defer db.Close()
 
