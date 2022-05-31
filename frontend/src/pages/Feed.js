@@ -25,7 +25,7 @@ function Feed(props) {
 
   return (
     <div className="flex flex-wrap py-5 gap-4">
-      {posts.map((p) => (
+      {posts?.map((p) => (
         <Post key={p.id} json={p} />
       ))}
     </div>

@@ -44,6 +44,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	var passwordHash string
 	var createdDate string
 	var loginDate string
+	var logoutDate string
 	var isAdmin string
 	var age int
 	var token string
@@ -106,7 +107,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 			row := db.QueryRow("SELECT * FROM post WHERE id=?", id)
 
-			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &isAdmin); err == sql.ErrNoRows {
+			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token); err == sql.ErrNoRows {
 				logger.ErrorLogger.Printf("User with id %d does not exist", id)
 			} else {
 				user := model.User{
@@ -120,7 +121,9 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					PasswordHash: passwordHash,
 					CreationTime: createdDate,
 					LoginTime:    loginDate,
+					LogoutTime:   logoutDate,
 					IsAdmin:      isAdmin,
+					Token:        token,
 				}
 
 				_, err := db.Exec("UPDATE user SET email=?, gender=?, first_name=?, age=?, last_name=?, username=?, password_hash=? WHERE id=?",
@@ -146,14 +149,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			// Last id from database table
-			var lastId int
-
-			row := db.QueryRow("SELECT id FROM user ORDER BY id DESC limit 1")
-			_ = row.Scan(&lastId)
-
 			user := model.User{
-				ID:           lastId + 1,
 				Email:        register["email"],
 				Gender:       register["gender"],
 				FirstName:    register["first_name"],
@@ -162,17 +158,18 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 				Username:     register["username"],
 				PasswordHash: passwordHash,
 				CreationTime: time.Now().Format(LongForm),
-				LoginTime:    "",
 				IsAdmin:      "no",
 			}
 
-			_, err := db.Exec("INSERT INTO user(id, email, gender, first_name, last_name, age, username, password_hash, created_date, login_date, administrator)"+
-				"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", user.ID, user.Email, user.Gender, user.FirstName, user.LastName, user.Age, user.Username, user.PasswordHash, user.CreationTime, user.LoginTime, user.IsAdmin)
+			_, err := db.Exec("INSERT INTO user(email, gender, age, first_name, last_name, username, password_hash, created_date, login_date, logout_date, administrator, token)"+
+				"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", user.Email, user.Gender, user.Age, user.FirstName, user.LastName, user.Username, user.PasswordHash, user.CreationTime, "", "", user.IsAdmin, "")
 			if err != nil {
 				logger.ErrorLogger.Println(err)
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
+
+			logger.InfoLogger.Println("User created")
 		}
 
 		w.WriteHeader(http.StatusCreated)
@@ -189,7 +186,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 			row := db.QueryRow("SELECT * FROM user WHERE id=?", id)
 
-			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &isAdmin, &token); err == sql.ErrNoRows {
+			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token); err == sql.ErrNoRows {
 				logger.ErrorLogger.Printf("User with id %d does not exist", id)
 			} else {
 
@@ -204,6 +201,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					PasswordHash: passwordHash,
 					CreationTime: createdDate,
 					LoginTime:    loginDate,
+					LogoutTime:   logoutDate,
 					IsAdmin:      isAdmin,
 					Token:        token,
 				}
@@ -220,7 +218,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 			// Loop over every row
 			for rows.Next() {
-				rows.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &isAdmin, &token)
+				rows.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token)
 
 				user := model.User{
 					ID:           userID,
@@ -233,6 +231,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					PasswordHash: passwordHash,
 					CreationTime: createdDate,
 					LoginTime:    loginDate,
+					LogoutTime:   logoutDate,
 					IsAdmin:      isAdmin,
 					Token:        token,
 				}

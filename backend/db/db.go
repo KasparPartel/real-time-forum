@@ -60,12 +60,13 @@ func CreateDB(path string) {
 		password_hash text NOT NULL,
 		created_date text NOT NULL,
 		login_date text,
+		logout_date text,
 		administrator text NOT NULL,
-		token text UNIQUE );
+		token text);
 
-		INSERT INTO user (email, gender, age, first_name, last_name, username, password_hash, created_date, login_date, administrator, token)
+		INSERT INTO user (email, gender, age, first_name, last_name, username, password_hash, created_date, login_date, logout_date, administrator, token)
 		VALUES("test@gmail.com", "male", 25, "Test", "Test", "Test1",
-		"$2a$10$zTl.sQ6T9JEREXTR3K7z3u/AP53bO.UxIRapugFNTiObfAxNr.Xy2", ?, "", "yes", "");
+		"$2a$10$zTl.sQ6T9JEREXTR3K7z3u/AP53bO.UxIRapugFNTiObfAxNr.Xy2", ?, "", "", "yes", "");
 
 		CREATE TABLE post (
 		id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
