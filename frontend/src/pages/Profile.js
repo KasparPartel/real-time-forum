@@ -3,7 +3,7 @@ import {UserContext} from "../UserContext";
 import {useNavigate} from "react-router-dom";
 
 function Profile() {
-    const {user, setUser} = useContext(UserContext)
+    const {user} = useContext(UserContext)
     const navigate = useNavigate()
 
     if (!user) {
@@ -14,11 +14,12 @@ function Profile() {
         <div>
             <h1>This is your user profile.</h1>
             <ul>
-                <li>Username: {user?.username}</li>
-                <li>E-mail: {user?.email}</li>
-                <li>First name: {user?.first_name}</li>
-                <li>Last name: {user?.last_name}</li>
-                <li>Gender: {user?.gender}</li>
+                <li><b>Username:</b> {user?.username}</li>
+                <li><b>E-mail:</b> {user?.email}</li>
+                <li><b>First name:</b> {user?.first_name}</li>
+                <li><b>Last name:</b> {user?.last_name}</li>
+                <li><b>Gender:</b> {user?.gender}</li>
+                <li><b>Age:</b> {user?.age}</li>
             </ul>
         </div>
     );

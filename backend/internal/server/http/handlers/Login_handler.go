@@ -16,7 +16,6 @@ import (
 
 type Login struct {
 	Username string
-	Email    string
 	Password string
 }
 
@@ -62,7 +61,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		row := db.QueryRow("SELECT id, password_hash FROM user WHERE username=? OR email=?",
-			login.Username, login.Email)
+			login.Username, login.Username)
 
 		if err = row.Scan(&userID, &passwordHash); err == sql.ErrNoRows {
 			http.Error(w, "User with this username/email does not exist", http.StatusForbidden)
@@ -98,21 +97,5 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		w.Write(jsonToken)
 
-		//http.SetCookie(w, &http.Cookie{
-		//	Name:   "session_token",
-		//	Value:  sessionToken,
-		//	MaxAge: 600,
-		//	//HttpOnly: true,
-		//	Path:   "/",
-		//	Secure: true,
-		//})
-
-		//http.SetCookie(w, &http.Cookie{
-		//	Name:   "logged_in",
-		//	Value:  "true",
-		//	MaxAge: 600,
-		//	Path:   "/",
-		//
-		//})
 	}
 }

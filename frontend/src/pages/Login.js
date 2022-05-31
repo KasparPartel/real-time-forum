@@ -51,26 +51,11 @@ export default function Login({ setCookie }) {
       <header>Log in to our real-time-forum!</header>
       <form id="login" onSubmit={handleSubmit}>
         <div>
-          <label>E-Mail: </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div>or</div>
-
-        <div>
-          <label>Username: </label>
+          <label>Username/Email: </label>
           <input
             type="text"
             id="username"
             name="username"
-            pattern="^[a-zA-Z0-9]+$"
-            title="Alphanumerical characters only."
             onChange={handleChange}
             required
           />

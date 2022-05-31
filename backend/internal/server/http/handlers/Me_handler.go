@@ -54,6 +54,7 @@ func MeHandler(w http.ResponseWriter, r *http.Request) {
 				ID:           userID,
 				Email:        email,
 				Gender:       gender,
+				Age:          age,
 				FirstName:    firstName,
 				LastName:     lastName,
 				Username:     username,
