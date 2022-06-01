@@ -176,23 +176,26 @@ func readUsers(db *sql.DB) []byte {
 	type Wsuser struct {
 		ID        int    `json:"id"`
 		Username  string `json:"username"`
-		LoginTime string `json:"login_Time"`
+		LoginDate string `json:"login_date"`
+		LogoutDate string `json:"logout_date"`
 	}
 	var data []Wsuser
 	var json []byte
 	var err error
 
 	// Variables to use for assignment from database
-	var userID int
+	var id int
 	var username string
 	var loginDate string
+	var logoutDate string
 
 	logger.InfoLogger.Println("GET: all users")
 
 	// Select every row from user table
 	// rows, err := db.Query("SELECT user_id, username, login_date FROM user WHERE user_id=?", 1)
 	// rows, err := db.Query("SELECT user_id, username, login_date FROM user ORDER BY user_id LIMIT -1 OFFSET 1")
-	rows, err := db.Query("SELECT user_id, username, login_date FROM user ORDER BY user_id")
+	rows, err := db.Query("SELECT id, username, login_date, logout_date FROM user ORDER BY id")
+	// rows, err := db.Query("SELECT user_id, username, login_date FROM user ORDER BY user_id")
 	// rows, err := db.Query("SELECT * FROM user")
 	helper.CheckError(err)
 	defer rows.Close()
@@ -201,11 +204,12 @@ func readUsers(db *sql.DB) []byte {
 	for rows.Next() {
 
 		user := Wsuser{
-			ID:        userID,
+			ID:        id,
 			Username:  username,
-			LoginTime: loginDate,
+			LoginDate: loginDate,
+			LogoutDate: logoutDate,
 		}
-		rows.Scan(&userID, &username, &loginDate)
+		rows.Scan(&id, &username, &loginDate, &logoutDate)
 
 		data = append(data, user)
 	}
