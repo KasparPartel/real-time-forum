@@ -126,6 +126,8 @@ func reader(conn *websocket.Conn) {
 			log.Println("Printing out received message: ")
 			log.Println(string(p))
 
+			log.Println("readUsers(database):", string(readUsers(database)))
+
 			returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
 			returnedusers = append(returnedusers, readUsers(database)...)
 			returnedusers = append(returnedusers, []byte(`}`)...)
@@ -176,39 +178,43 @@ func readUsers(db *sql.DB) []byte {
 	type Wsuser struct {
 		ID        int    `json:"id"`
 		Username  string `json:"username"`
-		LoginTime string `json:"login_Time"`
+		LoginDate string `json:"login_date"`
+		LogoutDate string `json:"logout_date"`
 	}
 	var data []Wsuser
 	var json []byte
 	var err error
 
 	// Variables to use for assignment from database
-	var userID int
+	var id int
 	var username string
 	var loginDate string
+	var logoutDate string
 
 	logger.InfoLogger.Println("GET: all users")
 
 	// Select every row from user table
-	// rows, err := db.Query("SELECT user_id, username, login_date FROM user WHERE user_id=?", 1)
-	// rows, err := db.Query("SELECT user_id, username, login_date FROM user ORDER BY user_id LIMIT -1 OFFSET 1")
-	rows, err := db.Query("SELECT user_id, username, login_date FROM user ORDER BY user_id")
-	// rows, err := db.Query("SELECT * FROM user")
+	rows, err := db.Query("SELECT id, username, login_date, logout_date FROM user WHERE id != 0 ORDER BY id")
 	helper.CheckError(err)
 	defer rows.Close()
 
+	log.Println("data1:", data)
 	// Loop over every row
 	for rows.Next() {
-
+		
+		rows.Scan(&id, &username, &loginDate, &logoutDate)
 		user := Wsuser{
-			ID:        userID,
+			ID:        id,
 			Username:  username,
-			LoginTime: loginDate,
+			LoginDate: loginDate,
+			LogoutDate: logoutDate,
 		}
-		rows.Scan(&userID, &username, &loginDate)
-
+		
 		data = append(data, user)
+		log.Println("data2:", data)
+		
 	}
+	log.Println("data3:", data)
 
 	if len(data) == 0 {
 		logger.WarningLogger.Println("There are 0 users")
@@ -281,6 +287,7 @@ func readMessages(db *sql.DB, messageUser string, messageTarget string) []byte {
 	// Loop over every row
 	for rows.Next() {
 
+		rows.Scan(&msgID, &msgBody, &msgUser, &msgTarget, &msgCreationTime)
 		message := Wsmessage{
 			ID:            msgID,
 			Body:          msgBody,
@@ -288,7 +295,6 @@ func readMessages(db *sql.DB, messageUser string, messageTarget string) []byte {
 			Target_id:     msgTarget,
 			Creation_time: msgCreationTime,
 		}
-		rows.Scan(&msgID, &msgBody, &msgUser, &msgTarget, &msgCreationTime)
 
 		data = append(data, message)
 	}

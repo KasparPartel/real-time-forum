@@ -35,16 +35,20 @@ function ChatModal(props) {
       <p className={classes.username} onClick={toggleModal}>
         {props.name}
       </p>
-      {(modal && messagelist) && (
+      {(modal /* && messagelist */) && (
         <div className={classes.chatmodal}>
           <div onClick={toggleModal} className={classes.overlay}></div>
           <div className={classes.chatmodalcontent}>
             <h2>{props.user.username}, you're chatting with: {props.name}</h2>
 
-              {messagelist.map((message) => (
-                <ChatText key={message.id} body={message.body} userid={message.user_id} 
-                target={message.target} time={message.creation_time} loginuser={props.user.id}/>
-              ))}
+              {messagelist && (
+                <div>
+                {messagelist.map((message) => (
+                  <ChatText key={message.id} body={message.body} userid={message.user_id} 
+                  target={message.target} time={message.creation_time} loginuser={props.user.id}/>
+                ))}
+                </div>
+              )}
 
             <div className={classes.chatfield}>
               <textarea id="chat-text" name="chat-text" rows="4" cols="50" placeholder="Enter your message here">
