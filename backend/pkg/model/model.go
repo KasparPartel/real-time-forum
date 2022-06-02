@@ -1,9 +1,5 @@
 package model
 
-import (
-	"time"
-)
-
 type User struct {
 	ID           int    `json:"id,omitempty"`
 	Email        string `json:"email,omitempty"`
@@ -38,10 +34,3 @@ type Comment struct {
 	LikeAmount    int    `json:"likeAmount,omitempty"`
 	DislikeAmount int    `json:"dislikeAmount,omitempty"`
 }
-
-type Session struct {
-	UserID     int
-	ExpiryTime time.Time
-}
-
-var Sessions = map[string]Session{}

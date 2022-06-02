@@ -3,6 +3,8 @@ package handlers
 import (
 	"database/sql"
 	json2 "encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
@@ -12,11 +14,13 @@ import (
 	"time"
 )
 
-// Time formatting string
+// LongForm - Time formatting string
 const LongForm = "2006-01-02 15:04:05.000 -0700 PDT"
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	helper.EnableCors(&w)
+	//w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	logger.InfoLogger.Println("Endpoint hit: api/post")
 
@@ -46,6 +50,37 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	// Switch over request method - POST, GET, DELETE
 	switch r.Method {
 	case http.MethodPost:
+		var post map[string]string
+
+		// Read json body into map
+		b, err := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		err = json2.Unmarshal(b, &post)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		/* Validate form data */
+		// User id validation - check if input is number and validate user
+		userID, err = strconv.Atoi(post["user_id"])
+		if err != nil {
+			logger.ErrorLogger.Printf("User ID - %s - is not a number!\n", post["user_id"])
+			http.Error(w, "User ID is not a number!", http.StatusBadRequest)
+			return
+		}
+		row := db.QueryRow("SELECT id FROM user WHERE id=?", userID)
+		if err = row.Scan(&userID); err == sql.ErrNoRows {
+			logger.ErrorLogger.Printf("User with id %d does not exist\n", userID)
+			http.Error(w, fmt.Sprintf("User with id %d does not exist\n", userID), http.StatusBadRequest)
+			return
+		}
+
 		// If there is id in URI then update a specific post
 		// Else create a new post
 		if len(id) != 0 {
@@ -58,10 +93,10 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				post := model.Post{
 					ID:           postID,
-					Title:        r.FormValue("title"),
-					Body:         r.FormValue("title"),
+					Title:        post["title"],
+					Body:         post["body"],
 					UserID:       userID,
-					Filename:     r.FormValue("filename"),
+					Filename:     post["filename"],
 					CreationTime: createdDate,
 					UpdatedTime:  time.Now().Format(LongForm),
 				}
@@ -77,27 +112,40 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			logger.InfoLogger.Println("POST: create a post with form data")
 
-			// Last id from database table
-			var lastId int
-
-			row := db.QueryRow("SELECT id FROM post ORDER BY id DESC limit 1")
-
-			if err = row.Scan(&lastId); err == sql.ErrNoRows {
-				logger.InfoLogger.Println("No posts found")
-			}
-
 			post := model.Post{
-				ID:           lastId + 1,
-				Title:        r.FormValue("title"),
-				Body:         r.FormValue("body"),
-				UserID:       1,
-				Filename:     r.FormValue("filename"),
+				Title:        post["title"],
+				Body:         post["body"],
+				UserID:       userID,
+				Filename:     post["filename"],
 				CreationTime: time.Now().Format(LongForm),
 				UpdatedTime:  time.Now().Format(LongForm),
 			}
 
-			_, err := db.Exec("INSERT INTO post(id, title, body, user_id, filename, created_date, updated_date)"+
-				"VALUES(?, ?, ?, ?, ?, ?, ?)", post.ID, post.Title, post.Body, post.UserID, post.Filename, post.CreationTime, post.UpdatedTime)
+			_, err := db.Exec("INSERT INTO post(title, body, user_id, filename, created_date, updated_date)"+
+				"VALUES(?, ?, ?, ?, ?, ?)", post.Title, post.Body, post.UserID, post.Filename, post.CreationTime, post.UpdatedTime)
+			if err != nil {
+				logger.ErrorLogger.Println(err)
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			row := db.QueryRow("SELECT id FROM post WHERE user_id=? ORDER BY id DESC LIMIT 1", userID)
+			if err = row.Scan(&id); err == sql.ErrNoRows {
+				logger.ErrorLogger.Println("Post not found")
+				http.Error(w, "Post not found", http.StatusInternalServerError)
+				return
+			}
+
+			// Send back post id for recirect
+			fmt.Println(id)
+
+			json, err := json2.Marshal(id)
+			if err != nil {
+				logger.ErrorLogger.Println(err)
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			_, err = w.Write(json)
 			if err != nil {
 				logger.ErrorLogger.Println(err)
 				w.WriteHeader(http.StatusBadRequest)

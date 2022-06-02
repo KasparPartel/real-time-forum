@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"real-time-forum/db"
 	//"github.com/gorilla/websocket"
 	"real-time-forum/internal/server/http"
@@ -21,7 +20,6 @@ func init() {
 
 func main() {
 	if err := db.CheckDB(); err != nil {
-		fmt.Println(err)
 		db.CreateDB()
 	}
 

@@ -1,29 +1,36 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-function Post(props) {
+export default function Post() {
+  const params = useParams();
+  const [post, setPost] = useState({});
+
+  useEffect(() => {
+    fetchSinglePost();
+    console.log(post);
+  }, []);
+
+  const fetchSinglePost = () => {
+    fetch(`http://localhost:4000/v1/api/post/${params.id}`, {
+      method: "GET",
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          console.log("cannot fetch post");
+          return;
+        }
+      })
+      .then((data) => {
+        setPost(data[0]);
+      });
+  };
+
   return (
     <div className="card">
-      <h2 className="mb-1 text-lg font-bold">
-        <Link to={`localhost:4000/v1/post/${props.json.id}`}>
-          {props.json.title}
-        </Link>
-      </h2>
-      <p className="font-medium line-clamp-4">{props.json.body}</p>
-      <p>
-        <span className="comment-amount text-gray-500">
-          <Link to="#!">
-            {props.json.commentAmount ? props.json.commentAmount : 0} comments
-          </Link>
-        </span>
-        <span className="like-amount text-gray-500">
-          {props.json.likeAmount ? props.json.likeAmount : 0} likes
-        </span>
-        <span className="dislike-amount text-gray-500">
-          {props.json.dislikeAmount ? props.json.dislikeAmount : 0} dislikes
-        </span>
-      </p>
+      <h2 className="mb-1 text-lg font-bold">{post.title}</h2>
+      <p className="font-medium line-clamp-4">{post.body}</p>
     </div>
   );
 }
-
-export default Post;

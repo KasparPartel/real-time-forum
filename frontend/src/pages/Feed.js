@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Post from "./Post";
+import FeedPost from "./FeedPost";
 
 function Feed(props) {
   const [posts, setPosts] = useState([]);
@@ -26,7 +26,7 @@ function Feed(props) {
   return (
     <div className="flex flex-wrap py-5 gap-4">
       {posts?.map((p) => (
-        <Post key={p.id} json={p} />
+        <FeedPost key={p.id} json={p} />
       ))}
     </div>
   );
