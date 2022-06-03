@@ -68,7 +68,7 @@ export function webSocketConnect(port) {
         );
 
         socket.send(newMessage);
-
+            
         wsGetChatMessages(
             document.querySelector("#send-button").getAttribute("data-user-id"),
             document.querySelector("#send-button").getAttribute("data-target-id")
