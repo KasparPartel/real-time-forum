@@ -36,8 +36,8 @@ func WsEndpoint(w http.ResponseWriter, r *http.Request) /* (*websocket.Conn, err
 	log.Println("Backend: Attempting reader(ws)")
 
 	// return ws, nil
-	websockets.Reader(ws)
 	go websockets.Writer(ws)
+	websockets.Reader(ws)
 
 }
 

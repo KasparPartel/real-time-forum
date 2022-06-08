@@ -1,22 +1,63 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import classes from "./ChatModal.module.css";
 import ChatText from "./ChatText";
 import { webSocketConnect, wsMessageList } from "../../websocket.js"
+import {UserContext} from "../../UserContext";
 
 function ChatModal(props) {
+  const {user} = useContext(UserContext)
+  // webSocketConnect.wsGetChatMessages(user.id, props.id)
+
+  const [render, setRender] = useState(false)
+  console.log("render:", render);
+
+  const toggleRender = () => {
+    setRender(!render)
+    // setRender(render + 1)
+    webSocketConnect.wsGetChatMessages(user.id, props.id)
+  }
 
   useEffect(() => {
-    webSocketConnect.wsGetChatMessages(props.user.id, props.id)
-  }, [props.user.id, props.id])
+    webSocketConnect.wsGetChatMessages(user.id, props.id)
+    console.log("Asked for messages:", user.id, props.id);
+  }, [user.id, props.id])
 
-  const [messagelist, setMessagelist] = useState(wsMessageList)
+  // useEffect(() => {
+  //   let isSubscribed = true;
+  
+  //   // declare the async data fetching function
+  //   const fetchData = async () => {
+  //     // get the data from the api
+  //     await webSocketConnect.wsGetChatMessages(user.id, props.id)
+  //     // convert the data to json
+  //     // const json = await response.json();
+  
+  //     // set state with the result if `isSubscribed` is true
+  //     if (isSubscribed) {
+  //       setMessagelist(wsMessageList);
+  //     }
+  //   }
+  
+  //   // call the function
+  //   fetchData()
+  //     // make sure to catch any error
+  //     .catch(console.error);;
+  
+  //   // cancel any future `setData`
+  //   return () => isSubscribed = false;
+  // }, [user.id, props.id])
+  
+  // const [messagelist, setMessagelist] = useState(wsMessageList)
+  const [messagelist, setMessagelist] = useState([])
+  
   const [modal, setModal] = useState(false);
   const toggleModal = () => {
+    toggleRender()
     setModal(!modal);
-    if (modal) {
-      webSocketConnect.wsGetChatMessages(props.user.id, props.id)
-      setMessagelist(wsMessageList)
-    }
+    // if (modal) {
+    //   webSocketConnect.wsGetChatMessages(user.id, props.id)
+    //   // setMessagelist(wsMessageList)
+    // }
   };
 
   if (modal) {
@@ -26,12 +67,19 @@ function ChatModal(props) {
   }
 
   console.log("Chatmodal var user is:", props.user.username);
+  console.log("Chatmodal var user is:", user.username);
+  console.log("Chatmodal var target is:", props.name);
   console.log("Chatmodal messagelist length is:", messagelist?.length);
 
   ChatModal.setMessagelist = setMessagelist;
+  // ChatModal.setRender = setRender;
+
+  let textList = messagelist
 
   return (
     <>
+      {/* {render && toggleRender()} */}
+      
       <p className={classes.username} onClick={toggleModal}>
         {props.name}
       </p>
@@ -41,9 +89,9 @@ function ChatModal(props) {
           <div className={classes.chatmodalcontent}>
             <h2>{props.user.username}, you're chatting with: {props.name}</h2>
 
-              {messagelist && (
+              {textList && (
                 <div>
-                {messagelist.map((message) => (
+                {textList.map((message) => (
                   <ChatText key={message.id} body={message.body} userid={message.user_id} 
                   target={message.target} time={message.creation_time} loginuser={props.user.id}/>
                 ))}
@@ -61,10 +109,12 @@ function ChatModal(props) {
               <button className={classes.closemodal} onClick={toggleModal}>
                 CLOSE
               </button>
+              
             </div>
           </div>
         </div>
       )}
+      {render && toggleRender()}
     </>
   );
 }
