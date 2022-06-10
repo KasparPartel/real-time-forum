@@ -1,10 +1,19 @@
 import { msgUpdate } from "./components/layout/ChatModal";
 import { usrUpdate } from "./components/layout/Userlist";
+// import { UserContext } from "../../UserContext";
+// import React, { useContext } from "react";
 
 export let wsUserList = []
 export let wsMessageList = []
 
+// let activeUser
+
+// export const getActiveUser = (usr) => {
+//   activeUser = usr
+// }
+
 export function webSocketConnect(port) {
+    // const {user} = useContext(UserContext)
 
     //let socket = new WebSocket("ws://localhost:4000/ws")
     let socket = new WebSocket(port)
@@ -12,6 +21,9 @@ export function webSocketConnect(port) {
     
     socket.onopen = () => {
         console.log("Successfully Connected to Websocket on port:", port);
+        // console.log("Active user is:", activeUser);
+        // console.log("Active user ID is:", activeUser.id);
+        // socket.send(JSON.stringify(`"activeUserID":"${activeUser.id}"`))
         wsGetUsers()
         usrUpdate()
         // wsGetChatMessages()
@@ -46,6 +58,7 @@ export function webSocketConnect(port) {
     webSocketConnect.sendMessage = sendMessage;
     webSocketConnect.wsGetUsers = wsGetUsers;
     webSocketConnect.wsGetChatMessages = wsGetChatMessages;
+    webSocketConnect.sendActiveUserID = sendActiveUserID;
 
     function sendMessage() {
         function composeMessage(Type, Body, User_id, Target_id, Creation_time) {
@@ -82,6 +95,16 @@ export function webSocketConnect(port) {
         //JSON for getting users from db query
         let msg = {
         type: "wsGetUsers",
+        };
+
+        socket.send(JSON.stringify(msg));
+    }
+    
+    function sendActiveUserID(usrID) {
+        //JSON for getting users from db query
+        let msg = {
+        type: "sendUser",
+        activeUser: usrID,
         };
 
         socket.send(JSON.stringify(msg));

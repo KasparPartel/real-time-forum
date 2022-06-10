@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useContext } from "react";
 import classes from "./ChatModal.module.css";
 import ChatText from "./ChatText";
-import { webSocketConnect, wsMessageList } from "../../websocket.js"
-import {UserContext} from "../../UserContext";
+import { webSocketConnect, wsMessageList/* , getActiveUser */ } from "../../websocket.js"
+import { UserContext } from "../../UserContext";
 
 function ChatModal(props) {
   const {user} = useContext(UserContext)
   // webSocketConnect.wsGetChatMessages(user.id, props.id)
+
+  // getActiveUser(user)
 
   const [render, setRender] = useState(false)
   console.log("render:", render);
@@ -22,32 +24,7 @@ function ChatModal(props) {
     console.log("Asked for messages:", user.id, props.id);
   }, [user.id, props.id])
 
-  // useEffect(() => {
-  //   let isSubscribed = true;
   
-  //   // declare the async data fetching function
-  //   const fetchData = async () => {
-  //     // get the data from the api
-  //     await webSocketConnect.wsGetChatMessages(user.id, props.id)
-  //     // convert the data to json
-  //     // const json = await response.json();
-  
-  //     // set state with the result if `isSubscribed` is true
-  //     if (isSubscribed) {
-  //       setMessagelist(wsMessageList);
-  //     }
-  //   }
-  
-  //   // call the function
-  //   fetchData()
-  //     // make sure to catch any error
-  //     .catch(console.error);;
-  
-  //   // cancel any future `setData`
-  //   return () => isSubscribed = false;
-  // }, [user.id, props.id])
-  
-  // const [messagelist, setMessagelist] = useState(wsMessageList)
   const [messagelist, setMessagelist] = useState([])
   
   const [modal, setModal] = useState(false);
@@ -72,6 +49,7 @@ function ChatModal(props) {
   console.log("Chatmodal messagelist length is:", messagelist?.length);
 
   ChatModal.setMessagelist = setMessagelist;
+  ChatModal.user = user;
   // ChatModal.setRender = setRender;
 
   let textList = messagelist
@@ -124,3 +102,5 @@ export function msgUpdate() {
 }
 
 export default ChatModal;
+// export default ChatModal.user;
+

@@ -2,7 +2,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { UserContext } from "./UserContext";
-import { webSocketConnect } from "./websocket";
+import { webSocketConnect, /* getActiveUser */ } from "./websocket";
 
 import Layout from "./components/layout/Layout";
 import Feed from "./pages/Feed";
@@ -44,6 +44,8 @@ function App() {
 
     const user = await res.json();
     setUser(user);
+    // getActiveUser(user);
+    webSocketConnect.sendActiveUserID(user.id)
     console.log("User object", user);
   };
 
