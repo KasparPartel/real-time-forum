@@ -16,7 +16,7 @@ import Post from "./pages/Post";
 
 import "./App.css";
 
-function App() {
+export default function App() {
   const [cookies, setCookie, removeCookie] = useCookies(["session_token"]);
   const [user, setUser] = useState({});
   const navigate = useNavigate();
@@ -29,6 +29,7 @@ function App() {
     webSocketConnect("ws://localhost:4000/v1/api/ws");
   }, []);
 
+  // getUser fetches user data from api and populates user object
   const getUser = async () => {
     const res = await fetch("http://localhost:4000/v1/api/user/me", {
       method: "GET",
@@ -47,6 +48,7 @@ function App() {
     console.log("User object", user);
   };
 
+  // Logout sends api request to remove token from db and removes cookie
   const Logout = () => {
     fetch(`http://localhost:4000/v1/api/logout/${user.id}`, {
       method: "POST",
@@ -78,5 +80,3 @@ function App() {
     </UserContext.Provider>
   );
 }
-
-export default App;

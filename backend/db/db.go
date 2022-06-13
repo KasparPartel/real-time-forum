@@ -50,42 +50,74 @@ func CreateDB() {
 	timeNow := time.Now().Format(longForm)
 
 	stmt := `CREATE TABLE user (
-		id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-		email text NOT NULL UNIQUE,
-		gender text NOT NULL,
-		age integer NOT NULL,
-		first_name text NOT NULL,
-		last_name text NOT NULL,
-		username text NOT NULL UNIQUE,
-		password_hash text NOT NULL,
-		created_date text NOT NULL,
-		login_date text,
-		logout_date text,
-		administrator text NOT NULL,
-		token text);
+			id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+			email text NOT NULL UNIQUE,
+			gender text NOT NULL,
+			age integer NOT NULL,
+			first_name text NOT NULL,
+			last_name text NOT NULL,
+			username text NOT NULL UNIQUE,
+			password_hash text NOT NULL,
+			created_date text NOT NULL,
+			login_date text,
+			logout_date text,
+			administrator text NOT NULL,
+			token text
+        );
 
 		INSERT INTO user (email, gender, age, first_name, last_name, username, password_hash, created_date, login_date, logout_date, administrator, token)
 		VALUES("test@gmail.com", "male", 25, "Test", "Test", "Test1",
 		"$2a$10$zTl.sQ6T9JEREXTR3K7z3u/AP53bO.UxIRapugFNTiObfAxNr.Xy2", ?, "", "", "yes", "");
 
 		CREATE TABLE post (
-		id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-		title text NOT NULL,
-		body text NOT NULL,
-		user_id integer,
-		filename text,
-		created_date text NOT NULL,
-		updated_date text,
-		FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL );
+			id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+			title text NOT NULL,
+			body text NOT NULL,
+			user_id integer,
+			filename text,
+			created_date text NOT NULL,
+			updated_date text,
+			FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL 
+		);
 
 		CREATE TABLE messages (
-		id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-		body text NOT NULL,
-		user_id text,
-		target_id text,
-		creation_time text NOT NULL,
-		FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL,
-		FOREIGN KEY(target_id) REFERENCES user(id) ON DELETE SET NULL );`
+			id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+			body text NOT NULL,
+			user_id text,
+			target_id text,
+			creation_time text NOT NULL,
+			FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL,
+			FOREIGN KEY(target_id) REFERENCES user(id) ON DELETE SET NULL 
+		);
+
+		CREATE TABLE like (
+		    id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+		    user_id integer NOT NULL,
+		    post_id integer NOT NULL,
+		    FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE,
+		    FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE
+		);
+
+		CREATE TABLE dislike (
+		    id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+		    user_id integer NOT NULL,
+		    post_id integer NOT NULL,
+		    FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE,
+		    FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE
+		);
+
+		CREATE TABLE comment (
+		 	id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+		 	parent_id integer,
+		 	user_id integer,
+		 	post_id integer NOT NULL,
+		 	body text NOT NULL,
+		 	created_date text NOT NULL,
+		 	FOREIGN KEY(parent_id) REFERENCES comment(id),
+		 	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL,
+		 	FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE 
+		);		
+`
 
 	_, err = db.Exec(stmt, timeNow)
 	if err != nil {

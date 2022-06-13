@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import FeedPost from "./FeedPost";
+import FeedPost from "../components/layout/FeedPost";
 
-function Feed(props) {
+export default function Feed() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     requestPosts();
   }, []);
 
+  // requestPosts fetches all posts from api
   const requestPosts = () => {
     fetch("http://localhost:4000/v1/api/post/", {
       method: "GET",
@@ -31,5 +32,3 @@ function Feed(props) {
     </div>
   );
 }
-
-export default Feed;

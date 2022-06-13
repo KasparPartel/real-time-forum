@@ -137,8 +137,6 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// Send back post id for recirect
-			fmt.Println(id)
-
 			json, err := json2.Marshal(id)
 			if err != nil {
 				logger.ErrorLogger.Println(err)

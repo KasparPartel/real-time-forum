@@ -1,3 +1,4 @@
-import {createContext} from "react";
+import { createContext } from "react";
 
-export const UserContext = createContext(null)
+// UserContext stores logged in user data
+export const UserContext = createContext(null);

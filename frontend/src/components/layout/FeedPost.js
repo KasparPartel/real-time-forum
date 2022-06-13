@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 
+// FeedPost is component for post previews in Feed
 export default function FeedPost(props) {
   return (
     <div className="card">

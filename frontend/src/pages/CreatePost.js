@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { UserContext } from "../UserContext";
 import { useNavigate } from "react-router-dom";
 
-function CreatePost() {
+export default function CreatePost() {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -15,6 +15,7 @@ function CreatePost() {
     filename: "",
   });
 
+  // handleChange sets new object based on changed form data
   const handleChange = (e) => {
     let formDataCopy = Object.assign({}, formData);
     let name = e.target.getAttribute("name");
@@ -23,10 +24,9 @@ function CreatePost() {
     setFormData(formDataCopy);
   };
 
+  // handleSubmit sends data to api and navigates to new post page
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    console.log(formData);
 
     fetch("http://localhost:4000/v1/api/post/", {
       method: "POST",
@@ -83,5 +83,3 @@ function CreatePost() {
     </div>
   );
 }
-
-export default CreatePost;

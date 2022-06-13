@@ -6,11 +6,11 @@ export default function Post() {
   const [post, setPost] = useState({});
 
   useEffect(() => {
-    fetchSinglePost();
-    console.log(post);
+    getSinglePost();
   }, []);
 
-  const fetchSinglePost = () => {
+  // getSinglePost fetches post with given id from api and sets post object
+  const getSinglePost = () => {
     fetch(`http://localhost:4000/v1/api/post/${params.id}`, {
       method: "GET",
     })
