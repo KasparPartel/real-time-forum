@@ -67,10 +67,14 @@ func (pool *Pool) Start() {
             }
             fmt.Println("Unmarshaled data:", dat)
 
+            // here we separate incoming messages by type 
+
+            // if the frontend sends user ID for this ws conn
             if dat["type"] == "sendUser" {
                 
                 for client, _ := range pool.Clients {
 
+                    // if recerived user Id conn is same as in Client struct, save user ID in Client
                     if client.Conn == message.Conn {
     
                         client.UserID = int(dat["activeUser"].(float64))
