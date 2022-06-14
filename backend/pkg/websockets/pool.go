@@ -32,10 +32,15 @@ func (pool *Pool) Start() {
             fmt.Println("connected client ID:", client.ID)
             // activeClientID = client.ID
 
-            for client, _ := range pool.Clients {
+            for user, _ := range pool.Clients {
             // for client := range pool.Clients {
                 fmt.Println(client)
-                client.Conn.WriteJSON(Message{Type: 1, Body: "New User Joined..."})
+                user.Conn.WriteJSON(Message{Type: 1, Body: "New User Joined..."})
+                
+                if user.ID == client.ID {
+                    user.Conn.WriteJSON(Message{Type: 1, Body: `"newClient":` + string(client.ID)})
+                }
+
             }
             break
         case client := <-pool.Unregister:
@@ -50,6 +55,7 @@ func (pool *Pool) Start() {
             fmt.Println("POOL: Sending message to all clients in Pool")
             fmt.Println("POOL: incoming message:", message)
             fmt.Println("POOL: incoming message.body:", message.Body)
+            fmt.Println("POOL: incoming message.client:", message.Conn)
 
             byt := []byte(message.Body)
             fmt.Println("Trying to unmarshal")
@@ -61,17 +67,27 @@ func (pool *Pool) Start() {
             }
             fmt.Println("Unmarshaled data:", dat)
 
-            // if dat["type"] == "sendUser" {
-            //     client.UserID = int(dat["activeUser"].(float64))
-            //     // activeUserID := int(dat["activeUser"].(float64))
-            //     // fmt.Println("Active user received:", activeUserID)
-            //     fmt.Println("Active user received and saved to client.UserID:", client.UserID)
-            // }
+            if dat["type"] == "sendUser" {
+                
+                for client, _ := range pool.Clients {
+
+                    if client.Conn == message.Conn {
+    
+                        client.UserID = int(dat["activeUser"].(float64))
+                        fmt.Println("Active user received and saved to client.UserID:", client.UserID)
+                    }
+                }
+                
+
+                // activeUserID := int(dat["activeUser"].(float64))
+                // fmt.Println("Active user received:", activeUserID)
+            }
             
 
             for client, _ := range pool.Clients {
             // for client := range pool.Clients {
                 // if err := client.Conn.WriteJSON(message); err != nil {
+                
                 if err := client.Conn.WriteJSON("POOL: MIRRORED"); err != nil {
                     fmt.Println(err)
                     return

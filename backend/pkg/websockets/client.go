@@ -20,7 +20,7 @@ type Message struct {
     Type int    `json:"type"`
     Body string `json:"body"`
     // Client *string `json:"client"`
-    Client *websocket.Conn `json:"client"`
+    Conn *websocket.Conn `json:"conn"`
 }
 
 func (c *Client) Read() {
@@ -38,7 +38,7 @@ func (c *Client) Read() {
             log.Println(err)
             return
         }
-        message := Message{Type: messageType, Body: string(p), Client: c.Conn}
+        message := Message{Type: messageType, Body: string(p), Conn: c.Conn}
         c.Pool.Broadcast <- message
         fmt.Printf("POOL: Message Received: %+v\n", message)
     }
