@@ -1,32 +1,34 @@
 package websockets
 
 import (
-    // "fmt"
-    // "io"
-    "log"
-    "net/http"
+	// "fmt"
+	// "io"
 	"encoding/json"
-	db2 "real-time-forum/db"
+	"log"
+	"net/http"
 
-    "github.com/gorilla/websocket"
+	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
+
+	"github.com/gorilla/websocket"
 	// "real-time-forum/pkg/websocket"
 )
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool { return true }, // avoid CORS error
+	CheckOrigin:     func(r *http.Request) bool { return true }, // avoid CORS error
 }
 
 func Upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
-    conn, err := upgrader.Upgrade(w, r, nil)
-    if err != nil {
-        log.Println(err)
-        return nil, err
-    }
-    return conn, nil
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return conn, nil
 }
+
 // func Upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
 //     ws, err := upgrader.Upgrade(w, r, nil)
 //     if err != nil {
@@ -156,26 +158,26 @@ func Writer(conn *websocket.Conn) {
 
 	log.Println("Writer called")
 
-    // for {
+	// for {
 	// 	messageType, r, err := conn.NextReader()
-    //     fmt.Println("Writer Sending:", r)
-    //     if err != nil {
+	//     fmt.Println("Writer Sending:", r)
+	//     if err != nil {
 	// 		fmt.Println(err)
-    //         return
-    //     }
-    //     w, err := conn.NextWriter(messageType)
+	//         return
+	//     }
+	//     w, err := conn.NextWriter(messageType)
 	// 	// fmt.Println("Writer Sending:", string(w))
-    //     if err != nil {
-    //         fmt.Println(err)
-    //         return
-    //     }
-    //     if _, err := io.Copy(w, r); err != nil {
-    //         fmt.Println(err)
-    //         return
-    //     }
-    //     if err := w.Close(); err != nil {
-    //         fmt.Println(err)
-    //         return
-    //     }
-    // }
+	//     if err != nil {
+	//         fmt.Println(err)
+	//         return
+	//     }
+	//     if _, err := io.Copy(w, r); err != nil {
+	//         fmt.Println(err)
+	//         return
+	//     }
+	//     if err := w.Close(); err != nil {
+	//         fmt.Println(err)
+	//         return
+	//     }
+	// }
 }

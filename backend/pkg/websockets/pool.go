@@ -1,107 +1,182 @@
 package websockets
 
 import (
-    "fmt"
-    "encoding/json"
+	"encoding/json"
+	"fmt"
+	"log"
+	db2 "real-time-forum/db"
+	"real-time-forum/pkg/helper"
+
+	"github.com/gorilla/websocket"
 )
 
 type Pool struct {
-    Register   chan *Client
-    Unregister chan *Client
-    Clients    map[*Client]bool
-    Broadcast  chan Message
+	Register   chan *Client
+	Unregister chan *Client
+	Clients    map[*Client]bool
+	Broadcast  chan Message
 }
 
 func NewPool() *Pool {
-    return &Pool{
-        Register:   make(chan *Client),
-        Unregister: make(chan *Client),
-        Clients:    make(map[*Client]bool),
-        Broadcast:  make(chan Message),
-    }
+	return &Pool{
+		Register:   make(chan *Client),
+		Unregister: make(chan *Client),
+		Clients:    make(map[*Client]bool),
+		Broadcast:  make(chan Message),
+	}
 }
 
 func (pool *Pool) Start() {
-    for {
-        // var activeClientID string
-        select {
-        case client := <-pool.Register:
-            pool.Clients[client] = true
-            fmt.Println("POOL: Size of Connection Pool: ", len(pool.Clients))
-            fmt.Println("pool.Clients", pool.Clients)
-            fmt.Println("connected client ID:", client.ID)
-            // activeClientID = client.ID
 
-            for user, _ := range pool.Clients {
-            // for client := range pool.Clients {
-                fmt.Println(client)
-                user.Conn.WriteJSON(Message{Type: 1, Body: "New User Joined..."})
-                
-                if user.ID == client.ID {
-                    user.Conn.WriteJSON(Message{Type: 1, Body: `"newClient":` + string(client.ID)})
-                }
+	database, err := db2.OpenDB()
+	helper.CheckError(err)
+	CreateMessageTable(database)
+	defer database.Close()
 
-            }
-            break
-        case client := <-pool.Unregister:
-            delete(pool.Clients, client)
-            fmt.Println("POOL: Size of Connection Pool: ", len(pool.Clients))
-            for client, _ := range pool.Clients {
-            // for client := range pool.Clients {
-                client.Conn.WriteJSON(Message{Type: 1, Body: "User Disconnected..."})
-            }
-            break
-        case message := <-pool.Broadcast:
-            fmt.Println("POOL: Sending message to all clients in Pool")
-            fmt.Println("POOL: incoming message:", message)
-            fmt.Println("POOL: incoming message.body:", message.Body)
-            fmt.Println("POOL: incoming message.client:", message.Conn)
+	for {
+		// var activeClientID string
+		select {
+		case client := <-pool.Register:
+			pool.Clients[client] = true
+			fmt.Println("POOL: Size of Connection Pool: ", len(pool.Clients))
+			fmt.Println("pool.Clients", pool.Clients)
+			fmt.Println("connected client ID:", client.ID)
+			// activeClientID = client.ID
 
-            byt := []byte(message.Body)
-            fmt.Println("Trying to unmarshal")
-            fmt.Println("message.Body", message.Body)
-            fmt.Println("message.Body byt", byt)
-            var dat map[string]interface{}
-            if err := json.Unmarshal(byt, &dat); err != nil {
-                panic(err)
-            }
-            fmt.Println("Unmarshaled data:", dat)
+			for user, _ := range pool.Clients {
+				// for client := range pool.Clients {
+				fmt.Println(client)
+				user.Conn.WriteJSON(Message{Type: 1, Body: "New User Joined..."})
 
-            // here we separate incoming messages by type 
+				if user.ID == client.ID {
+					user.Conn.WriteJSON(Message{Type: 1, Body: `"newClient":` + string(client.ID)})
+				}
 
-            // if the frontend sends user ID for this ws conn
-            if dat["type"] == "sendUser" {
-                
-                for client, _ := range pool.Clients {
+			}
+			break
+		case client := <-pool.Unregister:
+			delete(pool.Clients, client)
+			fmt.Println("POOL: Size of Connection Pool: ", len(pool.Clients))
+			for client, _ := range pool.Clients {
+				// for client := range pool.Clients {
+				client.Conn.WriteJSON(Message{Type: 1, Body: "User Disconnected..."})
+			}
+			break
+		case message := <-pool.Broadcast:
+			fmt.Println("POOL: Sending message to all clients in Pool")
+			// fmt.Println("POOL: incoming message:", message)
+			// fmt.Println("POOL: incoming message.body:", message.Body)
+			// fmt.Println("POOL: incoming message.client:", message.Conn)
 
-                    // if recerived user Id conn is same as in Client struct, save user ID in Client
-                    if client.Conn == message.Conn {
-    
-                        client.UserID = int(dat["activeUser"].(float64))
-                        fmt.Println("Active user received and saved to client.UserID:", client.UserID)
-                    }
-                }
-                
+			byt := []byte(message.Body)
+			fmt.Println("Trying to unmarshal")
+			fmt.Println("message.Body", message.Body)
+			// fmt.Println("message.Body byt", byt)
+			var dat map[string]interface{}
+			if err := json.Unmarshal(byt, &dat); err != nil {
+				panic(err)
+			}
+			fmt.Println("Unmarshaled data:", dat)
 
-                // activeUserID := int(dat["activeUser"].(float64))
-                // fmt.Println("Active user received:", activeUserID)
-            }
-            
+			// here we separate incoming messages by type
 
-            for client, _ := range pool.Clients {
-            // for client := range pool.Clients {
-                // if err := client.Conn.WriteJSON(message); err != nil {
-                
-                if err := client.Conn.WriteJSON("POOL: MIRRORED"); err != nil {
-                    fmt.Println(err)
-                    return
-                }
-                if err := client.Conn.WriteJSON(message); err != nil {
-                    fmt.Println(err)
-                    fmt.Println("What up everybody?")
-                    return
-                }
-            }
-        }
-    }
+			// if the frontend sends user ID for this ws conn
+			if dat["type"] == "sendUser" {
+
+				for client, _ := range pool.Clients {
+
+					// if recerived user Id conn is same as in Client struct, save user ID in Client
+					if client.Conn == message.Conn {
+
+						client.UserID = int(dat["activeUser"].(float64))
+						fmt.Println("Active user received and saved to client.UserID:", client.UserID)
+
+						for client := range pool.Clients {
+							fmt.Printf("Active client UserID in pool: %d\n", client.UserID)
+						}
+					}
+				}
+			}
+
+			// if the frontend sends Message to be saved into db
+			if dat["type"] == "wsSaveChatMessage" {
+
+				WsSaveMessage(
+					database,
+					dat["body"].(string),
+					dat["user_id"].(string),
+					dat["target_id"].(string),
+					dat["creation_time"].(string),
+				)
+
+				// this sends "Message saved" back to frontend connection
+				for client := range pool.Clients {
+
+					// if received user Id conn is same as in Client struct, send confirmation back
+					if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) {
+
+						if err := client.Conn.WriteMessage(websocket.TextMessage, []byte(`{"type":"wsMessageSaved"}`)); err != nil {
+							log.Println(err)
+							return
+						}
+					}
+				}
+			}
+
+			if dat["type"] == "wsGetUsers" /* && dat["user_id"] != "undefined" */ {
+
+				log.Println("Got wsGetUsers request from frontend")
+
+				returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
+				returnedusers = append(returnedusers, WsReadUsers(database)...)
+				returnedusers = append(returnedusers, []byte(`}`)...)
+
+				// this send userlist from db back to frontend that sent request
+				for client := range pool.Clients {
+
+					// if received user Id conn is same as in Client struct, send users back to this user
+					//if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) {
+
+					if err := client.Conn.WriteMessage(websocket.TextMessage, returnedusers); err != nil {
+						log.Println(err)
+						return
+					}
+					//}
+				}
+			}
+
+			if dat["type"] == "wsGetChatMessages" && dat["user_id"] != "undefined" {
+				returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
+				returnedmessages = append(returnedmessages, WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))...)
+				returnedmessages = append(returnedmessages, []byte(`}`)...)
+
+				for client := range pool.Clients {
+
+					// if received user Id conn is same as in Client struct, send messages back to this user
+					if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) {
+
+						if err := client.Conn.WriteMessage(websocket.TextMessage, returnedmessages); err != nil {
+							log.Println(err)
+							return
+						}
+					}
+				}
+			}
+
+			for client, _ := range pool.Clients {
+				// for client := range pool.Clients {
+				// if err := client.Conn.WriteJSON(message); err != nil {
+
+				if err := client.Conn.WriteJSON("POOL: MIRRORED"); err != nil {
+					fmt.Println(err)
+					return
+				}
+				if err := client.Conn.WriteJSON(message); err != nil {
+					fmt.Println(err)
+					fmt.Println("What up everybody?")
+					return
+				}
+			}
+		}
+	}
 }
