@@ -163,20 +163,20 @@ func (pool *Pool) Start() {
 				}
 			}
 
-			for client, _ := range pool.Clients {
-				// for client := range pool.Clients {
-				// if err := client.Conn.WriteJSON(message); err != nil {
+			// for client, _ := range pool.Clients {
+			// 	// for client := range pool.Clients {
+			// 	// if err := client.Conn.WriteJSON(message); err != nil {
 
-				if err := client.Conn.WriteJSON("POOL: MIRRORED"); err != nil {
-					fmt.Println(err)
-					return
-				}
-				if err := client.Conn.WriteJSON(message); err != nil {
-					fmt.Println(err)
-					fmt.Println("What up everybody?")
-					return
-				}
-			}
+			// 	if err := client.Conn.WriteJSON("POOL: MIRRORED"); err != nil {
+			// 		fmt.Println(err)
+			// 		return
+			// 	}
+			// 	if err := client.Conn.WriteJSON(message); err != nil {
+			// 		fmt.Println(err)
+			// 		fmt.Println("What up everybody?")
+			// 		return
+			// 	}
+			// }
 		}
 	}
 }

@@ -42,6 +42,8 @@ export function webSocketConnect(port) {
         console.log("Backend has responded with data: ", msg.data);
         let incomingJson = JSON.parse(msg.data)
 
+        console.log(incomingJson);
+
         if (incomingJson.type === "wsReturnedUsers") {
             wsUserList = incomingJson.body
             usrUpdate()
