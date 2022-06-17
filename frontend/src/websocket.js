@@ -49,6 +49,7 @@ export function webSocketConnect(port) {
             usrUpdate()
         }
         if (incomingJson.type === "wsReturnedMessages") {
+            console.log("returned messages incomingJson.body:", incomingJson.body);
             wsMessageList = incomingJson.body
             msgUpdate()
         }

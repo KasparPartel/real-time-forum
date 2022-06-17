@@ -1,15 +1,16 @@
 package websockets
 
 import (
-    "fmt"
-    // "io"
-    "log"
+	"fmt"
+	// "io"
 	"database/sql"
-    // "net/http"
+	"log"
+
+	// "net/http"
 	// db2 "real-time-forum/db"
 	json2 "encoding/json"
 
-    // "github.com/gorilla/websocket"
+	// "github.com/gorilla/websocket"
 	"real-time-forum/pkg/helper"
 	"real-time-forum/pkg/logger"
 )
@@ -32,9 +33,9 @@ func CreateMessageTable(db *sql.DB) {
 func WsReadUsers(db *sql.DB) []byte {
 
 	type Wsuser struct {
-		ID        int    `json:"id"`
-		Username  string `json:"username"`
-		LoginDate string `json:"login_date"`
+		ID         int    `json:"id"`
+		Username   string `json:"username"`
+		LoginDate  string `json:"login_date"`
 		LogoutDate string `json:"logout_date"`
 	}
 	var data []Wsuser
@@ -57,18 +58,18 @@ func WsReadUsers(db *sql.DB) []byte {
 	// log.Println("data1:", data)
 	// Loop over every row
 	for rows.Next() {
-		
+
 		rows.Scan(&id, &username, &loginDate, &logoutDate)
 		user := Wsuser{
-			ID:        id,
-			Username:  username,
-			LoginDate: loginDate,
+			ID:         id,
+			Username:   username,
+			LoginDate:  loginDate,
 			LogoutDate: logoutDate,
 		}
-		
+
 		data = append(data, user)
 		// log.Println("data2:", data)
-		
+
 	}
 	// log.Println("data3:", data)
 
@@ -110,6 +111,8 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) []byte
 		Target_id     string `json:"target_id"`
 		Creation_time string `json:"creation_time"`
 	}
+
+	returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
 
 	var data []Wsmessage
 	var json []byte
@@ -165,6 +168,27 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) []byte
 		logger.ErrorLogger.Println(err)
 	}
 
-	return json
+	returnedmessages = append(returnedmessages, json...)
+	returnedmessages = append(returnedmessages, []byte(`}`)...)
+
+	return returnedmessages
 
 }
+
+// func WsReturnMessages() {
+// 	returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
+// 	returnedmessages = append(returnedmessages, WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))...)
+// 	returnedmessages = append(returnedmessages, []byte(`}`)...)
+
+// 	for client := range pool.Clients {
+
+// 		// if received user Id conn is same as in Client struct, send messages back to this user
+// 		if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) {
+
+// 			if err := client.Conn.WriteMessage(websocket.TextMessage, returnedmessages); err != nil {
+// 				log.Println(err)
+// 				return
+// 			}
+// 		}
+// 	}
+// }

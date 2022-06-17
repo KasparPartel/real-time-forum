@@ -78,8 +78,11 @@ func (pool *Pool) Start() {
 			}
 			fmt.Println("Unmarshaled data:", dat)
 
-			// here we separate incoming messages by type
+			// returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
+			// returnedmessages = append(returnedmessages, WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))...)
+			// returnedmessages = append(returnedmessages, []byte(`}`)...)
 
+			// here we separate incoming messages by type
 			// if the frontend sends user ID for this ws conn
 			if dat["type"] == "sendUser" {
 
@@ -109,6 +112,10 @@ func (pool *Pool) Start() {
 					dat["creation_time"].(string),
 				)
 
+				// returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
+				// returnedmessages = append(returnedmessages, WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))...)
+				// returnedmessages = append(returnedmessages, []byte(`}`)...)
+
 				// this sends "Message saved" back to frontend connection
 				for client := range pool.Clients {
 
@@ -120,10 +127,20 @@ func (pool *Pool) Start() {
 							return
 						}
 					}
+
+					// if received user Id conn is same as in Client struct, send messages back to this user
+					// if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) ||
+					// 	fmt.Sprintf("%d", client.UserID) == dat["target_id"].(string) {
+
+					// 	if err := client.Conn.WriteMessage(websocket.TextMessage, returnedmessages); err != nil {
+					// 		log.Println(err)
+					// 		return
+					// 	}
+					// }
 				}
 			}
 
-			if dat["type"] == "wsGetUsers" /* && dat["user_id"] != "undefined" */ {
+			if dat["type"] == "wsGetUsers" && dat["user_id"] != "undefined" {
 
 				log.Println("Got wsGetUsers request from frontend")
 
@@ -146,16 +163,25 @@ func (pool *Pool) Start() {
 			}
 
 			if dat["type"] == "wsGetChatMessages" && dat["user_id"] != "undefined" {
-				returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
-				returnedmessages = append(returnedmessages, WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))...)
-				returnedmessages = append(returnedmessages, []byte(`}`)...)
+				// returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
+				// returnedmessages = append(returnedmessages, WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))...)
+				// returnedmessages = append(returnedmessages, []byte(`}`)...)
+				log.Println("Got wsGetChatMessages: user_id, target_id", dat["user_id"], dat["target_id"])
 
-				for client := range pool.Clients {
+				returnmessages := WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))
 
+				// log.Println("returnessages:", string(returnmessages))
+
+				log.Println("pool.Clients", pool.Clients)
+
+				for client, _ := range pool.Clients {
+					log.Println("User in Pool client.UserID:", client.UserID)
 					// if received user Id conn is same as in Client struct, send messages back to this user
-					if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) {
-
-						if err := client.Conn.WriteMessage(websocket.TextMessage, returnedmessages); err != nil {
+					if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) ||
+						fmt.Sprintf("%d", client.UserID) == dat["target_id"].(string) { // PROBLEM?
+						log.Println("Sending messages to user:", dat["user_id"])
+						// log.Println("Sending messages:", string(returnmessages))
+						if err := client.Conn.WriteMessage(websocket.TextMessage, returnmessages); err != nil {
 							log.Println(err)
 							return
 						}
