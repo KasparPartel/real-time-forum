@@ -108,12 +108,10 @@ func CreateDB() {
 
 		CREATE TABLE comment (
 		 	id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-		 	parent_id integer,
 		 	user_id integer,
 		 	post_id integer NOT NULL,
 		 	body text NOT NULL,
 		 	created_date text NOT NULL,
-		 	FOREIGN KEY(parent_id) REFERENCES comment(id),
 		 	FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL,
 		 	FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE 
 		);		

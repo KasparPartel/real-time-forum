@@ -157,8 +157,6 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		// Set correct headers so client can request data
 		// Without correct headers there can be CORS errors etc.
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		var json []byte
 		var err error

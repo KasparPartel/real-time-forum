@@ -27,10 +27,12 @@ type Post struct {
 }
 
 type Comment struct {
-	ID int `json:"id,omitempty"`
-	//Post          Post   `json:"post"`
-	Body          string `json:"body,omitempty"`
-	Author        User   `json:"author"`
-	LikeAmount    int    `json:"likeAmount,omitempty"`
-	DislikeAmount int    `json:"dislikeAmount,omitempty"`
+	ID int `json:"id"`
+	//ParentID     int    `json:"parent_id"`
+	UserID       int    `json:"user_id"`
+	PostID       int    `json:"post_id"`
+	Body         string `json:"body"`
+	CreationTime string `json:"creation_time"`
+	//LikeAmount    int    `json:"likeAmount"`
+	//DislikeAmount int    `json:"dislikeAmount"`
 }

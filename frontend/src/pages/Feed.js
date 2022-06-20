@@ -5,11 +5,11 @@ export default function Feed() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    requestPosts();
+    getPosts();
   }, []);
 
-  // requestPosts fetches all posts from api
-  const requestPosts = () => {
+  // getPosts fetches all posts from api
+  const getPosts = () => {
     fetch("http://localhost:4000/v1/api/post/", {
       method: "GET",
     })

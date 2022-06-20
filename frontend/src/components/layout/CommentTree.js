@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const CommentTree = () => {
-  const [comments, setComments] = useState({});
+import Comment from "./Comment";
 
+const CommentTree = ({ comments }) => {
   return (
     <div>
-      {comments.map((comment) => (
-        <Comment key={comment.id} />
+      {comments?.map((comment) => (
+        <Comment key={comment.id} json={comment} />
       ))}
     </div>
   );
 };
+
+export default CommentTree;
