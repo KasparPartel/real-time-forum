@@ -26,8 +26,8 @@ export default function Feed() {
 
   return (
     <div className="flex flex-wrap py-5 gap-4">
-      {posts?.map((p) => (
-        <FeedPost key={p.id} json={p} />
+      {posts?.map((post) => (
+        <FeedPost key={post.id} json={post} />
       ))}
     </div>
   );

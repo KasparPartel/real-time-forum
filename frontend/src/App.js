@@ -45,6 +45,7 @@ export default function App() {
 
     const user = await res.json();
     setUser(user);
+    sessionStorage.setItem("user_id", user.id);
     console.log("User object", user);
   };
 
@@ -55,6 +56,7 @@ export default function App() {
     }).then((res) => {
       if (res.ok) {
         removeCookie("session_token");
+        sessionStorage.removeItem("user_id");
         navigate("/", { replace: true });
       } else {
         console.log("Cannot logout user!");

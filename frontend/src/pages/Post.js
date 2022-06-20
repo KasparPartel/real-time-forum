@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import CommentTree from "../components/layout/CommentTree";
@@ -12,9 +12,10 @@ export default function Post() {
   const [post, setPost] = useState({});
   const [comments, setComments] = useState([]);
 
+  const user_id = sessionStorage.getItem("user_id");
+
   useEffect(() => {
     getSinglePost();
-    console.log(post);
     getComments();
   }, []);
 
@@ -37,11 +38,14 @@ export default function Post() {
   };
 
   const getComments = () => {
-    fetch(`http://localhost:4000/v1/api/comments/${post.id}`, {
+    fetch(`http://localhost:4000/v1/api/comments/${params.id}`, {
       method: "GET",
     })
       .then((res) => res.json())
-      .then((data) => setComments(data));
+      .then((data) => {
+        setComments(data);
+        console.log("comments", comments);
+      });
   };
 
   return (
@@ -49,12 +53,16 @@ export default function Post() {
       <h2 className="mb-1 text-lg font-bold">{post.title}</h2>
       <p className="font-medium line-clamp-4">{post.body}</p>
       <hr />
-      <CreateComment
-        postID={params.id}
-        userID={user.id}
-        getComments={getComments}
-      />
-      <CommentTree postID={params.id} getComments={getComments} />
+      {user_id ? (
+        <CreateComment
+          postID={params.id}
+          userID={user_id}
+          getComments={getComments}
+        />
+      ) : (
+        <Fragment></Fragment>
+      )}
+      <CommentTree comments={comments} />
     </div>
   );
 }
