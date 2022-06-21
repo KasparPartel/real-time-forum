@@ -39,6 +39,8 @@ export default function App() {
     if (!res.ok) {
       const msg = `User not authorized: ${res.status}`;
       setUser(null);
+      removeCookie("session_token");
+      sessionStorage.removeItem("user_id");
       console.log(msg);
       return;
     }

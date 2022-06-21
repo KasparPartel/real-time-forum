@@ -11,12 +11,16 @@ export default function Post() {
 
   const [post, setPost] = useState({});
   const [comments, setComments] = useState([]);
+  // const [likes, setLikes] = useState([]);
+  // const [dislikes, setDislikes] = useState([]);
 
   const user_id = sessionStorage.getItem("user_id");
 
   useEffect(() => {
     getSinglePost();
     getComments();
+    // getLikes();
+    // getDislikes();
   }, []);
 
   // getSinglePost fetches post with given id from api and sets post object
@@ -47,6 +51,26 @@ export default function Post() {
         console.log("comments", comments);
       });
   };
+
+  // const getLikes = () => {
+  //   fetch(`http://localhost:4000/v1/api/like/${params.id}`, {
+  //     method: "GET",
+  //   })
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setLikes(data);
+  //     });
+  // };
+
+  // const getDislikes = () => {
+  //   fetch(`http://localhost:4000/v1/api/dislike/${params.id}`, {
+  //     method: "GET",
+  //   })
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setDislikes(data);
+  //     });
+  // };
 
   return (
     <div className="card">
