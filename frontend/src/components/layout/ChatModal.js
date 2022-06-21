@@ -66,7 +66,8 @@ function ChatModal(props) {
           <div onClick={toggleModal} className={classes.overlay}></div>
           <div className={classes.chatmodalcontent}>
             <h2>{props.user.username}, you're chatting with: {props.name}</h2>
-
+              
+              <div className={classes.chattexts}>
               {textList && (
                 <div>
                 {textList.map((message) => (
@@ -75,6 +76,7 @@ function ChatModal(props) {
                 ))}
                 </div>
               )}
+              </div>
 
             <div className={classes.chatfield}>
               <textarea id="chat-text" name="chat-text" rows="4" cols="50" placeholder="Enter your message here">

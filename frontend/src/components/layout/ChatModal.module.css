@@ -37,6 +37,10 @@ body.active-modal {
     z-index: 20;
 }
 
+.chattexts {
+    overflow-y: scroll;
+}
+
 .chatfield {
     display: block;
 }

@@ -7,7 +7,9 @@ function ChatText(props) {
       return (
           <>
             <p className={classes.usermessage}>
-              {props.body}
+              {props.body} <br>
+              </br>
+              @ {new Date(Date.parse(props.time)).toLocaleString('en-GB')}
             </p>
           </>
       );
@@ -15,7 +17,9 @@ function ChatText(props) {
     return (
       <>
         <p className={classes.targetmessage}>
-          {props.body}
+          {props.body} <br>
+            </br>
+            @ {new Date(Date.parse(props.time)).toLocaleString('en-GB')}
         </p>
       </>
   );
