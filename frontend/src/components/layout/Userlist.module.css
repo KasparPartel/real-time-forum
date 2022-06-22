@@ -1,3 +1,4 @@
+
 .userlist {
     height: 100%; /* 100% Full-height */
     width: 10rem; /* 0 width - change this with JavaScript */
@@ -13,6 +14,9 @@
     cursor: pointer;
 }
 
+.active {
+    color: blue;
+}
 
 .ul {
     list-style: none;

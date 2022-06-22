@@ -58,9 +58,9 @@ function ChatModal(props) {
     <>
       {/* {render && toggleRender()} */}
       
-      <p className={classes.username} onClick={toggleModal}>
+      <li className={classes[props.class]} onClick={toggleModal}>
         {props.name}
-      </p>
+      </li>
       {(modal /* && messagelist */) && (
         <div className={classes.chatmodal}>
           <div onClick={toggleModal} className={classes.overlay}></div>

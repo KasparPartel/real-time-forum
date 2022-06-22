@@ -16,11 +16,11 @@ function ChatText(props) {
   } else {
     return (
       <>
-        <p className={classes.targetmessage}>
+        <li className={classes.targetmessage}>
           {props.body} <br>
             </br>
             @ {new Date(Date.parse(props.time)).toLocaleString('en-GB')}
-        </p>
+        </li>
       </>
   );
   }
