@@ -37,6 +37,7 @@ func WsReadUsers(db *sql.DB) []byte {
 		Username   string `json:"username"`
 		LoginDate  string `json:"login_date"`
 		LogoutDate string `json:"logout_date"`
+		History	   string `json:"history"`
 	}
 	var data []Wsuser
 	var json []byte
@@ -47,11 +48,12 @@ func WsReadUsers(db *sql.DB) []byte {
 	var username string
 	var loginDate string
 	var logoutDate string
+	var history string
 
 	logger.InfoLogger.Println("GET: all users")
 
 	// Select every row from user table
-	rows, err := db.Query("SELECT id, username, login_date, logout_date FROM user WHERE id != 0 ORDER BY id")
+	rows, err := db.Query("SELECT id, username, login_date, logout_date, history FROM user WHERE id != 0 ORDER BY id")
 	helper.CheckError(err)
 	defer rows.Close()
 
@@ -59,12 +61,13 @@ func WsReadUsers(db *sql.DB) []byte {
 	// Loop over every row
 	for rows.Next() {
 
-		rows.Scan(&id, &username, &loginDate, &logoutDate)
+		rows.Scan(&id, &username, &loginDate, &logoutDate, &history)
 		user := Wsuser{
 			ID:         id,
 			Username:   username,
 			LoginDate:  loginDate,
 			LogoutDate: logoutDate,
+			History:	history,
 		}
 
 		data = append(data, user)
@@ -172,6 +175,22 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) []byte
 	returnedmessages = append(returnedmessages, []byte(`}`)...)
 
 	return returnedmessages
+
+}
+
+func WsSaveHistory(db *sql.DB, user int, target int) {
+	// this function saves a message target into user's chat history array
+	// has to save into both users' history
+
+	// 1. query user history string from table
+
+	// 2. turn data into array
+
+	// 3. add target as first element of array
+
+	// 4. turn array into string
+
+	// 5. save string into user table history
 
 }
 

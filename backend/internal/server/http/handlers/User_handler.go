@@ -48,7 +48,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 	var isAdmin string
 	var age int
 	var token string
-	// var age string // ET: trying to fix User_handler.go
+	var history string
 
 	// Switch over request method - POST, GET, DELETE
 	switch r.Method {
@@ -107,7 +107,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 			row := db.QueryRow("SELECT * FROM post WHERE id=?", id)
 
-			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token); err == sql.ErrNoRows {
+			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token, &history); err == sql.ErrNoRows {
 				logger.ErrorLogger.Printf("User with id %d does not exist", id)
 			} else {
 				user := model.User{
@@ -124,6 +124,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					LogoutTime:   logoutDate,
 					IsAdmin:      isAdmin,
 					Token:        token,
+					History:	  history,
 				}
 
 				_, err := db.Exec("UPDATE user SET email=?, gender=?, first_name=?, age=?, last_name=?, username=?, password_hash=? WHERE id=?",
@@ -159,10 +160,11 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 				PasswordHash: passwordHash,
 				CreationTime: time.Now().Format(LongForm),
 				IsAdmin:      "no",
+				History:	  "",
 			}
 
-			_, err := db.Exec("INSERT INTO user(email, gender, age, first_name, last_name, username, password_hash, created_date, login_date, logout_date, administrator, token)"+
-				"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", user.Email, user.Gender, user.Age, user.FirstName, user.LastName, user.Username, user.PasswordHash, user.CreationTime, "", "", user.IsAdmin, "")
+			_, err := db.Exec("INSERT INTO user(email, gender, age, first_name, last_name, username, password_hash, created_date, login_date, logout_date, administrator, token, history)"+
+				"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", user.Email, user.Gender, user.Age, user.FirstName, user.LastName, user.Username, user.PasswordHash, user.CreationTime, "", "", user.IsAdmin, "", "")
 			if err != nil {
 				logger.ErrorLogger.Println(err)
 				w.WriteHeader(http.StatusBadRequest)
@@ -186,7 +188,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 			row := db.QueryRow("SELECT * FROM user WHERE id=?", id)
 
-			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token); err == sql.ErrNoRows {
+			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token, &history); err == sql.ErrNoRows {
 				logger.ErrorLogger.Printf("User with id %d does not exist", id)
 			} else {
 
@@ -204,6 +206,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					LogoutTime:   logoutDate,
 					IsAdmin:      isAdmin,
 					Token:        token,
+					History:	  history,
 				}
 
 				data = append(data, user)
@@ -218,7 +221,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 			// Loop over every row
 			for rows.Next() {
-				rows.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token)
+				rows.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token, &history)
 
 				user := model.User{
 					ID:           userID,
@@ -234,6 +237,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					LogoutTime:   logoutDate,
 					IsAdmin:      isAdmin,
 					Token:        token,
+					History:	  history,
 				}
 
 				data = append(data, user)
