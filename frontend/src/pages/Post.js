@@ -1,16 +1,17 @@
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import CommentTree from "../components/layout/CommentTree";
 import CreateComment from "../components/layout/CreateComment";
-import { UserContext } from "../UserContext";
 
 export default function Post() {
   const params = useParams();
-  const { user } = useContext(UserContext);
 
   const [post, setPost] = useState({});
   const [comments, setComments] = useState([]);
+  const [category, setCategory] = useState({});
+  const [author, setAuthor] = useState({});
+
   // const [likes, setLikes] = useState([]);
   // const [dislikes, setDislikes] = useState([]);
 
@@ -18,10 +19,16 @@ export default function Post() {
 
   useEffect(() => {
     getSinglePost();
+  }, []);
+
+  useEffect(() => {
     getComments();
+    getCategory();
+    getUser();
+
     // getLikes();
     // getDislikes();
-  }, []);
+  }, [post]);
 
   // getSinglePost fetches post with given id from api and sets post object
   const getSinglePost = () => {
@@ -52,6 +59,26 @@ export default function Post() {
       });
   };
 
+  const getCategory = () => {
+    fetch(`http://localhost:4000/v1/api/categories/${post["category_id"]}`, {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setCategory(data[0]);
+      });
+  };
+
+  const getUser = () => {
+    fetch(`http://localhost:4000/v1/api/user/${post["user_id"]}`, {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setAuthor(data[0]);
+      });
+  };
+
   // const getLikes = () => {
   //   fetch(`http://localhost:4000/v1/api/like/${params.id}`, {
   //     method: "GET",
@@ -74,7 +101,13 @@ export default function Post() {
 
   return (
     <div className="card">
-      <h2 className="mb-1 text-lg font-bold">{post.title}</h2>
+      <h2 className="mb-1 text-lg font-bold">{post.title} </h2>
+      <p>
+        <i>Author: {author.username}</i>
+      </p>
+      <p>
+        <i>Category: {category.title}</i>
+      </p>
       <p className="font-medium line-clamp-4">{post.body}</p>
       <hr />
       {user_id ? (

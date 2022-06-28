@@ -3,10 +3,23 @@ import FeedPost from "../components/layout/FeedPost";
 
 export default function Feed() {
   const [posts, setPosts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategoryID, setSelectedCategoryID] = useState(null);
+  const [selectedPosts, setSelectedPosts] = useState([]);
 
   useEffect(() => {
     getPosts();
+    getCategories();
   }, []);
+
+  useEffect(() => {
+    setSelectedPosts(posts);
+  }, [posts]);
+
+  useEffect(() => {
+    filterPosts();
+    console.log("selected posts", selectedPosts);
+  }, [selectedCategoryID]);
 
   // getPosts fetches all posts from api
   const getPosts = () => {
@@ -24,9 +37,52 @@ export default function Feed() {
       .catch((error) => console.log(error));
   };
 
+  const getCategories = () => {
+    fetch(`http://localhost:4000/v1/api/categories/`, {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(data);
+        console.log("categories", categories);
+      });
+  };
+
+  const filterPosts = () => {
+    console.log("category id selected", selectedCategoryID);
+    if (selectedCategoryID) {
+      setSelectedPosts(
+        posts.filter((post) => selectedCategoryID == post["category_id"])
+      );
+    } else {
+      setSelectedPosts(posts);
+    }
+  };
+
+  const handleSelectChange = (e) => {
+    const value = e.target.value;
+
+    value === "" ? setSelectedCategoryID(null) : setSelectedCategoryID(value);
+    console.log("category id", selectedCategoryID);
+  };
+
   return (
     <div className="flex flex-wrap py-5 gap-4">
-      {posts?.map((post) => (
+      <label>Category: </label>
+      <select
+        name="category_id"
+        value={selectedCategoryID || ""}
+        defaultValue=""
+        onChange={handleSelectChange}
+      >
+        <option value="">All</option>
+        {categories?.map((category) => (
+          <option value={category.id} key={category.id}>
+            {category.title}
+          </option>
+        ))}
+      </select>
+      {selectedPosts?.map((post) => (
         <FeedPost key={post.id} json={post} />
       ))}
     </div>

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../UserContext";
 import { useNavigate } from "react-router-dom";
 
@@ -14,19 +14,41 @@ export default function CreatePost() {
     user_id: user.id.toString(),
     filename: "",
   });
+  const [categories, setCategories] = useState([]);
+  // const [selectedCategoryID, setSelectedCategoryID] = useState(null);
+
+  useEffect(() => {
+    getCategories();
+  }, []);
+
+  const getCategories = () => {
+    fetch(`http://localhost:4000/v1/api/categories/`, {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(data);
+        console.log("categories", categories);
+      });
+  };
 
   // handleChange sets new object based on changed form data
   const handleChange = (e) => {
     let formDataCopy = Object.assign({}, formData);
     let name = e.target.getAttribute("name");
+    console.log("name", name);
+    console.log("value", e.target.value);
 
     formDataCopy[name] = e.target.value;
     setFormData(formDataCopy);
+    console.log(formData);
   };
 
   // handleSubmit sends data to api and navigates to new post page
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    console.log(formData);
 
     fetch("http://localhost:4000/v1/api/post/", {
       method: "POST",
@@ -60,13 +82,26 @@ export default function CreatePost() {
           required
         />
         <br></br>
-        {/* <label>Post topic: </label>
-            <select name="post-topic" id="post-topic">
-                <option value="Memes">Memes</option>
-                <option value="Useful">Useful</option>
-                <option defaultValue="Random">Random</option>
-            </select>
-            <br></br> */}
+        <label>Category: </label>
+        <select
+          name="category_id"
+          id="category"
+          defaultValue=""
+          onChange={handleChange}
+          required
+        >
+          <option value="" disabled>
+            Choose Category
+          </option>
+          {categories?.map((category) => {
+            return (
+              <option value={category.id} key={category.id}>
+                {category.title}
+              </option>
+            );
+          })}
+        </select>
+        <br></br>
         <textarea
           id="post-body"
           name="body"

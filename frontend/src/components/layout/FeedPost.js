@@ -4,11 +4,16 @@ import { Link } from "react-router-dom";
 // FeedPost is component for post previews in Feed
 const FeedPost = ({ json }) => {
   const [comments, setComments] = useState([]);
+  const [category, setCategory] = useState({});
+  const [author, setAuthor] = useState({});
+
   // const [likes, setLikes] = useState([]);
   // const [dislikes, setDislikes] = useState([]);
 
   useEffect(() => {
     getComments();
+    getCategory();
+    getAuthor();
     // getLikes();
     // getDislikes();
   }, []);
@@ -21,6 +26,26 @@ const FeedPost = ({ json }) => {
       .then((data) => {
         setComments(data);
         console.log("comments", comments);
+      });
+  };
+
+  const getCategory = () => {
+    fetch(`http://localhost:4000/v1/api/categories/${json["category_id"]}`, {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setCategory(data[0]);
+      });
+  };
+
+  const getAuthor = () => {
+    fetch(`http://localhost:4000/v1/api/user/${json["user_id"]}`, {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setAuthor(data[0]);
       });
   };
 
@@ -49,6 +74,12 @@ const FeedPost = ({ json }) => {
       <h2 className="mb-1 text-lg font-bold">
         <Link to={`/post/${json.id}`}>{json.title}</Link>
       </h2>
+      <p>
+        <i>Author: {author.username}</i>
+      </p>
+      <p>
+        <i>Category: {category.title}</i>
+      </p>
       <p className="font-medium line-clamp-4">{json.body}</p>
       <p>
         <span className="comment-amount text-gray-500">
