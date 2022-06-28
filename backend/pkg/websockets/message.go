@@ -5,7 +5,8 @@ import (
 	// "io"
 	"database/sql"
 	"log"
-
+	"strings"
+	"strconv"
 	// "net/http"
 	// db2 "real-time-forum/db"
 	json2 "encoding/json"
@@ -178,36 +179,79 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) []byte
 
 }
 
-func WsSaveHistory(db *sql.DB, user int, target int) {
+func WsSaveHistory(db *sql.DB, user string, target string) {
 	// this function saves a message target into user's chat history array
-	// has to save into both users' history
+	// saves into both chat users' history
+	// if id already present in history, moves it to start of array
+	
+	// 1. query chat user and target history strings from table
+	type History struct {
+		ID		int
+		Data	string
+	}
+	var userInt int
+	var targetInt int
+	var userHistory History
+	var targetHistory History
 
-	// 1. query user history string from table
+	if i, err := strconv.Atoi(user); err == nil {
+		userInt = i
+	}
+	if j, err := strconv.Atoi(target); err == nil {
+		targetInt = j
+	}
 
-	// 2. turn data into array
+	queryString := `SELECT id, history FROM user WHERE id=$1;`
+	
+	userrow := db.QueryRow(queryString, userInt)
+	switch err := userrow.Scan(&userHistory.ID, &userHistory.Data); err {
+		case sql.ErrNoRows:
+		fmt.Println("No rows were returned!")
+		case nil:
+		fmt.Printf("History of userId %d: %s\n", userHistory.ID, userHistory.Data)
+		default:
+		panic(err)
+	}
+	
+	targetrow := db.QueryRow(queryString, targetInt)
+	switch err := targetrow.Scan(&targetHistory.ID, &targetHistory.Data); err {
+		case sql.ErrNoRows:
+		fmt.Println("No rows were returned!")
+		case nil:
+		fmt.Printf("History of userId %d: %s\n", targetHistory.ID, targetHistory.Data)
+		default:
+		panic(err)
+	}
 
-	// 3. add target as first element of array
+	// 2. place user id into start of history
+	userHistoryUpdate := convertHistory(userHistory.Data, targetHistory.ID)
+	targetHistoryUpdate := convertHistory(targetHistory.Data, userHistory.ID)
+	fmt.Printf("New userId %d history: %s\n", userHistory.ID, userHistoryUpdate)
+	fmt.Printf("New userId %d history: %s\n", targetHistory.ID, targetHistoryUpdate)
 
-	// 4. turn array into string
 
-	// 5. save string into user table history
-
+	// 3. save updated strings into user and target history in db
+	db.Exec("UPDATE user SET history = ? WHERE id = ?", userHistoryUpdate, userHistory.ID)
+	db.Exec("UPDATE user SET history = ? WHERE id = ?", targetHistoryUpdate, targetHistory.ID)
 }
 
-// func WsReturnMessages() {
-// 	returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
-// 	returnedmessages = append(returnedmessages, WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))...)
-// 	returnedmessages = append(returnedmessages, []byte(`}`)...)
+func convertHistory(history string, user int) string {
+	userStr := strconv.Itoa(user)
+	userSplit := strings.Split(history, ",")
+	var userRet string
+	userSplit = append([]string{userStr}, userSplit...)
 
-// 	for client := range pool.Clients {
+	for i := 0; i < len(userSplit); i++ {
+		if i > 0 && userSplit[i] == userStr {
+			userSplit = append(userSplit[:i], userSplit[i+1:]...)
+			i--
+		} else {
+			userRet = userRet + userSplit[i]
+			if i < len(userSplit)-1 {
+				userRet = userRet + ","
+			}
+		}
+	}
+	return userRet
+}
 
-// 		// if received user Id conn is same as in Client struct, send messages back to this user
-// 		if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) {
-
-// 			if err := client.Conn.WriteMessage(websocket.TextMessage, returnedmessages); err != nil {
-// 				log.Println(err)
-// 				return
-// 			}
-// 		}
-// 	}
-// }

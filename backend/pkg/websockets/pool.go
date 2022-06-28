@@ -111,10 +111,8 @@ func (pool *Pool) Start() {
 					dat["target_id"].(string),
 					dat["creation_time"].(string),
 				)
-
-				// returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
-				// returnedmessages = append(returnedmessages, WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))...)
-				// returnedmessages = append(returnedmessages, []byte(`}`)...)
+				WsSaveHistory(database, dat["user_id"].(string), dat["target_id"].(string))
+				WsSaveHistory(database, dat["target_id"].(string), dat["user_id"].(string))
 
 				// this sends "Message saved" back to frontend connection
 				for client := range pool.Clients {
@@ -127,16 +125,6 @@ func (pool *Pool) Start() {
 							return
 						}
 					}
-
-					// if received user Id conn is same as in Client struct, send messages back to this user
-					// if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) ||
-					// 	fmt.Sprintf("%d", client.UserID) == dat["target_id"].(string) {
-
-					// 	if err := client.Conn.WriteMessage(websocket.TextMessage, returnedmessages); err != nil {
-					// 		log.Println(err)
-					// 		return
-					// 	}
-					// }
 				}
 			}
 
@@ -188,21 +176,6 @@ func (pool *Pool) Start() {
 					}
 				}
 			}
-
-			// for client, _ := range pool.Clients {
-			// 	// for client := range pool.Clients {
-			// 	// if err := client.Conn.WriteJSON(message); err != nil {
-
-			// 	if err := client.Conn.WriteJSON("POOL: MIRRORED"); err != nil {
-			// 		fmt.Println(err)
-			// 		return
-			// 	}
-			// 	if err := client.Conn.WriteJSON(message); err != nil {
-			// 		fmt.Println(err)
-			// 		fmt.Println("What up everybody?")
-			// 		return
-			// 	}
-			// }
 		}
 	}
 }
