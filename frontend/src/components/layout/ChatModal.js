@@ -11,7 +11,7 @@ function ChatModal(props) {
   // getActiveUser(user)
 
   const [render, setRender] = useState(false)
-  console.log("render:", render);
+  // console.log("render:", render);
 
   const toggleRender = () => {
     setRender(!render)
@@ -20,7 +20,11 @@ function ChatModal(props) {
   }
 
   useEffect(() => {
-    webSocketConnect.wsGetChatMessages(user.id, props.id)
+    webSocketConnect.wsGetChatMessages(user.id, props.id);
+    webSocketConnect.sendActiveUserID(user.id); // fires too often, but works
+    if (user.id > 0) {
+      webSocketConnect.wsGetUsers()
+    }
     console.log("Asked for messages:", user.id, props.id);
   }, [user.id, props.id])
 
@@ -43,10 +47,10 @@ function ChatModal(props) {
     document.body.classList.remove("active-modal");
   }
 
-  console.log("Chatmodal var user is:", props.user.username);
-  console.log("Chatmodal var user is:", user.username);
-  console.log("Chatmodal var target is:", props.name);
-  console.log("Chatmodal messagelist length is:", messagelist?.length);
+  // console.log("Chatmodal var user is:", props.user.username);
+  // console.log("Chatmodal var user is:", user.username);
+  // console.log("Chatmodal var target is:", props.name);
+  // console.log("Chatmodal messagelist length is:", messagelist?.length);
 
   ChatModal.setMessagelist = setMessagelist;
   ChatModal.user = user;

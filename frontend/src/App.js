@@ -45,7 +45,13 @@ function App() {
     const user = await res.json();
     setUser(user);
     // getActiveUser(user);
-    webSocketConnect.sendActiveUserID(user.id)
+    // webSocketConnect.sendActiveUserID(user.id) // temp turned off... sometimes fires before socket connection is complete
+    if (webSocketConnect.socket) {
+      webSocketConnect.sendActiveUserID(user.id)
+      if (user.id > 0) {
+        webSocketConnect.wsGetUsers()
+      }
+    }
     console.log("User object", user);
   };
 

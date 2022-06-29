@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
 
@@ -88,14 +89,17 @@ func (pool *Pool) Start() {
 
 				for client, _ := range pool.Clients {
 
-					// if recerived user Id conn is same as in Client struct, save user ID in Client
+					// if received user Id conn is same as in Client struct, save user ID in Client
 					if client.Conn == message.Conn {
 
-						client.UserID = int(dat["activeUser"].(float64))
-						fmt.Println("Active user received and saved to client.UserID:", client.UserID)
+						if dat["activeUser"] != nil { // trying to fix bug where "sendUser" has no "activeUser"
 
-						for client := range pool.Clients {
-							fmt.Printf("Active client UserID in pool: %d\n", client.UserID)
+							client.UserID = int(dat["activeUser"].(float64))
+							fmt.Println("Active user received and saved to client.UserID:", client.UserID)
+	
+							for client := range pool.Clients {
+								fmt.Printf("Active client UserID in pool: %d\n", client.UserID)
+							}
 						}
 					}
 				}
@@ -132,8 +136,27 @@ func (pool *Pool) Start() {
 
 				log.Println("Got wsGetUsers request from frontend")
 
+				userpool := []byte(`,"pool":"`)
+				// for i := 0; i < len(pool.Clients); i++ {
+				// 	userpool = append(userpool, []byte(pool.Clients[i].UserID)...)
+				// 	if i < len(pool.Clients) - 1 {
+				// 		userpool = append(userpool, []byte(`,`)...)
+				// 	}
+				// }
+				for client := range pool.Clients {
+					// userpool = append(userpool, client.UserID)
+					userpool = append(userpool, []byte(strconv.Itoa(client.UserID))...)
+					userpool = append(userpool, []byte(`,`)...)
+				}
+				userpool = userpool[:len(userpool)-1]
+				userpool = append(userpool, []byte(`"`)...)
+
+				fmt.Println("pool.Clients")
+				fmt.Println(pool.Clients)
+
 				returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
 				returnedusers = append(returnedusers, WsReadUsers(database)...)
+				returnedusers = append(returnedusers, userpool...)
 				returnedusers = append(returnedusers, []byte(`}`)...)
 
 				// this send userlist from db back to frontend that sent request

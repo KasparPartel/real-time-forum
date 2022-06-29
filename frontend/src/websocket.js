@@ -4,6 +4,7 @@ import { usrUpdate } from "./components/layout/Userlist";
 // import React, { useContext } from "react";
 
 export let wsUserList = []
+export let wsActiveUserList
 export let wsMessageList = []
 
 // let activeUser
@@ -26,7 +27,7 @@ export function webSocketConnect(port) {
         // socket.send(JSON.stringify(`"activeUserID":"${activeUser.id}"`))
         wsGetUsers()
         usrUpdate()
-        // wsGetChatMessages()
+        // sendActiveUserID(usrID)
     }
     
     socket.onclose = (e) => {
@@ -39,13 +40,14 @@ export function webSocketConnect(port) {
 
     socket.onmessage = (msg) => {
         console.log("Backend has responded: ", msg);
-        console.log("Backend has responded with data: ", msg.data);
+        // console.log("Backend has responded with data: ", msg.data);
         let incomingJson = JSON.parse(msg.data)
 
         console.log(incomingJson);
 
         if (incomingJson.type === "wsReturnedUsers") {
             wsUserList = incomingJson.body
+            wsActiveUserList = incomingJson.pool
             usrUpdate()
         }
         if (incomingJson.type === "wsReturnedMessages") {
@@ -80,7 +82,7 @@ export function webSocketConnect(port) {
         document.querySelector("#chat-text").value,
         document.querySelector("#send-button").getAttribute("data-user-id"),
         document.querySelector("#send-button").getAttribute("data-target-id"),
-        Date(Date.now())
+        Date(Date.now()) // this need fixing to shorter length
         );
 
         socket.send(newMessage);
@@ -109,8 +111,12 @@ export function webSocketConnect(port) {
         type: "sendUser",
         activeUser: usrID,
         };
-
-        socket.send(JSON.stringify(msg));
+        if (usrID) {
+            socket.send(JSON.stringify(msg));
+            console.log("Sent ActiveUserID over websocket to backend:", usrID);
+        } else {
+            console.log("Error: no ActiveUserID to send.");
+        }
     }
     
     function wsGetChatMessages(usr, trgt) {
