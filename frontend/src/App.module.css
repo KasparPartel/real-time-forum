@@ -1,0 +1,28 @@
+:root {
+  --common-font: 'Open Sans', sans-serif;
+  --size-header: 2.7em;
+
+  font-size: 16px;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: sans-serif;
+  font-family: var(--common-font);
+}
+
+.flex_row, .flex_column {
+  display: flex;
+}
+
+.flex_row {
+  flex-direction: row;
+}
+
+.flex_column {
+  flex-direction: column;
+}

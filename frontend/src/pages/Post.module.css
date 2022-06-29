@@ -1,0 +1,30 @@
+.div__post {
+  margin-bottom: 1.5em;
+}
+
+.post__heading {
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 0.65em;
+}
+
+.post__header {
+  font-size: var(--size-header);
+}
+
+.post__header {
+  color: black;
+}
+
+.post__meta {
+  gap: 1em;
+}
+
+.post__category {
+
+}
+
+.post__body {
+  
+}

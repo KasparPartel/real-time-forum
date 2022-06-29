@@ -4,6 +4,9 @@ import { useParams } from "react-router-dom";
 import CommentTree from "../components/layout/CommentTree";
 import CreateComment from "../components/layout/CreateComment";
 
+import styles from "./Post.module.css";
+import globalStyles from "../App.module.css";
+
 export default function Post() {
   const params = useParams();
 
@@ -100,15 +103,22 @@ export default function Post() {
   // };
 
   return (
-    <div className="card">
-      <h2 className="mb-1 text-lg font-bold">{post.title} </h2>
-      <p>
-        <i>Author: {author.username}</i>
-      </p>
-      <p>
-        <i>Category: {category.title}</i>
-      </p>
-      <p className="font-medium line-clamp-4">{post.body}</p>
+    <div>
+      <div className={styles.div__post}>
+        <div className={`${globalStyles.flex_row} ${styles.post__heading}`}>
+          <h2 className={styles.post__header}>{post.title}</h2>
+          <div className={`${globalStyles.flex_row} ${styles.post__meta}`}>
+            <p className="post__author">
+              <i>Author: {author.username}</i>
+            </p>
+            |
+            <p className={styles.post__category}>
+              <i>Category: {category.title}</i>
+            </p>
+          </div>
+        </div>
+        <p className={styles.post__body}>{post.body}</p>
+      </div>
       <hr />
       {user_id ? (
         <CreateComment

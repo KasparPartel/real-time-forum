@@ -2,9 +2,10 @@
     height: 100%; /* 100% Full-height */
     width: 12rem; /* 0 width - change this with JavaScript */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Stay on top */
     top: 5rem; /* Stay at the top */
     left: 0;
+
+    z-index: 1; /* Stay on top */
     background-color: grey; /* Black*/
     overflow-x: hidden; /* Disable horizontal scroll */
     padding-top: 1rem; /* Place content 60px from the top */
@@ -13,11 +14,16 @@
 }
 
 .pages ul {
+    width: fit-content;
+    margin: 0 auto;
+
     list-style: none;
 }
 
 .pages li {
     padding-bottom: 1rem;
+
+    text-align: left;
 }
 
 .pages a {

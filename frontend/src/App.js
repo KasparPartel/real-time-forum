@@ -14,7 +14,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Post from "./pages/Post";
 
-import "./App.css";
+import "./App.module.css";
 
 export default function App() {
   const [cookies, setCookie, removeCookie] = useCookies(["session_token"]);

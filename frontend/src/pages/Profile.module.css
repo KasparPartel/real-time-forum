@@ -1,0 +1,15 @@
+.header {
+  font-size: var(--size-header);
+}
+
+.ul {
+  margin-top: 1em;
+
+  gap: 0.5em;
+}
+
+.ul__li {
+  font-size: 1.2em;
+
+  list-style-type: none;
+}

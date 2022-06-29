@@ -1,61 +1,74 @@
-import {useContext, useState} from "react";
-import {UserContext} from "../UserContext";
-import {useNavigate} from "react-router-dom";
+import { useContext, useState } from "react";
+import { UserContext } from "../UserContext";
+import { useNavigate } from "react-router-dom";
+
+import styles from "./Register.module.css";
 
 function Register() {
-  const [formData, setFormData] = useState({gender: "male"})
-  const {user} = useContext(UserContext)
-  const navigate = useNavigate()
+  const [formData, setFormData] = useState({ gender: "male" });
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
   if (user) {
-    navigate("/", {replace: true})
+    navigate("/", { replace: true });
   }
 
   const handleChange = (e) => {
-    let formDataCopy = Object.assign({}, formData)
-    let name = e.target.getAttribute("name")
+    let formDataCopy = Object.assign({}, formData);
+    let name = e.target.getAttribute("name");
 
-    formDataCopy[name] = e.target.value
-    setFormData(formDataCopy)
-}
+    formDataCopy[name] = e.target.value;
+    setFormData(formDataCopy);
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    console.log(formData)
+    console.log(formData);
 
     fetch("http://localhost:4000/v1/api/user/", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       credentials: "include",
-      body: JSON.stringify(formData)
-    })
-    .then(res => {
+      body: JSON.stringify(formData),
+    }).then((res) => {
       if (res.ok) {
-        return navigate("/login", {replace: true})
+        return navigate("/login", { replace: true });
       } else {
         console.log("Cannot register user!");
-        return
+        return;
       }
-    })
-  }
+    });
+  };
 
   return (
-    <div className="registerBox">
-      <header>Register to our real-time-forum!</header>
-      <form id="register" onSubmit={handleSubmit}>
+    <div className={styles.container}>
+      <h2 className={styles.header}>Register to our real-time-forum!</h2>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <div>
-          <label>E-Mail: </label>
-          <input type="email" id="email" name="email" onChange={handleChange} required />
+          <label className={styles.form__label} htmlFor="email">
+            E-Mail:{" "}
+          </label>
+          <br />
+          <input
+            type="email"
+            className={styles.form__input}
+            name="email"
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div>
-          <label>Username: </label>
+          <label className={styles.form__label} htmlFor="username">
+            Username:{" "}
+          </label>
+          <br />
           <input
             type="text"
-            id="username"
+            className={styles.form__input}
             name="username"
             pattern="^[a-zA-Z0-9]+$"
             minLength="5"
@@ -66,13 +79,32 @@ function Register() {
         </div>
 
         <div>
-          <label>Age: </label>
-          <input type="number" pattern="^[0-9]+$" min="1" max="120" id="age" name="age" onChange={handleChange} required />
+          <label className={styles.form__label} htmlFor="age">
+            Age:{" "}
+          </label>
+          <br />
+          <input
+            type="number"
+            pattern="^[0-9]+$"
+            min="1"
+            max="120"
+            className={styles.form__input}
+            name="age"
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div>
-          <label>Gender: </label>
-          <select name="gender" id="gender" onChange={handleChange}>
+          <label className={styles.form__label} htmlFor="gender">
+            Gender:{" "}
+          </label>
+          <br />
+          <select
+            name="gender"
+            className={styles.form__select}
+            onChange={handleChange}
+          >
             <option value="male">Male</option>
             <option value="female">Female</option>
             {/*<option defaultValue="unknown" /* selected="selected">
@@ -82,18 +114,46 @@ function Register() {
         </div>
 
         <div>
-          <label>First name: </label>
-          <input type="text" id="firstname" name="first_name" onChange={handleChange} required />
+          <label className={styles.form__label} htmlFor="first_name">
+            First name:{" "}
+          </label>
+          <br />
+          <input
+            type="text"
+            className={styles.form__input}
+            name="first_name"
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div>
-          <label>Last name: </label>
-          <input type="text" id="lastname" name="last_name" onChange={handleChange} required />
+          <label className={styles.form__label} htmlFor="last_name">
+            Last name:{" "}
+          </label>
+          <br />
+          <input
+            type="text"
+            className={styles.form__input}
+            name="last_name"
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div>
-          <label>Password: </label>
-          <input type="password" id="password" name="password" minLength="5" onChange={handleChange} required />
+          <label className={styles.form__label} htmlFor="password">
+            Password:{" "}
+          </label>
+          <br />
+          <input
+            type="password"
+            className={styles.form__input}
+            name="password"
+            minLength="5"
+            onChange={handleChange}
+            required
+          />
         </div>
 
         {/* <div>
@@ -101,7 +161,7 @@ function Register() {
           <input type="password" id="password2" name="password2" required />
         </div> */}
 
-        <input type="submit" value="Sign up" />
+        <input className={styles.btn_submit} type="submit" value="Sign up" />
       </form>
     </div>
   );

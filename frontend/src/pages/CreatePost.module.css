@@ -1,0 +1,28 @@
+.container {
+  flex-direction: column;
+  gap: 0.7em;
+}
+
+.header {
+  font-size: var(--size-header);
+}
+
+.form__input, .form__select, .form__textarea {
+  margin-bottom: 0.8em;
+}
+
+.form__input, .form__select, .form__textarea, .form__label, .btn__submit {
+  font-size: 1.1em;
+}
+
+.form__input, .form__textarea {
+  width: 400px;
+}
+
+.form__input {
+  height: 1.5em;
+}
+
+.btn__submit {
+  padding: 0.6em;
+}

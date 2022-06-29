@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import styles from "./FeedPost.module.css";
+import globalStyles from "../../App.module.css";
+
 // FeedPost is component for post previews in Feed
 const FeedPost = ({ json }) => {
   const [comments, setComments] = useState([]);
@@ -10,13 +13,18 @@ const FeedPost = ({ json }) => {
   // const [likes, setLikes] = useState([]);
   // const [dislikes, setDislikes] = useState([]);
 
-  useEffect(() => {
-    getComments();
-    getCategory();
-    getAuthor();
-    // getLikes();
-    // getDislikes();
-  }, []);
+  useEffect(
+    () => {
+      getComments();
+      getCategory();
+      getAuthor();
+      console.log("styles", styles);
+      // getLikes();
+      // getDislikes();
+    },
+    // eslint-disable-next-line
+    []
+  );
 
   const getComments = () => {
     fetch(`http://localhost:4000/v1/api/comments/${json.id}`, {
@@ -70,21 +78,24 @@ const FeedPost = ({ json }) => {
   // };
 
   return (
-    <div className="card">
-      <h2 className="mb-1 text-lg font-bold">
-        <Link to={`/post/${json.id}`}>{json.title}</Link>
-      </h2>
-      <p>
-        <i>Author: {author.username}</i>
-      </p>
-      <p>
-        <i>Category: {category.title}</i>
-      </p>
-      <p className="font-medium line-clamp-4">{json.body}</p>
-      <p>
-        <span className="comment-amount text-gray-500">
-          <b>{comments?.length || 0}</b> comments
-        </span>
+    <div className={styles.div__post}>
+      <div className={`${globalStyles.flex_row} ${styles.post__heading}`}>
+        <h2 className={styles.post__header}>
+          <Link to={`/post/${json.id}`}>{json.title}</Link>
+        </h2>
+        <div className={`${globalStyles.flex_row} ${styles.post__meta}`}>
+          <p className="post__author">
+            <i>Author: {author.username}</i>
+          </p>
+          |
+          <p className={styles.post__category}>
+            <i>Category: {category.title}</i>
+          </p>
+        </div>
+      </div>
+      <p className={styles.post__body}>{json.body}</p>
+      <p className={styles.post__comments}>
+        <b>{comments?.length || 0}</b> comments
         {/* <span className="like-amount text-gray-500">
           <b>{likes?.length || 0}</b> likes <span> | </span>
         </span>

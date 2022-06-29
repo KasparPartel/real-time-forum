@@ -9,14 +9,14 @@ export default function MainNavigation({ user }) {
       <div className={classes.logo}>real-time-forum</div>
       <nav>
         <ul>
-          <li>
+          {/* <li>
             <Link to="/">All posts</Link>
-          </li>
+          </li> */}
           {user ? (
             <Fragment>
-              <li>
+              {/* <li>
                 <Link to="/create-post">Add new post</Link>
-              </li>
+              </li> */}
               <li>
                 <Link to="/profile">{user.username}</Link>
               </li>

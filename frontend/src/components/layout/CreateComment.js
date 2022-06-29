@@ -1,7 +1,6 @@
 import { Fragment, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { UserContext } from "../../UserContext";
-import CommentTree from "./CommentTree";
+
+import styles from "./CreateComment.module.css";
 
 const CreateComment = ({ postID, userID, getComments }) => {
   const [commentForm, setCommentForm] = useState("");
@@ -46,7 +45,7 @@ const CreateComment = ({ postID, userID, getComments }) => {
 
   return (
     <Fragment>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className={styles.form}>
         <input
           type="text"
           name="body"

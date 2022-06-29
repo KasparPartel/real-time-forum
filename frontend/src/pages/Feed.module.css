@@ -1,0 +1,7 @@
+.dropdown {
+  margin-bottom: 2em;
+}
+
+.dropdown, .dropdown__label {
+  font-size: 1.1em;
+}

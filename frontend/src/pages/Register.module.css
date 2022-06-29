@@ -1,0 +1,25 @@
+.header {
+  font-size: var(--size-header);
+}
+
+.form {
+  margin-top: 1.3em;
+}
+
+.form__input, .form__label, .form__select, .btn_submit {
+  font-size: 1.1em;
+}
+
+.form__input, .form__select {
+  height: 1.5em;
+
+  margin-bottom: 0.8em;
+}
+
+.form__input {
+  width: 230px;
+}
+
+.btn_submit {
+  padding: 0.4em 0.6em;
+}

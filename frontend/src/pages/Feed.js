@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import FeedPost from "../components/layout/FeedPost";
 
+import styles from "./Feed.module.css";
+
 export default function Feed() {
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -67,10 +69,13 @@ export default function Feed() {
   };
 
   return (
-    <div className="flex flex-wrap py-5 gap-4">
-      <label>Category: </label>
+    <div>
+      <label className={styles.dropdown__label} htmlFor="category_id">
+        Category:{" "}
+      </label>
       <select
         name="category_id"
+        className={styles.dropdown}
         value={selectedCategoryID || ""}
         defaultValue=""
         onChange={handleSelectChange}

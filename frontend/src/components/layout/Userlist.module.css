@@ -3,7 +3,7 @@
     width: 10rem; /* 0 width - change this with JavaScript */
     position: fixed; /* Stay in place */
     z-index: 1; /* Stay on top */
-    top: 4rem; /* Stay at the top */
+    top: 5rem; /* Stay at the top */
     right: 0;
     background-color: grey; /* Black*/
     overflow-x: hidden; /* Disable horizontal scroll */

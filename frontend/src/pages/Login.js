@@ -2,6 +2,8 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../UserContext";
 
+import styles from "./Login.module.css";
+
 export default function Login({ setCookie }) {
   const [formData, setFormData] = useState({});
   const { user } = useContext(UserContext);
@@ -47,14 +49,17 @@ export default function Login({ setCookie }) {
   };
 
   return (
-    <div className="registerBox">
-      <header>Log in to our real-time-forum!</header>
-      <form id="login" onSubmit={handleSubmit}>
+    <div className={styles.container}>
+      <h2 className={styles.header}>Log in to our real-time-forum!</h2>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <div>
-          <label>Username/Email: </label>
+          <label className={styles.form__label} htmlFor="username">
+            Username/Email:{" "}
+          </label>
+          <br />
           <input
             type="text"
-            id="username"
+            className={styles.form__input}
             name="username"
             onChange={handleChange}
             required
@@ -62,17 +67,20 @@ export default function Login({ setCookie }) {
         </div>
 
         <div>
-          <label>Password: </label>
+          <label className={styles.form__label} htmlFor="password">
+            Password:{" "}
+          </label>
+          <br />
           <input
             type="password"
-            id="password"
+            className={styles.form__input}
             name="password"
             onChange={handleChange}
             required
           />
         </div>
 
-        <input type="submit" value="Log in" />
+        <input className={styles.btn_submit} type="submit" value="Log in" />
       </form>
     </div>
   );
