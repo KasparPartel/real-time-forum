@@ -42,53 +42,42 @@ function Userlist({user}) {
 
   let activeusers = []
   let passiveusers = []
+  let activeUserArray = activeuserlist?.split(",").map(function(item) {return parseInt(item, 10);})
 
   userlist?.forEach((usr) => {
-    if (
-    (usr.login_date !== "" && usr.logout_date === "") ||
-    Date.parse(usr.login_date.substring(0, 19).replaceAll("-", "/")) > 
-    Date.parse(usr.logout_date.substring(0, 19).replaceAll("-", "/"))
-    ) {
-      usr.class = "active"
-      activeusers.push(usr)
-    } else {
+    activeUserArray.forEach((loginID) => {
+      if (usr.id === loginID) {
+        usr.class = "active"
+        activeusers.push(usr)
+      }
+    })
+  })
+  userlist?.forEach((usr) => {
+    if (!activeusers.includes(usr) && !passiveusers.includes(usr)) {
       usr.class = "passive"
       passiveusers.push(usr)
     }
-    // if (Date.parse(usr.login_date.substring(0, 19).replaceAll("-", "/")) <= 
-    // Date.parse(usr.logout_date.substring(0, 19).replaceAll("-", "/"))) {
-    //   usr.class = "passive"
-    //   passiveusers.push(usr)
-    // }
   })
+
+  let combinedUsers = activeusers.concat(passiveusers)
 
   console.log("activeusers:", activeusers);
   console.log("passiveusers:", passiveusers);
-  console.log("Logged in users connected to websocket pool:", activeuserlist?.split(",").map(function(item) {return parseInt(item, 10);}));
+  console.log("Logged in users connected to websocket pool:", activeUserArray);
   
   Userlist.setUserlist = setUserlist;
   Userlist.setActiveUserlist = setActiveUserlist;
 
   if (user && userlist) {
     return (
-      //<div className="user-list">
+      <div className="user-list">
         <ul className={classes.userlist}>
-          {userlist.map((target) => (target.id !== user.id &&
+          {combinedUsers.map((target) => (target.id !== user.id &&
               <ChatModal class={target.class} key={target.id} id={target.id} name={target.username} user={user}/>
           ))}
         </ul>
-      //</div>
-      // ,
-      // <div className="user-list">
-      //   <ul className={classes.passiveuserlist}>
-      //     {passiveusers.map((target) => (
-      //       (target.id !== user.id && Date.parse(target.login_date.substring(0, 19).replaceAll("-", "/")) <= 
-      //       Date.parse(target.logout_date.substring(0, 19).replaceAll("-", "/"))) &&
-      //         <ChatModal key={target.id} id={target.id} name={target.username} user={user}/>
-      //     ))}
-      //   </ul>
-      // </div>
-    );
+      </div>
+    )
   } else {
     // empty user list sidebar if not logged in
     return (
