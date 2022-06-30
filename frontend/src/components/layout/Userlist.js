@@ -42,6 +42,12 @@ function Userlist({user}) {
 
   let activeusers = []
   let passiveusers = []
+  let activehistory = []
+  let passivehistory = []
+  let activenames = []
+  let passivenames = []
+  let activesorted = []
+  let passivesorted = []
   let activeUserArray = activeuserlist?.split(",").map(function(item) {return parseInt(item, 10);})
 
   userlist?.forEach((usr) => {
@@ -59,12 +65,49 @@ function Userlist({user}) {
     }
   })
 
-  let combinedUsers = activeusers.concat(passiveusers)
-
+  
   console.log("activeusers:", activeusers);
   console.log("passiveusers:", passiveusers);
   console.log("Logged in users connected to websocket pool:", activeUserArray);
+  console.log("Logged in user history:", user?.history);
+  console.log("typeof Logged in user history:", typeof(user?.history));
   
+  let historyarray = []
+  if (user.history !== undefined) {
+    historyarray = user.history.split(",").flatMap((item) => item === "" ? [] : parseInt(item, 10));
+  }
+  console.log("Logged in user history array:", historyarray);
+
+  historyarray.forEach((item) => {
+    activeusers.forEach((usr) => {
+      if (usr.id !== item && !activenames.includes(usr.username)) {
+        activenames.push(usr.username)
+      }
+      if (usr.id === item) {
+        activehistory.push(usr)
+      }
+    })
+    passiveusers.forEach((usr) => {
+      if (usr.id !== item && !passivenames.includes(usr.username)) {
+        passivenames.push(usr.username)
+      }
+      if (usr.id === item) {
+        passivehistory.push(usr)
+      }
+    })
+  })
+
+  activesorted = activenames.sort()
+  passivesorted = passivenames.sort()
+
+  console.log("activehistory", activehistory);
+  console.log("passivehistory", passivehistory);
+  console.log("activesorted", activesorted);
+  console.log("passivesorted", passivesorted);
+
+  let combinedUsers = activehistory.concat(passivehistory)
+  console.log("combinedUsers", combinedUsers);
+
   Userlist.setUserlist = setUserlist;
   Userlist.setActiveUserlist = setActiveUserlist;
 

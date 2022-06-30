@@ -132,7 +132,7 @@ func (pool *Pool) Start() {
 				}
 			}
 
-			if dat["type"] == "wsGetUsers" && dat["user_id"] != "undefined" {
+			if dat["type"] == "wsGetUsers" && dat["user_id"] != "undefined" && dat["target_id"] != "undefined" {
 
 				log.Println("Got wsGetUsers request from frontend")
 
@@ -173,7 +173,7 @@ func (pool *Pool) Start() {
 				}
 			}
 
-			if dat["type"] == "wsGetChatMessages" && dat["user_id"] != "undefined" {
+			if dat["type"] == "wsGetChatMessages" && dat["user_id"] != "undefined" && dat["target_id"] != "undefined" {
 				// returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
 				// returnedmessages = append(returnedmessages, WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))...)
 				// returnedmessages = append(returnedmessages, []byte(`}`)...)
