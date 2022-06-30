@@ -48,6 +48,7 @@ function Userlist({user}) {
   let passivenames = []
   let activesorted = []
   let passivesorted = []
+  let combinedUsers = []
   let activeUserArray = activeuserlist?.split(",").map(function(item) {return parseInt(item, 10);})
 
   userlist?.forEach((usr) => {
@@ -73,23 +74,25 @@ function Userlist({user}) {
   console.log("typeof Logged in user history:", typeof(user?.history));
   
   let historyarray = []
-  if (user.history !== undefined) {
+  // if (user.history !== undefined) {
+  // if (user.history !== undefined && user != null) {
+  if (user && user.history !== undefined && user != null) {
     historyarray = user.history.split(",").flatMap((item) => item === "" ? [] : parseInt(item, 10));
   }
   console.log("Logged in user history array:", historyarray);
 
   historyarray.forEach((item) => {
     activeusers.forEach((usr) => {
-      if (usr.id !== item && !activenames.includes(usr.username)) {
-        activenames.push(usr.username)
+      if (usr.id !== item && !activenames.includes(usr)) {
+        activenames.push(usr)
       }
       if (usr.id === item) {
         activehistory.push(usr)
       }
     })
     passiveusers.forEach((usr) => {
-      if (usr.id !== item && !passivenames.includes(usr.username)) {
-        passivenames.push(usr.username)
+      if (usr.id !== item && !passivenames.includes(usr)) {
+        passivenames.push(usr)
       }
       if (usr.id === item) {
         passivehistory.push(usr)
@@ -97,15 +100,19 @@ function Userlist({user}) {
     })
   })
 
-  activesorted = activenames.sort()
-  passivesorted = passivenames.sort()
+  // activesorted = activenames.sort()
+  // passivesorted = passivenames.sort()
+
+  activesorted = activenames.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+  passivesorted = passivenames.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
 
   console.log("activehistory", activehistory);
   console.log("passivehistory", passivehistory);
   console.log("activesorted", activesorted);
   console.log("passivesorted", passivesorted);
 
-  let combinedUsers = activehistory.concat(passivehistory)
+  // combinedUsers = activehistory.concat(activesorted)
+  // combinedUsers = activehistory.concat(activesorted, passivehistory, passivesorted)
   console.log("combinedUsers", combinedUsers);
 
   Userlist.setUserlist = setUserlist;
