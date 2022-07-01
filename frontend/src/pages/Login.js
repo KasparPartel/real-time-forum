@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../UserContext";
+// import { webSocketConnect, socket } from "../websocket.js"
 
 export default function Login({ setCookie }) {
   const [formData, setFormData] = useState({});
@@ -9,6 +10,10 @@ export default function Login({ setCookie }) {
 
   if (user) {
     navigate("/", { replace: true });
+    // if (socket) {
+
+    //   webSocketConnect.sendActiveUserID(user.id);
+    // }
   }
 
   const handleChange = (e) => {

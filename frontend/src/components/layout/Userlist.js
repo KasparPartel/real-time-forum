@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import classes from "./Userlist.module.css";
 import ChatModal from "./ChatModal";
-import { wsUserList, wsActiveUserList } from "../../websocket.js"
+import { wsUserList, wsActiveUserList, webSocketConnect, wsConnected } from "../../websocket.js"
 
 function Userlist({user}) {
+  
   
   const [userlist, setUserlist] = useState(wsUserList)
   const [activeuserlist, setActiveUserlist] = useState(wsActiveUserList)
@@ -31,6 +32,11 @@ function Userlist({user}) {
   useEffect(() => {
     setUserlist(wsUserList)
   }, [])
+  useEffect(() => {
+    if (user !== null && user.id !== undefined && wsConnected) {
+      webSocketConnect.sendActiveUserID(user.id);
+    }
+  }, [user])
 
   // userlist.map((target) => (() => {
             
@@ -113,6 +119,7 @@ function Userlist({user}) {
 
   // combinedUsers = activehistory.concat(activesorted)
   // combinedUsers = activehistory.concat(activesorted, passivehistory, passivesorted)
+  combinedUsers = userlist
   console.log("combinedUsers", combinedUsers);
 
   Userlist.setUserlist = setUserlist;

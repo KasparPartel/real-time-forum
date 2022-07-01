@@ -16,6 +16,8 @@ import Post from "./pages/Post";
 
 import "./App.css";
 
+export let loggedUser
+
 function App() {
   const [cookies, setCookie, removeCookie] = useCookies(["session_token"]);
   const [user, setUser] = useState({});
@@ -44,6 +46,7 @@ function App() {
 
     const user = await res.json();
     setUser(user);
+    loggedUser = user
     // getActiveUser(user);
     // webSocketConnect.sendActiveUserID(user.id) // temp turned off... sometimes fires before socket connection is complete
     if (webSocketConnect.socket) {

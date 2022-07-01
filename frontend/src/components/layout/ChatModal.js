@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import classes from "./ChatModal.module.css";
 import ChatText from "./ChatText";
-import { webSocketConnect, wsMessageList/* , getActiveUser */ } from "../../websocket.js"
+import { webSocketConnect, wsMessageList, wsConnected } from "../../websocket.js"
 import { UserContext } from "../../UserContext";
 
 function ChatModal(props) {
@@ -14,18 +14,22 @@ function ChatModal(props) {
   // console.log("render:", render);
 
   const toggleRender = () => {
-    setRender(!render)
-    // setRender(render + 1)
-    webSocketConnect.wsGetChatMessages(user.id, props.id)
+    if (wsConnected) {
+      setRender(!render)
+      // setRender(render + 1)
+      webSocketConnect.wsGetChatMessages(user.id, props.id)
+    }
   }
 
   useEffect(() => {
-    webSocketConnect.wsGetChatMessages(user.id, props.id);
-    webSocketConnect.sendActiveUserID(user.id); // fires too often, but works
-    if (user.id > 0) {
-      webSocketConnect.wsGetUsers()
+    if (wsConnected) {
+      webSocketConnect.wsGetChatMessages(user.id, props.id);
+      // webSocketConnect.sendActiveUserID(user.id); // fires too often, but works
+      if (user.id > 0) {
+        webSocketConnect.wsGetUsers()
+      }
+      console.log("Asked for messages:", user.id, props.id);
     }
-    console.log("Asked for messages:", user.id, props.id);
   }, [user.id, props.id])
 
   
