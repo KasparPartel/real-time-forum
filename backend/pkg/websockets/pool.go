@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"strconv"
 	db2 "real-time-forum/db"
 	"real-time-forum/pkg/helper"
+	"strconv"
 
 	"github.com/gorilla/websocket"
 )
@@ -96,7 +96,7 @@ func (pool *Pool) Start() {
 
 							client.UserID = int(dat["activeUser"].(float64))
 							fmt.Println("Active user received and saved to client.UserID:", client.UserID)
-	
+
 							for client := range pool.Clients {
 								fmt.Printf("Active client UserID in pool: %d\n", client.UserID)
 							}
@@ -190,7 +190,7 @@ func (pool *Pool) Start() {
 					// if received user Id conn is same as in Client struct, send messages back to this user
 					if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) ||
 						fmt.Sprintf("%d", client.UserID) == dat["target_id"].(string) { // PROBLEM?
-						log.Println("Sending messages to user:", dat["user_id"])
+						log.Println("Sending messages to user:", dat["user_id"]) // or target_id?
 						// log.Println("Sending messages:", string(returnmessages))
 						if err := client.Conn.WriteMessage(websocket.TextMessage, returnmessages); err != nil {
 							log.Println(err)

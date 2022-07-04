@@ -144,6 +144,11 @@ export function webSocketConnect(port) {
 
     function wsSortUsers(mainUser, usersList, activeUsersList) {
 
+        if (!mainUser || !usersList || !activeUsersList) {
+            console.log("Error: user sorting data missing");
+            return
+        }
+
         console.log("wsSortUsers started!");
         console.log("mainUser:", mainUser);
         console.log("usersList:", usersList);
@@ -181,24 +186,46 @@ export function webSocketConnect(port) {
         // }
         historyarray = mainUser.history.split(",").flatMap((item) => item === "" ? [] : parseInt(item, 10));
 
+        // console.log("historyarray", historyarray);
+        // console.log("activeusers", activeusers);
+        // console.log("passiveusers", passiveusers);
+        // console.log("activenames", activenames);
+        // console.log("activehistory", activehistory);
+        // console.log("passivenames", passivenames);
+        // console.log("passivehistory", passivehistory);
+        
         historyarray.forEach((item) => {
+            console.log("historyarray item", item);
+            console.log("typeof historyarray item", typeof(item));
             activeusers.forEach((usr) => {
-              if (usr.id !== item && !activenames.includes(usr)) {
-                activenames.push(usr)
-              }
-              if (usr.id === item) {
-                activehistory.push(usr)
-              }
+                if (usr.id === item) {
+                    activehistory.push(usr)
+                } else if (!historyarray.includes(usr.id)) {
+                    let includes = false
+                    activenames.forEach((el) => {
+                        if (usr.id === el.id) includes = true;
+                    })
+                    if (!includes) activenames.push(usr);
+                }
             })
             passiveusers.forEach((usr) => {
-              if (usr.id !== item && !passivenames.includes(usr)) {
-                passivenames.push(usr)
-              }
-              if (usr.id === item) {
-                passivehistory.push(usr)
-              }
+                if (usr.id === item) {
+                    passivehistory.push(usr)
+                } else if (!historyarray.includes(usr.id)) {
+                    let includes = false
+                    passivenames.forEach((el) => {
+                        if (usr.id === el.id) includes = true;
+                    })
+                    if (!includes) passivenames.push(usr);
+                }
             })
         })
+        
+        // console.log("historyarray", historyarray);
+        // console.log("activenames", activenames);
+        // console.log("activehistory", activehistory);
+        // console.log("passivenames", passivenames);
+        // console.log("passivehistory", passivehistory);
 
         activesorted = activenames.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
         passivesorted = passivenames.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
