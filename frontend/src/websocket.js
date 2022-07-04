@@ -29,6 +29,7 @@ export function webSocketConnect(port) {
         // console.log("Active user is:", activeUser);
         // console.log("Active user ID is:", activeUser.id);
         // socket.send(JSON.stringify(`"activeUserID":"${activeUser.id}"`))
+        sendActiveUserID(loggedUser.id)
         wsGetUsers()
         usrUpdate()
         

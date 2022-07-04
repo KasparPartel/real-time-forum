@@ -27,9 +27,9 @@ function App() {
     cookies["session_token"] ? getUser() : setUser(null);
   }, [cookies]);
 
-  useEffect(() => {
-    webSocketConnect("ws://localhost:4000/v1/api/ws");
-  }, []);
+  // useEffect(() => {
+  //   webSocketConnect("ws://localhost:4000/v1/api/ws");
+  // }, []);
 
   const getUser = async () => {
     const res = await fetch("http://localhost:4000/v1/api/user/me", {
@@ -49,12 +49,13 @@ function App() {
     loggedUser = user
     // getActiveUser(user);
     // webSocketConnect.sendActiveUserID(user.id) // temp turned off... sometimes fires before socket connection is complete
-    if (webSocketConnect.socket) {
-      webSocketConnect.sendActiveUserID(user.id)
-      if (user.id > 0) {
-        webSocketConnect.wsGetUsers()
-      }
-    }
+    webSocketConnect("ws://localhost:4000/v1/api/ws"); // starts websocket after user is fetched
+    // if (webSocketConnect.socket) {
+    //   webSocketConnect.sendActiveUserID(user.id)
+    //   if (user.id > 0) {
+    //     webSocketConnect.wsGetUsers()
+    //   }
+    // }
     console.log("User object", user);
   };
 
