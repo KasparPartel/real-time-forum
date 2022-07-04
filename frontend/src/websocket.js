@@ -55,8 +55,9 @@ export function webSocketConnect(port) {
         console.log(incomingJson);
 
         if (incomingJson.type === "wsReturnedUsers") {
-            wsUserList = incomingJson.body
-            wsActiveUserList = incomingJson.pool
+            wsUserList = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool)
+            // wsUserList = incomingJson.body
+            // wsActiveUserList = incomingJson.pool
             usrUpdate()
         }
         if (incomingJson.type === "wsReturnedMessages") {
@@ -73,7 +74,7 @@ export function webSocketConnect(port) {
     webSocketConnect.wsGetUsers = wsGetUsers;
     webSocketConnect.wsGetChatMessages = wsGetChatMessages;
     webSocketConnect.sendActiveUserID = sendActiveUserID;
-    webSocketConnect.socket = socket;
+    webSocketConnect.wsSortUsers = wsSortUsers;
 
     function sendMessage() {
         function composeMessage(Type, Body, User_id, Target_id, Creation_time) {
@@ -139,5 +140,71 @@ export function webSocketConnect(port) {
             target_id: String(trgt),
         };     
         socket.send(JSON.stringify(msg));
+    }
+
+    function wsSortUsers(mainUser, usersList, activeUsersList) {
+
+        console.log("wsSortUsers started!");
+        console.log("mainUser:", mainUser);
+        console.log("usersList:", usersList);
+        console.log("activeUsersList:", activeUsersList);
+
+        let activeusers = []
+        let passiveusers = []
+        let activehistory = []
+        let passivehistory = []
+        let activenames = []
+        let passivenames = []
+        let activesorted = []
+        let passivesorted = []
+        let combinedUsers = []
+        let historyarray = []
+        let activeUserArray = activeUsersList.split(",").map(function(item) {return parseInt(item, 10);})
+
+        usersList.forEach((usr) => {
+            activeUserArray.forEach((loginID) => {
+                if (usr.id === loginID) {
+                usr.class = "active"
+                activeusers.push(usr)
+                }
+            })
+        })
+        usersList.forEach((usr) => {
+            if (!activeusers.includes(usr) && !passiveusers.includes(usr)) {
+                usr.class = "passive"
+                passiveusers.push(usr)
+            }
+        })
+
+        // if (user && user.history !== undefined && user != null) {
+        //     historyarray = user.history.split(",").flatMap((item) => item === "" ? [] : parseInt(item, 10));
+        // }
+        historyarray = mainUser.history.split(",").flatMap((item) => item === "" ? [] : parseInt(item, 10));
+
+        historyarray.forEach((item) => {
+            activeusers.forEach((usr) => {
+              if (usr.id !== item && !activenames.includes(usr)) {
+                activenames.push(usr)
+              }
+              if (usr.id === item) {
+                activehistory.push(usr)
+              }
+            })
+            passiveusers.forEach((usr) => {
+              if (usr.id !== item && !passivenames.includes(usr)) {
+                passivenames.push(usr)
+              }
+              if (usr.id === item) {
+                passivehistory.push(usr)
+              }
+            })
+        })
+
+        activesorted = activenames.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+        passivesorted = passivenames.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+
+        combinedUsers = activehistory.concat(activesorted, passivehistory, passivesorted)
+        
+        return combinedUsers
     }
 }
