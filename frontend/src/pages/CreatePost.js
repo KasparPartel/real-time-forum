@@ -39,12 +39,9 @@ export default function CreatePost() {
   const handleChange = (e) => {
     let formDataCopy = Object.assign({}, formData);
     let name = e.target.getAttribute("name");
-    console.log("name", name);
-    console.log("value", e.target.value);
 
     formDataCopy[name] = e.target.value;
     setFormData(formDataCopy);
-    console.log(formData);
   };
 
   // handleSubmit sends data to api and navigates to new post page

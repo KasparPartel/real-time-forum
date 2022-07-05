@@ -5,9 +5,11 @@ import { UserContext } from "../UserContext";
 import styles from "./Login.module.css";
 
 export default function Login({ setCookie }) {
-  const [formData, setFormData] = useState({});
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({});
+  const [errorMsg, setErrorMsg] = useState("");
 
   if (user) {
     navigate("/", { replace: true });
@@ -33,28 +35,30 @@ export default function Login({ setCookie }) {
       body: JSON.stringify(formData),
     })
       .then((res) => {
-        if (res.ok) {
-          return res.json();
-        } else if (res.status === 303) {
-          // Must do redirect
-          console.log("User already logged in!");
-          return navigate("/", { replace: true });
+        if (!res.ok) {
+          setErrorMsg("Error logging in!");
+          throw Error(res.statusText);
         }
+        return res.json();
       })
       .then((data) => {
         console.log("Login successful!");
         setCookie("session_token", data.token, { path: "/" });
         return navigate("/", { replace: true });
+      })
+      .catch((e) => {
+        console.log(e);
       });
   };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.header}>Log in to our real-time-forum!</h2>
+      {errorMsg && <p className={styles.error}>{errorMsg}</p>}
       <form className={styles.form} onSubmit={handleSubmit}>
         <div>
           <label className={styles.form__label} htmlFor="username">
-            Username/Email:{" "}
+            Username/Email:
           </label>
           <br />
           <input
@@ -68,7 +72,7 @@ export default function Login({ setCookie }) {
 
         <div>
           <label className={styles.form__label} htmlFor="password">
-            Password:{" "}
+            Password:
           </label>
           <br />
           <input

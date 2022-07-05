@@ -2,6 +2,10 @@
   font-size: var(--size-header);
 }
 
+.error {
+  color: red;
+}
+
 .form {
   margin-top: 1.3em;
 }

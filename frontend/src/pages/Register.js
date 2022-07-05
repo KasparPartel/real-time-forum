@@ -6,6 +6,8 @@ import styles from "./Register.module.css";
 
 function Register() {
   const [formData, setFormData] = useState({ gender: "male" });
+  const [errorMsg, setErrorMsg] = useState("");
+
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -24,8 +26,6 @@ function Register() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log(formData);
-
     fetch("http://localhost:4000/v1/api/user/", {
       method: "POST",
       headers: {
@@ -33,19 +33,23 @@ function Register() {
       },
       credentials: "include",
       body: JSON.stringify(formData),
-    }).then((res) => {
-      if (res.ok) {
+    })
+      .then((res) => {
+        if (!res.ok) {
+          setErrorMsg("Cannot register user!");
+          throw Error(res.statusText);
+        }
         return navigate("/login", { replace: true });
-      } else {
-        console.log("Cannot register user!");
-        return;
-      }
-    });
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   };
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.header}>Register to our real-time-forum!</h2>
+      <h2 className={styles.header}>Register new user</h2>
+      {errorMsg && <p className={styles.error}>{errorMsg}</p>}
       <form className={styles.form} onSubmit={handleSubmit}>
         <div>
           <label className={styles.form__label} htmlFor="email">
