@@ -5,8 +5,9 @@ import (
 	// "io"
 	"database/sql"
 	"log"
-	"strings"
 	"strconv"
+	"strings"
+
 	// "net/http"
 	// db2 "real-time-forum/db"
 	json2 "encoding/json"
@@ -38,7 +39,7 @@ func WsReadUsers(db *sql.DB) []byte {
 		Username   string `json:"username"`
 		LoginDate  string `json:"login_date"`
 		LogoutDate string `json:"logout_date"`
-		History	   string `json:"history"`
+		History    string `json:"history"`
 	}
 	var data []Wsuser
 	var json []byte
@@ -68,7 +69,7 @@ func WsReadUsers(db *sql.DB) []byte {
 			Username:   username,
 			LoginDate:  loginDate,
 			LogoutDate: logoutDate,
-			History:	history,
+			History:    history,
 		}
 
 		data = append(data, user)
@@ -106,7 +107,7 @@ func WsSaveMessage(db *sql.DB, body string, user_id string, target_id string, cr
 	log.Println("Saved message to db: ", body)
 }
 
-func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) []byte {
+func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) ([]byte, int) {
 
 	type Wsmessage struct {
 		ID            int    `json:"id"`
@@ -116,7 +117,7 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) []byte
 		Creation_time string `json:"creation_time"`
 	}
 
-	returnedmessages := []byte(`{"type":"wsReturnedMessages","body":`)
+	// returnedmessages := []byte(fmt.Sprintf(`{"type":"wsReturnedMessages","sender":"%s","body":`, messageUser))
 
 	var data []Wsmessage
 	var json []byte
@@ -129,7 +130,7 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) []byte
 	var msgTarget string
 	var msgCreationTime string
 
-	logger.InfoLogger.Println("GET: all messages with current user and target")
+	// logger.InfoLogger.Println("GET: all messages with current user and target")
 
 	queryString := fmt.Sprintf("%s%s%s%s%s%s%s%s",
 		"SELECT * from messages WHERE user_id=",
@@ -172,10 +173,15 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) []byte
 		logger.ErrorLogger.Println(err)
 	}
 
-	returnedmessages = append(returnedmessages, json...)
-	returnedmessages = append(returnedmessages, []byte(`}`)...)
+	messagelength := len(data)
 
-	return returnedmessages
+	// log.Println("WsReadMessages length:", len(data))
+
+	// returnedmessages = append(returnedmessages, json...)
+	// returnedmessages = append(returnedmessages, []byte(`}`)...)
+
+	// return returnedmessages
+	return json, messagelength
 
 }
 
@@ -183,11 +189,11 @@ func WsSaveHistory(db *sql.DB, user string, target string) {
 	// this function saves a message target into user's chat history array
 	// saves into both chat users' history
 	// if id already present in history, moves it to start of array
-	
+
 	// 1. query chat user and target history strings from table
 	type History struct {
-		ID		int
-		Data	string
+		ID   int
+		Data string
 	}
 	var userInt int
 	var targetInt int
@@ -202,24 +208,24 @@ func WsSaveHistory(db *sql.DB, user string, target string) {
 	}
 
 	queryString := `SELECT id, history FROM user WHERE id=$1;`
-	
+
 	userrow := db.QueryRow(queryString, userInt)
 	switch err := userrow.Scan(&userHistory.ID, &userHistory.Data); err {
-		case sql.ErrNoRows:
+	case sql.ErrNoRows:
 		fmt.Println("No rows were returned!")
-		case nil:
+	case nil:
 		fmt.Printf("History of userId %d: %s\n", userHistory.ID, userHistory.Data)
-		default:
+	default:
 		panic(err)
 	}
-	
+
 	targetrow := db.QueryRow(queryString, targetInt)
 	switch err := targetrow.Scan(&targetHistory.ID, &targetHistory.Data); err {
-		case sql.ErrNoRows:
+	case sql.ErrNoRows:
 		fmt.Println("No rows were returned!")
-		case nil:
+	case nil:
 		fmt.Printf("History of userId %d: %s\n", targetHistory.ID, targetHistory.Data)
-		default:
+	default:
 		panic(err)
 	}
 
@@ -229,13 +235,13 @@ func WsSaveHistory(db *sql.DB, user string, target string) {
 	fmt.Printf("New userId %d history: %s\n", userHistory.ID, userHistoryUpdate)
 	fmt.Printf("New userId %d history: %s\n", targetHistory.ID, targetHistoryUpdate)
 
-
 	// 3. save updated strings into user and target history in db
 	db.Exec("UPDATE user SET history = ? WHERE id = ?", userHistoryUpdate, userHistory.ID)
 	db.Exec("UPDATE user SET history = ? WHERE id = ?", targetHistoryUpdate, targetHistory.ID)
 }
 
 func convertHistory(history string, user int) string {
+	// this function adds/moves user int to first value in history string
 	userStr := strconv.Itoa(user)
 	userSplit := strings.Split(history, ",")
 	var userRet string
@@ -254,4 +260,3 @@ func convertHistory(history string, user int) string {
 	}
 	return userRet
 }
-

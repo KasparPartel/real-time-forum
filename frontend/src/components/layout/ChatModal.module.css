@@ -38,7 +38,16 @@ body.active-modal {
 }
 
 .chattexts {
+    max-height: 15rem;
     overflow-y: scroll;
+    display: flex;
+    flex-direction: column-reverse;
+    scroll-snap-type: y mandatory;
+    scroll-snap-align: end;
+}
+
+.chattexts li {
+    scroll-snap-align: end;
 }
 
 .chatfield {
@@ -54,5 +63,8 @@ body.active-modal {
 
 .active {
     color: blue;
-    /* background-color: red; */
+}
+
+.newmsg {
+    background-color: whitesmoke;
 }

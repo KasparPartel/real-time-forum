@@ -7,7 +7,7 @@ import { loggedUser } from "./App";
 
 export let wsUserList = []
 export let wsActiveUserList
-export let wsMessageList = []
+// export let wsMessageList = []
 export let wsConnected = false
 
 // let activeUser
@@ -63,18 +63,20 @@ export function webSocketConnect(port) {
         }
         if (incomingJson.type === "wsReturnedMessages") {
             console.log("returned messages incomingJson.body:", incomingJson.body);
-            wsMessageList = incomingJson.body
-            msgUpdate()
+            // wsMessageList = incomingJson.body
+            msgUpdate(incomingJson.body)
+            // msgUpdate()
         }
 
         console.log("wsUserList =", wsUserList);
-        console.log("wsMessageList =", wsMessageList);
+        // console.log("wsMessageList =", wsMessageList);
     }
 
     webSocketConnect.sendMessage = sendMessage;
     webSocketConnect.wsGetUsers = wsGetUsers;
     webSocketConnect.wsGetChatMessages = wsGetChatMessages;
     webSocketConnect.sendActiveUserID = sendActiveUserID;
+    webSocketConnect.sendModal = sendModal;
     webSocketConnect.wsSortUsers = wsSortUsers;
 
     function sendMessage() {
@@ -94,7 +96,7 @@ export function webSocketConnect(port) {
         document.querySelector("#chat-text").value,
         document.querySelector("#send-button").getAttribute("data-user-id"),
         document.querySelector("#send-button").getAttribute("data-target-id"),
-        Date(Date.now()) // this need fixing to shorter length
+        Date(Date.now()) 
         );
 
         socket.send(newMessage);
@@ -120,8 +122,8 @@ export function webSocketConnect(port) {
     function sendActiveUserID(usrID) {
         //JSON for getting users from db query
         let msg = {
-        type: "sendUser",
-        activeUser: usrID,
+            type: "sendUser",
+            activeUser: usrID,
         };
         console.log("sending usrID", usrID);
         if (usrID) {
@@ -129,6 +131,26 @@ export function webSocketConnect(port) {
             console.log("Sent ActiveUserID over websocket to backend:", usrID);
         } else {
             console.log("Error: no ActiveUserID to send.");
+        }
+    }
+
+    function sendModal(usrID, trgtID/* , messageLength */) {
+        // console.log("Trying to send Modal: user, target, length", usrID, trgtID, messageLength);
+        console.log("Trying to send Modal: user, target", usrID, trgtID);
+        // JSON for sending user Modal message length
+        let msg = {
+            type: "sendModal",
+            activeUser: usrID,
+            targetUser: trgtID,
+            // modalLength: messageLength,
+        };
+        if (usrID && trgtID /* && messageLength */) {
+            socket.send(JSON.stringify(msg));
+            console.log("sending Modal: user, target", usrID, trgtID);
+            // console.log("sending Modal: user, target, length", usrID, trgtID, messageLength);
+            // console.log("Sent ActiveUserID over websocket to backend:", usrID);
+        } else {
+            console.log("Error: Modal attribute missing when sending");
         }
     }
     
