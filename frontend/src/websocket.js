@@ -30,7 +30,7 @@ export function webSocketConnect(port) {
         // console.log("Active user ID is:", activeUser.id);
         // socket.send(JSON.stringify(`"activeUserID":"${activeUser.id}"`))
         sendActiveUserID(loggedUser.id)
-        wsGetUsers()
+        wsGetUsers(loggedUser.id)
         usrUpdate()
         
         if (loggedUser) {
@@ -56,7 +56,7 @@ export function webSocketConnect(port) {
         console.log(incomingJson);
 
         if (incomingJson.type === "wsReturnedUsers") {
-            wsUserList = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool)
+            wsUserList = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool, incomingJson.unread)
             // wsUserList = incomingJson.body
             // wsActiveUserList = incomingJson.pool
             usrUpdate()
@@ -110,10 +110,11 @@ export function webSocketConnect(port) {
         document.getElementById("chat-text").textContent = "";
     }
 
-    function wsGetUsers() {
+    function wsGetUsers(usrID) {
         //JSON for getting users from db query
         let msg = {
         type: "wsGetUsers",
+        activeUser: usrID,
         };
 
         socket.send(JSON.stringify(msg));
@@ -165,7 +166,7 @@ export function webSocketConnect(port) {
         socket.send(JSON.stringify(msg));
     }
 
-    function wsSortUsers(mainUser, usersList, activeUsersList) {
+    function wsSortUsers(mainUser, usersList, activeUsersList, unreadUsersList) {
 
         if (!mainUser || !usersList || !activeUsersList) {
             console.log("Error: user sorting data missing");
@@ -188,11 +189,18 @@ export function webSocketConnect(port) {
         let combinedUsers = []
         let historyarray = []
         let activeUserArray = activeUsersList.split(",").map(function(item) {return parseInt(item, 10);})
+        let unreadUserArray = unreadUsersList.split(",").map(function(item) {return parseInt(item, 10);})
 
         usersList.forEach((usr) => {
             activeUserArray.forEach((loginID) => {
                 if (usr.id === loginID) {
                 usr.class = "active"
+                activeusers.push(usr)
+                }
+            })
+            unreadUserArray.forEach((unreadID) => {
+                if (usr.id === unreadID) {
+                usr.class += " unread"
                 activeusers.push(usr)
                 }
             })

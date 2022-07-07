@@ -105,25 +105,14 @@ func (pool *Pool) Start() {
 				}
 			}
 
+			// if frontend sends Modal clicked event, last seen history count is saved into db
 			if dat["type"] == "sendModal" {
 				log.Println("Received sendModal:", dat)
-
-				// for client, _ := range pool.Clients {
-
-				// 	// if received user Id conn is same as in Client struct, save user ID in Client
-				// 	if client.Conn == message.Conn {
-
-				// 		if dat["activeUser"] != nil { // trying to fix bug where "sendUser" has no "activeUser"
-
-				// 			client.UserID = int(dat["activeUser"].(float64))
-				// 			fmt.Println("Active user received and saved to client.UserID:", client.UserID)
-
-				// 			for client := range pool.Clients {
-				// 				fmt.Printf("Active client UserID in pool: %d\n", client.UserID)
-				// 			}
-				// 		}
-				// 	}
-				// }
+				user := strconv.Itoa(int(dat["activeUser"].(float64)))
+				target := strconv.Itoa(int(dat["targetUser"].(float64)))
+				_, dbMessages := WsReadMessages(database, user, target)
+				_, history := getHistory(database, int(dat["activeUser"].(float64)))
+				updateHistory(database, history, int(dat["activeUser"].(float64)), int(dat["targetUser"].(float64)), dbMessages)
 			}
 
 			// if the frontend sends Message to be saved into db
@@ -153,17 +142,27 @@ func (pool *Pool) Start() {
 				}
 			}
 
-			if dat["type"] == "wsGetUsers" && dat["user_id"] != "undefined" && dat["target_id"] != "undefined" {
+			if dat["type"] == "wsGetUsers" && dat["activeUser"] != "undefined" /* && dat["target_id"] != "undefined" */ {
 
 				log.Println("Got wsGetUsers request from frontend")
+				unreadArray := []int{}
+				_, userArray := WsReadUsers(database)
+				user := strconv.Itoa(int(dat["activeUser"].(float64)))
+				_, history := getHistory(database, int(dat["activeUser"].(float64)))
+
+				for i := 0; i < len(userArray); i++ {
+					if userArray[i] != int(dat["activeUser"].(float64)) {
+						target := strconv.Itoa(userArray[i])
+						_, dbMsgLength := WsReadMessages(database, user, target)
+						// _, historyMsgLength := WsReadMessages(database, user, target)
+						if compareHistory(history, userArray[i], dbMsgLength) {
+							unreadArray = append(unreadArray, userArray[i])
+						}
+					}
+				}
+				log.Println("Unread array:", unreadArray)
 
 				userpool := []byte(`,"pool":"`)
-				// for i := 0; i < len(pool.Clients); i++ {
-				// 	userpool = append(userpool, []byte(pool.Clients[i].UserID)...)
-				// 	if i < len(pool.Clients) - 1 {
-				// 		userpool = append(userpool, []byte(`,`)...)
-				// 	}
-				// }
 				for client := range pool.Clients {
 					// userpool = append(userpool, client.UserID)
 					userpool = append(userpool, []byte(strconv.Itoa(client.UserID))...)
@@ -175,9 +174,20 @@ func (pool *Pool) Start() {
 				fmt.Println("pool.Clients")
 				fmt.Println(pool.Clients)
 
+				unreadpool := []byte(`,"unread":"`)
+				for user := range unreadArray {
+					unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
+					unreadpool = append(unreadpool, []byte(`,`)...)
+				}
+				unreadpool = unreadpool[:len(unreadpool)-1]
+				unreadpool = append(unreadpool, []byte(`"`)...)
+
+				userJson, _ := WsReadUsers(database)
+
 				returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
-				returnedusers = append(returnedusers, WsReadUsers(database)...)
+				returnedusers = append(returnedusers, userJson...)
 				returnedusers = append(returnedusers, userpool...)
+				returnedusers = append(returnedusers, unreadpool...)
 				returnedusers = append(returnedusers, []byte(`}`)...)
 
 				// this send userlist from db back to frontend that sent request

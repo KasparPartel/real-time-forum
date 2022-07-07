@@ -32,7 +32,7 @@ func CreateMessageTable(db *sql.DB) {
 	log.Println("Messages Table created successfully!")
 }
 
-func WsReadUsers(db *sql.DB) []byte {
+func WsReadUsers(db *sql.DB) ([]byte, []int) {
 
 	type Wsuser struct {
 		ID         int    `json:"id"`
@@ -43,6 +43,7 @@ func WsReadUsers(db *sql.DB) []byte {
 	}
 	var data []Wsuser
 	var json []byte
+	var userArray []int
 	var err error
 
 	// Variables to use for assignment from database
@@ -73,6 +74,7 @@ func WsReadUsers(db *sql.DB) []byte {
 		}
 
 		data = append(data, user)
+		userArray = append(userArray, user.ID)
 		// log.Println("data2:", data)
 
 	}
@@ -88,7 +90,7 @@ func WsReadUsers(db *sql.DB) []byte {
 		logger.ErrorLogger.Println(err)
 	}
 
-	return json
+	return json, userArray
 
 }
 
@@ -242,21 +244,99 @@ func WsSaveHistory(db *sql.DB, user string, target string) {
 
 func convertHistory(history string, user int) string {
 	// this function adds/moves user int to first value in history string
+
 	userStr := strconv.Itoa(user)
 	userSplit := strings.Split(history, ",")
 	var userRet string
-	userSplit = append([]string{userStr}, userSplit...)
+	isfound := false
 
 	for i := 0; i < len(userSplit); i++ {
-		if i > 0 && userSplit[i] == userStr {
-			userSplit = append(userSplit[:i], userSplit[i+1:]...)
-			i--
-		} else {
-			userRet = userRet + userSplit[i]
-			if i < len(userSplit)-1 {
-				userRet = userRet + ","
+		if strings.Split(userSplit[i], "-")[0] == userStr {
+			isfound = true
+		}
+	}
+
+	if !isfound {
+		userSplit = append([]string{fmt.Sprintf("%s-%s", userStr, "0")}, userSplit...)
+	} else {
+		for i := 1; i < len(userSplit); i++ {
+			if strings.Split(userSplit[i], "-")[0] == userStr {
+				userSplit = append([]string{userSplit[i]}, userSplit...)
+				if i < len(userSplit)+2 {
+					userSplit = append(userSplit[:i+1], userSplit[i+2:]...)
+				}
 			}
 		}
 	}
+
+	for i := 0; i < len(userSplit); i++ {
+		userRet = userRet + userSplit[i]
+		if i < len(userSplit)-1 {
+			userRet = userRet + ","
+		}
+	}
+
 	return userRet
+}
+
+func updateHistory(db *sql.DB, history string, user int, target int, length int) /* string */ {
+	// this function updates the messages count for target user in history string
+
+	targetStr := strconv.Itoa(target)
+	targetSplit := strings.Split(history, ",")
+	var historyUpdate string
+
+	for i := 0; i < len(targetSplit); i++ {
+		if strings.Split(targetSplit[i], "-")[0] == targetStr {
+			targetSplit[i] = fmt.Sprintf("%s-%d", targetStr, length)
+		}
+		historyUpdate = historyUpdate + targetSplit[i]
+		if i < len(targetSplit)-1 {
+			historyUpdate = historyUpdate + ","
+		}
+	}
+	db.Exec("UPDATE user SET history = ? WHERE id = ?", historyUpdate, user)
+}
+
+func getHistory(db *sql.DB, user int) (int, string) {
+	// this func gets user ID and history string from db
+
+	type History struct {
+		ID   int
+		Data string
+	}
+	var history History
+
+	queryString := `SELECT id, history FROM user WHERE id=$1;`
+
+	userrow := db.QueryRow(queryString, user)
+	switch err := userrow.Scan(&history.ID, &history.Data); err {
+	case sql.ErrNoRows:
+		fmt.Println("No rows were returned!")
+	case nil:
+		fmt.Printf("History of userId %d: %s\n", history.ID, history.Data)
+	default:
+		panic(err)
+	}
+	return history.ID, history.Data
+}
+
+func compareHistory(history string, user int, length int) bool {
+	// this function compares target user messages count with given length count in history string
+
+	userStr := strconv.Itoa(user)
+	userSplit := strings.Split(history, ",")
+	var messages int
+
+	for i := 0; i < len(userSplit); i++ {
+		if strings.Split(userSplit[i], "-")[0] == userStr {
+			if i, err := strconv.Atoi(strings.Split(userSplit[i], "-")[1]); err == nil {
+				messages = i
+			}
+			if length > messages {
+				return true
+			}
+		}
+	}
+	return false
 }
