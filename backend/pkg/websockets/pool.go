@@ -144,54 +144,61 @@ func (pool *Pool) Start() {
 
 			if dat["type"] == "wsGetUsers" && dat["activeUser"] != "undefined" /* && dat["target_id"] != "undefined" */ {
 
-				log.Println("Got wsGetUsers request from frontend")
-				unreadArray := []int{}
-				_, userArray := WsReadUsers(database)
-				user := strconv.Itoa(int(dat["activeUser"].(float64)))
-				_, history := getHistory(database, int(dat["activeUser"].(float64)))
+				// log.Println("Got wsGetUsers request from frontend")
+				// unreadArray := []int{}
+				// _, userArray := WsReadUsers(database)
+				// user := strconv.Itoa(int(dat["activeUser"].(float64)))
+				// _, history := getHistory(database, int(dat["activeUser"].(float64)))
 
-				for i := 0; i < len(userArray); i++ {
-					if userArray[i] != int(dat["activeUser"].(float64)) {
-						target := strconv.Itoa(userArray[i])
-						_, dbMsgLength := WsReadMessages(database, user, target)
-						// _, historyMsgLength := WsReadMessages(database, user, target)
-						if compareHistory(history, userArray[i], dbMsgLength) {
-							unreadArray = append(unreadArray, userArray[i])
-						}
-					}
-				}
-				log.Println("Unread array:", unreadArray)
+				// for i := 0; i < len(userArray); i++ {
+				// 	if userArray[i] != int(dat["activeUser"].(float64)) {
+				// 		target := strconv.Itoa(userArray[i])
+				// 		_, dbMsgLength := WsReadMessages(database, user, target)
+				// 		// _, historyMsgLength := WsReadMessages(database, user, target)
+				// 		if compareHistory(history, userArray[i], dbMsgLength) {
+				// 			unreadArray = append(unreadArray, userArray[i])
+				// 		}
+				// 	}
+				// }
+				// log.Println("Unread array:", unreadArray)
 
-				userpool := []byte(`,"pool":"`)
-				for client := range pool.Clients {
-					// userpool = append(userpool, client.UserID)
-					userpool = append(userpool, []byte(strconv.Itoa(client.UserID))...)
-					userpool = append(userpool, []byte(`,`)...)
-				}
-				userpool = userpool[:len(userpool)-1]
-				userpool = append(userpool, []byte(`"`)...)
+				// userpool := []byte(`,"pool":"`)
+				// for client := range pool.Clients {
+				// 	// userpool = append(userpool, client.UserID)
+				// 	userpool = append(userpool, []byte(strconv.Itoa(client.UserID))...)
+				// 	userpool = append(userpool, []byte(`,`)...)
+				// }
+				// userpool = userpool[:len(userpool)-1]
+				// userpool = append(userpool, []byte(`"`)...)
 
-				fmt.Println("pool.Clients")
-				fmt.Println(pool.Clients)
+				// fmt.Println("pool.Clients")
+				// fmt.Println(pool.Clients)
 
-				unreadpool := []byte(`,"unread":"`)
-				for user := range unreadArray {
-					unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
-					unreadpool = append(unreadpool, []byte(`,`)...)
-				}
-				unreadpool = unreadpool[:len(unreadpool)-1]
-				unreadpool = append(unreadpool, []byte(`"`)...)
+				// unreadpool := []byte(`,"unread":"`)
+				// if len(unreadArray) > 0 {
+				// 	for user := range unreadArray {
+				// 		unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
+				// 		unreadpool = append(unreadpool, []byte(`,`)...)
+				// 	}
+				// 	unreadpool = unreadpool[:len(unreadpool)-1]
+				// }
+				// unreadpool = append(unreadpool, []byte(`"`)...)
 
-				userJson, _ := WsReadUsers(database)
+				// userJson, _ := WsReadUsers(database)
 
-				returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
-				returnedusers = append(returnedusers, userJson...)
-				returnedusers = append(returnedusers, userpool...)
-				returnedusers = append(returnedusers, unreadpool...)
-				returnedusers = append(returnedusers, []byte(`}`)...)
+				// returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
+				// returnedusers = append(returnedusers, userJson...)
+				// returnedusers = append(returnedusers, userpool...)
+				// returnedusers = append(returnedusers, unreadpool...)
+				// returnedusers = append(returnedusers, []byte(`}`)...)
+
+				// var returnedusers []byte
+				returnedusers := WsReturnUsers(database, strconv.Itoa(int(dat["activeUser"].(float64))), pool)
 
 				// this send userlist from db back to frontend that sent request
 				for client := range pool.Clients {
+
+					// SEND HERE ONLY TO REQUESTING USER
 
 					// if received user Id conn is same as in Client struct, send users back to this user
 					//if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) {

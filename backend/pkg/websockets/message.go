@@ -20,11 +20,12 @@ import (
 func CreateMessageTable(db *sql.DB) {
 	messages_table := `CREATE TABLE IF NOT EXISTS messages (
 		id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        "body" TEXT,
-        "user_id" TEXT,
-        "target_id" TEXT,
-        "creation_time" TEXT);`
+	    "body" TEXT,
+	    "user_id" TEXT,
+	    "target_id" TEXT,
+	    "creation_time" TEXT);`
 	query, err := db.Prepare(messages_table)
+	// query, err := db.Prepare(`DELETE FROM messages;`) // dev_only: this clears messages table data
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -92,6 +93,66 @@ func WsReadUsers(db *sql.DB) ([]byte, []int) {
 
 	return json, userArray
 
+}
+
+func WsReturnUsers(database *sql.DB, user_id string, pool *Pool) []byte {
+
+	log.Println("Got wsGetUsers request from frontend")
+	var userInt int
+
+	if i, err := strconv.Atoi(user_id); err == nil {
+		userInt = i
+	}
+
+	unreadArray := []int{}
+	_, userArray := WsReadUsers(database)
+	// user := strconv.Itoa(int(dat["activeUser"].(float64)))
+	_, history := getHistory(database, userInt)
+
+	for i := 0; i < len(userArray); i++ {
+		if userArray[i] != userInt {
+			target := strconv.Itoa(userArray[i])
+			_, dbMsgLength := WsReadMessages(database, user_id, target)
+			// _, historyMsgLength := WsReadMessages(database, user, target)
+			if compareHistory(history, userArray[i], dbMsgLength) {
+				unreadArray = append(unreadArray, userArray[i])
+				log.Println("Found messages for unreadArray:", unreadArray)
+			}
+		}
+	}
+	// log.Println("Unread array:", unreadArray)
+
+	userpool := []byte(`,"pool":"`)
+	for client := range pool.Clients {
+		// userpool = append(userpool, client.UserID)
+		userpool = append(userpool, []byte(strconv.Itoa(client.UserID))...)
+		userpool = append(userpool, []byte(`,`)...)
+	}
+	userpool = userpool[:len(userpool)-1]
+	userpool = append(userpool, []byte(`"`)...)
+
+	// fmt.Println("pool.Clients")
+	// fmt.Println(pool.Clients)
+
+	unreadpool := []byte(`,"unread":"`)
+	if len(unreadArray) > 0 {
+		for user := range unreadArray {
+			unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
+			unreadpool = append(unreadpool, []byte(`,`)...)
+		}
+		unreadpool = unreadpool[:len(unreadpool)-1]
+	}
+	unreadpool = append(unreadpool, []byte(`"`)...)
+
+	userJson, _ := WsReadUsers(database)
+
+	returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
+	returnedusers = append(returnedusers, userJson...)
+	returnedusers = append(returnedusers, userpool...)
+	returnedusers = append(returnedusers, unreadpool...)
+	returnedusers = append(returnedusers, []byte(`}`)...)
+
+	return returnedusers
 }
 
 func WsSaveMessage(db *sql.DB, body string, user_id string, target_id string, creation_time string) {

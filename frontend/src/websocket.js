@@ -168,6 +168,9 @@ export function webSocketConnect(port) {
 
     function wsSortUsers(mainUser, usersList, activeUsersList, unreadUsersList) {
 
+        // console.log("wsSortUsers(mainUser, usersList, activeUsersList, unreadUsersList):",
+        // mainUser, usersList, activeUsersList, unreadUsersList);
+
         if (!mainUser || !usersList || !activeUsersList) {
             console.log("Error: user sorting data missing");
             return
@@ -211,6 +214,14 @@ export function webSocketConnect(port) {
                 passiveusers.push(usr)
             }
         })
+
+        if (mainUser.history.length === 0) {
+            console.log("This user has no prior chat history!");
+            activesorted = activeusers.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+            passivesorted = passiveusers.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+            combinedUsers = activesorted.concat(passivesorted)    
+            return combinedUsers
+        }
 
         // if (user && user.history !== undefined && user != null) {
         //     historyarray = user.history.split(",").flatMap((item) => item === "" ? [] : parseInt(item, 10));

@@ -4,12 +4,12 @@ import ChatText from "./ChatText";
 import { webSocketConnect, /* wsMessageList, */ wsConnected } from "../../websocket.js"
 import { UserContext } from "../../UserContext";
 
-let orderMsg = false
+// let orderMsg = false
 function ChatModal(props) {
   const {user} = useContext(UserContext)
   // webSocketConnect.wsGetChatMessages(user.id, props.id)
   
-  let msgBubble = "nonew"
+  // let msgBubble = "nonew"
 
   // getActiveUser(user)
 
@@ -20,9 +20,10 @@ function ChatModal(props) {
     if (wsConnected) {
       setRender(!render)
       // setRender(render + 1)
-      orderMsg = true
-      webSocketConnect.wsGetChatMessages(user.id, props.id)
+      // orderMsg = true
       webSocketConnect.sendModal(user.id, props.id, messagelist.length)
+      webSocketConnect.wsGetChatMessages(user.id, props.id)
+      // webSocketConnect.wsGetUsers(user.id)
     }
   }
 
@@ -73,8 +74,8 @@ function ChatModal(props) {
 
   ChatModal.setMessagelist = setMessagelist;
   ChatModal.user = user;
-  ChatModal.orderMsg = orderMsg;
-  ChatModal.msgBubble = msgBubble;
+  // ChatModal.orderMsg = orderMsg;
+  // ChatModal.msgBubble = msgBubble;
   ChatModal.msgLength = messagelist?.length
 
   console.log("ChatModal.msgLength", ChatModal.msgLength);
@@ -87,7 +88,8 @@ function ChatModal(props) {
     <>
       {/* {render && toggleRender()} */}
       
-      <li className={[classes[props.class], msgBubble].join(' ')} onClick={toggleModal}>
+      {/* <li className={[classes[props.class], msgBubble].join(' ')} onClick={toggleModal}> */}
+      <li className={classes[props.class]} onClick={toggleModal}>
         {props.name}
       </li>
       {(modal /* && messagelist */) && (
@@ -130,10 +132,10 @@ function ChatModal(props) {
 
 export function msgUpdate(messages) {
   ChatModal.setMessagelist(messages)
-  if (ChatModal.orderMsg === false) {
-    ChatModal.msgBubble = "newstuff" //classes.newmsg
-  }
-  ChatModal.orderMsg = false
+  // if (ChatModal.orderMsg === false) {
+  //   ChatModal.msgBubble = "newstuff" //classes.newmsg
+  // }
+  // ChatModal.orderMsg = false
   // ChatModal.setMessagelist(wsMessageList)
 }
 
