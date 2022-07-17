@@ -10,12 +10,27 @@ package db
 // Meelu Timukas
 // meelu@timukas.ee
 // Mtimuk
-// Parool321
+// Parool123
 
 // Proovi Juuser
 // proovi@juuser.ee
 // PJuuser
-// Parool456
+// Parool123
+
+// Tilgu Kraanik
+// kraanik@vee.ee
+// tKraanik
+// Parool123
+
+// Smitti Svips
+// svips@smitti.ee
+// SvipsiSmitt
+// Parool123
+
+// General Kenobi
+// hello@there.hi
+// Kenobi
+// Parool123
 
 //
 //import (

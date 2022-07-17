@@ -65,6 +65,6 @@ body.active-modal {
     color: blue;
 }
 
-.newmsg {
-    background-color: whitesmoke;
+.unread {
+    background-color: yellow;
 }

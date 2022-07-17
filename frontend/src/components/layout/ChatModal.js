@@ -21,9 +21,9 @@ function ChatModal(props) {
       setRender(!render)
       // setRender(render + 1)
       // orderMsg = true
-      webSocketConnect.sendModal(user.id, props.id, messagelist.length)
+      webSocketConnect.sendModal(user.id, props.id, messagelist?.length)
       webSocketConnect.wsGetChatMessages(user.id, props.id)
-      // webSocketConnect.wsGetUsers(user.id)
+      webSocketConnect.wsGetUsers(user.id)
     }
   }
 
@@ -49,10 +49,12 @@ function ChatModal(props) {
   const [modal, setModal] = useState(false);
   const toggleModal = () => {
     toggleRender()
-    setModal(!modal);
-    if (modal) {
+    console.log("toggleModal:", modal);
+    if (modal === false) {
       webSocketConnect.sendModal(user.id, props.id)
+      console.log("modal sent");
     }
+    setModal(!modal);
     // if (modal) {
     //   webSocketConnect.wsGetChatMessages(user.id, props.id)
     //   // setMessagelist(wsMessageList)
@@ -61,6 +63,7 @@ function ChatModal(props) {
 
   if (modal) {
     document.body.classList.add("active-modal");
+    // webSocketConnect.sendModal(user.id, props.id);
   } else {
     document.body.classList.remove("active-modal");
   }
@@ -79,7 +82,26 @@ function ChatModal(props) {
   ChatModal.msgLength = messagelist?.length
 
   console.log("ChatModal.msgLength", ChatModal.msgLength);
-  // ChatModal.setRender = setRender;
+  ChatModal.setRender = setRender;
+  ChatModal.render = render;
+
+  // console.log("user history:", user.username, user.id, user.history);
+  // console.log("target name, id:", props.name, props.id);
+
+  // let historySplit = user.history.split(',')
+  // historySplit.forEach(element => {
+  //   if (parseInt(element.split('-')[0]) === props.id) {
+
+  //     console.log("history messages vs messagelist", parseInt(element.split('-')[1]) < messagelist?.length);
+  //     console.log("history messages", parseInt(element.split('-')[1]));
+  //     console.log("messagelist",  messagelist?.length);
+      
+  //     if (parseInt(element.split('-')[1]) < messagelist?.length) {
+  //       document.body.classList.add("unread");
+  //     }
+  //   }
+  // });
+
 
   let textList = messagelist
 
@@ -89,7 +111,7 @@ function ChatModal(props) {
       {/* {render && toggleRender()} */}
       
       {/* <li className={[classes[props.class], msgBubble].join(' ')} onClick={toggleModal}> */}
-      <li className={classes[props.class]} onClick={toggleModal}>
+      <li className={`${props.active ? classes.active : ""} ${props.newmessage ? classes.unread : ""}`/* classes[props.class] */} onClick={toggleModal}>
         {props.name}
       </li>
       {(modal /* && messagelist */) && (
@@ -132,6 +154,7 @@ function ChatModal(props) {
 
 export function msgUpdate(messages) {
   ChatModal.setMessagelist(messages)
+  // ChatModal.setRender(!ChatModal.render)
   // if (ChatModal.orderMsg === false) {
   //   ChatModal.msgBubble = "newstuff" //classes.newmsg
   // }

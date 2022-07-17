@@ -53,18 +53,31 @@ export function webSocketConnect(port) {
         // console.log("Backend has responded with data: ", msg.data);
         let incomingJson = JSON.parse(msg.data)
 
-        console.log(incomingJson);
+        // console.log(incomingJson);
 
         if (incomingJson.type === "wsReturnedUsers") {
-            wsUserList = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool, incomingJson.unread)
+            // wsUserList = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool, incomingJson.unread)
+            console.log("loggedUser", loggedUser);
+
+            let unreadstring
+            incomingJson.body.forEach((usr) => {
+                if (usr.id === loggedUser.id) {
+                    unreadstring = usr.unread
+                }
+            })
+
+            let sortedUsers = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool, unreadstring)
             // wsUserList = incomingJson.body
             // wsActiveUserList = incomingJson.pool
-            usrUpdate()
+            console.log("incomingJson", incomingJson)
+            console.log("sortedUsers", sortedUsers)
+            usrUpdate(sortedUsers)
         }
         if (incomingJson.type === "wsReturnedMessages") {
             console.log("returned messages incomingJson.body:", incomingJson.body);
             // wsMessageList = incomingJson.body
             msgUpdate(incomingJson.body)
+            // usrUpdate()
             // msgUpdate()
         }
 
@@ -171,7 +184,7 @@ export function webSocketConnect(port) {
         // console.log("wsSortUsers(mainUser, usersList, activeUsersList, unreadUsersList):",
         // mainUser, usersList, activeUsersList, unreadUsersList);
 
-        if (!mainUser || !usersList || !activeUsersList) {
+        if (!mainUser || !usersList || !activeUsersList || !unreadUsersList) {
             console.log("Error: user sorting data missing");
             return
         }
@@ -180,6 +193,7 @@ export function webSocketConnect(port) {
         console.log("mainUser:", mainUser);
         console.log("usersList:", usersList);
         console.log("activeUsersList:", activeUsersList);
+        console.log("unreadUsersList:", unreadUsersList);
 
         let activeusers = []
         let passiveusers = []
@@ -194,17 +208,25 @@ export function webSocketConnect(port) {
         let activeUserArray = activeUsersList.split(",").map(function(item) {return parseInt(item, 10);})
         let unreadUserArray = unreadUsersList.split(",").map(function(item) {return parseInt(item, 10);})
 
+        console.log("activeUserArray", activeUserArray);
+        console.log("unreadUserArray", unreadUserArray);
+
         usersList.forEach((usr) => {
+            // usr.class = []
             activeUserArray.forEach((loginID) => {
                 if (usr.id === loginID) {
-                usr.class = "active"
+                // usr.class = "active"
+                // usr.class.push("reactive")
+                usr.active = true
                 activeusers.push(usr)
                 }
             })
             unreadUserArray.forEach((unreadID) => {
                 if (usr.id === unreadID) {
-                usr.class += " unread"
-                activeusers.push(usr)
+                // usr.class += " unread"
+                // usr.class.push("unread")
+                // activeusers.push(usr)
+                usr.newmessage = true
                 }
             })
         })
@@ -228,13 +250,13 @@ export function webSocketConnect(port) {
         // }
         historyarray = mainUser.history.split(",").flatMap((item) => item === "" ? [] : parseInt(item, 10));
 
-        // console.log("historyarray", historyarray);
-        // console.log("activeusers", activeusers);
-        // console.log("passiveusers", passiveusers);
-        // console.log("activenames", activenames);
-        // console.log("activehistory", activehistory);
-        // console.log("passivenames", passivenames);
-        // console.log("passivehistory", passivehistory);
+        console.log("historyarray", historyarray);
+        console.log("activeusers", activeusers);
+        console.log("passiveusers", passiveusers);
+        console.log("activenames", activenames);
+        console.log("activehistory", activehistory);
+        console.log("passivenames", passivenames);
+        console.log("passivehistory", passivehistory);
         
         historyarray.forEach((item) => {
             console.log("historyarray item", item);

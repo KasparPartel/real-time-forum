@@ -134,7 +134,8 @@ function Userlist({user}) {
       <div className="user-list">
         <ul className={classes.userlist}>
           {userlist.map((target) => (target.id !== user.id &&
-              <ChatModal class={target.class} key={target.id} id={target.id} name={target.username} user={user}/>
+              // <ChatModal class={target.class} key={target.id} id={target.id} name={target.username} user={user}/>
+              <ChatModal active={target.active} newmessage={target.newmessage} key={target.id} id={target.id} name={target.username} user={user}/>
           ))}
         </ul>
       </div>
@@ -150,8 +151,8 @@ function Userlist({user}) {
   }
 }
 
-export function usrUpdate() {
-  Userlist.setUserlist(wsUserList)
+export function usrUpdate(userlist) {
+  Userlist.setUserlist(userlist)
   // Userlist.setActiveUserlist(wsActiveUserList)
 }
 

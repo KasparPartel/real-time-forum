@@ -33,7 +33,7 @@ func CreateMessageTable(db *sql.DB) {
 	log.Println("Messages Table created successfully!")
 }
 
-func WsReadUsers(db *sql.DB) ([]byte, []int) {
+func WsReadUsers(db *sql.DB, unreadstring string) ([]byte, []int) {
 
 	type Wsuser struct {
 		ID         int    `json:"id"`
@@ -41,6 +41,7 @@ func WsReadUsers(db *sql.DB) ([]byte, []int) {
 		LoginDate  string `json:"login_date"`
 		LogoutDate string `json:"logout_date"`
 		History    string `json:"history"`
+		Unread     string `json:"unread"`
 	}
 	var data []Wsuser
 	var json []byte
@@ -74,6 +75,7 @@ func WsReadUsers(db *sql.DB) ([]byte, []int) {
 			History:    history,
 		}
 
+		user.Unread = unreadstring
 		data = append(data, user)
 		userArray = append(userArray, user.ID)
 		// log.Println("data2:", data)
@@ -105,9 +107,13 @@ func WsReturnUsers(database *sql.DB, user_id string, pool *Pool) []byte {
 	}
 
 	unreadArray := []int{}
-	_, userArray := WsReadUsers(database)
+	_, userArray := WsReadUsers(database, "")
+
 	// user := strconv.Itoa(int(dat["activeUser"].(float64)))
 	_, history := getHistory(database, userInt)
+
+	log.Println("userArray:", userArray)
+	log.Println("history:", history)
 
 	for i := 0; i < len(userArray); i++ {
 		if userArray[i] != userInt {
@@ -116,11 +122,11 @@ func WsReturnUsers(database *sql.DB, user_id string, pool *Pool) []byte {
 			// _, historyMsgLength := WsReadMessages(database, user, target)
 			if compareHistory(history, userArray[i], dbMsgLength) {
 				unreadArray = append(unreadArray, userArray[i])
-				log.Println("Found messages for unreadArray:", unreadArray)
+				// log.Println("Found messages for unreadArray:", userInt, unreadArray)
 			}
 		}
 	}
-	// log.Println("Unread array:", unreadArray)
+	log.Println("Unread array:", userInt, unreadArray)
 
 	userpool := []byte(`,"pool":"`)
 	for client := range pool.Clients {
@@ -134,22 +140,34 @@ func WsReturnUsers(database *sql.DB, user_id string, pool *Pool) []byte {
 	// fmt.Println("pool.Clients")
 	// fmt.Println(pool.Clients)
 
-	unreadpool := []byte(`,"unread":"`)
+	// unreadpool := []byte(`,"unread":"`)
+	var unreadstring string
 	if len(unreadArray) > 0 {
-		for user := range unreadArray {
-			unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
-			unreadpool = append(unreadpool, []byte(`,`)...)
+		for _, user := range unreadArray {
+			// unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
+			// unreadpool = append(unreadpool, []byte(`,`)...)
+			unreadstring += strconv.Itoa(user)
+			unreadstring += ","
 		}
-		unreadpool = unreadpool[:len(unreadpool)-1]
+		unreadstring = unreadstring[:len(unreadstring)-1]
 	}
-	unreadpool = append(unreadpool, []byte(`"`)...)
+	// unreadpool = append(unreadpool, []byte(`"`)...)
+	// unreadpool := []byte(`,"unread":"`)
+	// if len(unreadArray) > 0 {
+	// 	for _, user := range unreadArray {
+	// 		unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
+	// 		unreadpool = append(unreadpool, []byte(`,`)...)
+	// 	}
+	// 	unreadpool = unreadpool[:len(unreadpool)-1]
+	// }
+	// unreadpool = append(unreadpool, []byte(`"`)...)
 
-	userJson, _ := WsReadUsers(database)
+	userJson, _ := WsReadUsers(database, unreadstring)
 
 	returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
 	returnedusers = append(returnedusers, userJson...)
 	returnedusers = append(returnedusers, userpool...)
-	returnedusers = append(returnedusers, unreadpool...)
+	// returnedusers = append(returnedusers, unreadpool...)
 	returnedusers = append(returnedusers, []byte(`}`)...)
 
 	return returnedusers
@@ -306,6 +324,8 @@ func WsSaveHistory(db *sql.DB, user string, target string) {
 func convertHistory(history string, user int) string {
 	// this function adds/moves user int to first value in history string
 
+	log.Printf("convertHistory input user %d: %s\n", user, history)
+
 	userStr := strconv.Itoa(user)
 	userSplit := strings.Split(history, ",")
 	var userRet string
@@ -337,6 +357,7 @@ func convertHistory(history string, user int) string {
 		}
 	}
 
+	log.Printf("convertHistory output user %d: %s\n", user, userRet)
 	return userRet
 }
 
