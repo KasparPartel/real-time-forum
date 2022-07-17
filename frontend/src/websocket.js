@@ -59,12 +59,17 @@ export function webSocketConnect(port) {
             // wsUserList = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool, incomingJson.unread)
             console.log("loggedUser", loggedUser);
 
-            let unreadstring
+            let unreadstring = ""
             incomingJson.body.forEach((usr) => {
+                console.log("usr.id", usr.id);
+                console.log("loggedUser.id", loggedUser.id);
                 if (usr.id === loggedUser.id) {
                     unreadstring = usr.unread
+                    console.log("usr.unread", usr.unread);
+                    console.log("unreadstring", unreadstring);
                 }
             })
+            
 
             let sortedUsers = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool, unreadstring)
             // wsUserList = incomingJson.body
@@ -184,7 +189,7 @@ export function webSocketConnect(port) {
         // console.log("wsSortUsers(mainUser, usersList, activeUsersList, unreadUsersList):",
         // mainUser, usersList, activeUsersList, unreadUsersList);
 
-        if (!mainUser || !usersList || !activeUsersList || !unreadUsersList) {
+        if (!mainUser || !usersList || !activeUsersList /* || !unreadUsersList */) {
             console.log("Error: user sorting data missing");
             return
         }
