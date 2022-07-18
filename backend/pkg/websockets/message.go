@@ -33,7 +33,7 @@ func CreateMessageTable(db *sql.DB) {
 	log.Println("Messages Table created successfully!")
 }
 
-func WsReadUsers(db *sql.DB, unreadstring string) ([]byte, []int) {
+func WsReadUsers(db *sql.DB /* , unreadstring string */) ([]byte, []int) {
 
 	type Wsuser struct {
 		ID         int    `json:"id"`
@@ -41,7 +41,7 @@ func WsReadUsers(db *sql.DB, unreadstring string) ([]byte, []int) {
 		LoginDate  string `json:"login_date"`
 		LogoutDate string `json:"logout_date"`
 		History    string `json:"history"`
-		Unread     string `json:"unread"`
+		// Unread     string `json:"unread"`
 	}
 	var data []Wsuser
 	var json []byte
@@ -75,7 +75,7 @@ func WsReadUsers(db *sql.DB, unreadstring string) ([]byte, []int) {
 			History:    history,
 		}
 
-		user.Unread = unreadstring
+		// user.Unread = unreadstring
 		data = append(data, user)
 		userArray = append(userArray, user.ID)
 		// log.Println("data2:", data)
@@ -106,8 +106,8 @@ func WsReturnUsers(database *sql.DB, user_id string, pool *Pool) []byte {
 		userInt = i
 	}
 
-	unreadArray := []int{}
-	_, userArray := WsReadUsers(database, "")
+	// unreadArray := []int{}
+	_, userArray := WsReadUsers(database /* , "" */)
 
 	// user := strconv.Itoa(int(dat["activeUser"].(float64)))
 	_, history := getHistory(database, userInt)
@@ -115,18 +115,18 @@ func WsReturnUsers(database *sql.DB, user_id string, pool *Pool) []byte {
 	log.Println("userArray:", userArray)
 	log.Println("history:", history)
 
-	for i := 0; i < len(userArray); i++ {
-		if userArray[i] != userInt {
-			target := strconv.Itoa(userArray[i])
-			_, dbMsgLength := WsReadMessages(database, user_id, target)
-			// _, historyMsgLength := WsReadMessages(database, user, target)
-			if compareHistory(history, userArray[i], dbMsgLength) {
-				unreadArray = append(unreadArray, userArray[i])
-				// log.Println("Found messages for unreadArray:", userInt, unreadArray)
-			}
-		}
-	}
-	log.Println("Unread array:", userInt, unreadArray)
+	// for i := 0; i < len(userArray); i++ {
+	// 	if userArray[i] != userInt {
+	// 		target := strconv.Itoa(userArray[i])
+	// 		_, dbMsgLength := WsReadMessages(database, user_id, target)
+	// 		// _, historyMsgLength := WsReadMessages(database, user, target)
+	// 		if compareHistory(history, userArray[i], dbMsgLength) {
+	// 			unreadArray = append(unreadArray, userArray[i])
+	// 			// log.Println("Found messages for unreadArray:", userInt, unreadArray)
+	// 		}
+	// 	}
+	// }
+	// log.Println("Unread array:", userInt, unreadArray)
 
 	userpool := []byte(`,"pool":"`)
 	for client := range pool.Clients {
@@ -141,16 +141,16 @@ func WsReturnUsers(database *sql.DB, user_id string, pool *Pool) []byte {
 	// fmt.Println(pool.Clients)
 
 	// unreadpool := []byte(`,"unread":"`)
-	var unreadstring string
-	if len(unreadArray) > 0 {
-		for _, user := range unreadArray {
-			// unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
-			// unreadpool = append(unreadpool, []byte(`,`)...)
-			unreadstring += strconv.Itoa(user)
-			unreadstring += ","
-		}
-		unreadstring = unreadstring[:len(unreadstring)-1]
-	}
+	// var unreadstring string
+	// if len(unreadArray) > 0 {
+	// 	for _, user := range unreadArray {
+	// 		// unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
+	// 		// unreadpool = append(unreadpool, []byte(`,`)...)
+	// 		unreadstring += strconv.Itoa(user)
+	// 		unreadstring += ","
+	// 	}
+	// 	unreadstring = unreadstring[:len(unreadstring)-1]
+	// }
 	// unreadpool = append(unreadpool, []byte(`"`)...)
 	// unreadpool := []byte(`,"unread":"`)
 	// if len(unreadArray) > 0 {
@@ -162,7 +162,7 @@ func WsReturnUsers(database *sql.DB, user_id string, pool *Pool) []byte {
 	// }
 	// unreadpool = append(unreadpool, []byte(`"`)...)
 
-	userJson, _ := WsReadUsers(database, unreadstring)
+	userJson, _ := WsReadUsers(database /* , unreadstring */)
 
 	returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
 	returnedusers = append(returnedusers, userJson...)
@@ -311,8 +311,19 @@ func WsSaveHistory(db *sql.DB, user string, target string) {
 	}
 
 	// 2. place user id into start of history
-	userHistoryUpdate := convertHistory(userHistory.Data, targetHistory.ID)
-	targetHistoryUpdate := convertHistory(targetHistory.Data, userHistory.ID)
+	var userHistoryUpdate string
+	var targetHistoryUpdate string
+	if len(userHistory.Data) == 0 {
+		userHistoryUpdate = fmt.Sprintf("%d-0", targetHistory.ID)
+	} else {
+		userHistoryUpdate = convertHistory(userHistory.Data, targetHistory.ID, "0")
+	}
+	if len(targetHistory.Data) == 0 {
+		targetHistoryUpdate = fmt.Sprintf("%d-1", userHistory.ID)
+	} else {
+		targetHistoryUpdate = convertHistory(targetHistory.Data, userHistory.ID, "1")
+	}
+
 	fmt.Printf("New userId %d history: %s\n", userHistory.ID, userHistoryUpdate)
 	fmt.Printf("New userId %d history: %s\n", targetHistory.ID, targetHistoryUpdate)
 
@@ -321,7 +332,7 @@ func WsSaveHistory(db *sql.DB, user string, target string) {
 	db.Exec("UPDATE user SET history = ? WHERE id = ?", targetHistoryUpdate, targetHistory.ID)
 }
 
-func convertHistory(history string, user int) string {
+func convertHistory(history string, user int, unread string) string {
 	// this function adds/moves user int to first value in history string
 
 	log.Printf("convertHistory input user %d: %s\n", user, history)
@@ -336,12 +347,19 @@ func convertHistory(history string, user int) string {
 			isfound = true
 		}
 	}
+	// TASK: thus func must change unread attribute of history to "1"
+	log.Println("isfound", isfound)
 
 	if !isfound {
-		userSplit = append([]string{fmt.Sprintf("%s-%s", userStr, "0")}, userSplit...)
+		userSplit = append([]string{fmt.Sprintf("%s-%s", userStr, unread)}, userSplit...)
 	} else {
-		for i := 1; i < len(userSplit); i++ {
+		for i := 0; i < len(userSplit); i++ {
+
 			if strings.Split(userSplit[i], "-")[0] == userStr {
+				log.Println("userSplit[i] before", userSplit[i])
+				userSplit[i] = userStr + "-" + unread
+				log.Println("userSplit[i] after", userSplit[i])
+
 				userSplit = append([]string{userSplit[i]}, userSplit...)
 				if i < len(userSplit)+2 {
 					userSplit = append(userSplit[:i+1], userSplit[i+2:]...)
@@ -403,22 +421,22 @@ func getHistory(db *sql.DB, user int) (int, string) {
 	return history.ID, history.Data
 }
 
-func compareHistory(history string, user int, length int) bool {
-	// this function compares target user messages count with given length count in history string
+// func compareHistory(history string, user int, length int) bool {
+// 	// this function compares target user messages count with given length count in history string
 
-	userStr := strconv.Itoa(user)
-	userSplit := strings.Split(history, ",")
-	var messages int
+// 	userStr := strconv.Itoa(user)
+// 	userSplit := strings.Split(history, ",")
+// 	var messages int
 
-	for i := 0; i < len(userSplit); i++ {
-		if strings.Split(userSplit[i], "-")[0] == userStr {
-			if i, err := strconv.Atoi(strings.Split(userSplit[i], "-")[1]); err == nil {
-				messages = i
-			}
-			if length > messages {
-				return true
-			}
-		}
-	}
-	return false
-}
+// 	for i := 0; i < len(userSplit); i++ {
+// 		if strings.Split(userSplit[i], "-")[0] == userStr {
+// 			if i, err := strconv.Atoi(strings.Split(userSplit[i], "-")[1]); err == nil {
+// 				messages = i
+// 			}
+// 			if length > messages {
+// 				return true
+// 			}
+// 		}
+// 	}
+// 	return false
+// }

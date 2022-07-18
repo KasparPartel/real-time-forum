@@ -108,12 +108,18 @@ func (pool *Pool) Start() {
 			// if frontend sends Modal clicked event, last seen history count is saved into db
 			if dat["type"] == "sendModal" {
 				log.Println("Received sendModal:", dat)
-				user := strconv.Itoa(int(dat["activeUser"].(float64)))
-				target := strconv.Itoa(int(dat["targetUser"].(float64)))
-				_, dbMessages := WsReadMessages(database, user, target)
+				// user := strconv.Itoa(int(dat["activeUser"].(float64)))
+				// target := strconv.Itoa(int(dat["targetUser"].(float64)))
+				// _, dbMessages := WsReadMessages(database, user, target)
 				_, history := getHistory(database, int(dat["activeUser"].(float64)))
-				updateHistory(database, history, int(dat["activeUser"].(float64)), int(dat["targetUser"].(float64)), dbMessages)
+				updateHistory(database, history, int(dat["activeUser"].(float64)), int(dat["targetUser"].(float64)), 0)
 			}
+
+			// // dev - this overwrites all history strings to ""
+			// idList := []int{1, 2, 3, 4, 5, 6, 7}
+			// for i := 0; i < len(idList); i++ {
+			// 	database.Exec("UPDATE user SET history = ? WHERE id = ?", "", idList[i])
+			// }
 
 			// if the frontend sends Message to be saved into db
 			if dat["type"] == "wsSaveChatMessage" {
@@ -126,7 +132,7 @@ func (pool *Pool) Start() {
 					dat["creation_time"].(string),
 				)
 				WsSaveHistory(database, dat["user_id"].(string), dat["target_id"].(string))
-				WsSaveHistory(database, dat["target_id"].(string), dat["user_id"].(string))
+				// WsSaveHistory(database, dat["target_id"].(string), dat["user_id"].(string))
 
 				// this sends "Message saved" back to frontend connection
 				for client := range pool.Clients {

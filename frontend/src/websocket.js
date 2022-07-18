@@ -198,7 +198,7 @@ export function webSocketConnect(port) {
         console.log("mainUser:", mainUser);
         console.log("usersList:", usersList);
         console.log("activeUsersList:", activeUsersList);
-        console.log("unreadUsersList:", unreadUsersList);
+        // console.log("unreadUsersList:", unreadUsersList);
 
         let activeusers = []
         let passiveusers = []
@@ -211,10 +211,10 @@ export function webSocketConnect(port) {
         let combinedUsers = []
         let historyarray = []
         let activeUserArray = activeUsersList.split(",").map(function(item) {return parseInt(item, 10);})
-        let unreadUserArray = unreadUsersList.split(",").map(function(item) {return parseInt(item, 10);})
+        // let unreadUserArray = unreadUsersList.split(",").map(function(item) {return parseInt(item, 10);})
 
         console.log("activeUserArray", activeUserArray);
-        console.log("unreadUserArray", unreadUserArray);
+        // console.log("unreadUserArray", unreadUserArray);
 
         usersList.forEach((usr) => {
             // usr.class = []
@@ -226,14 +226,14 @@ export function webSocketConnect(port) {
                 activeusers.push(usr)
                 }
             })
-            unreadUserArray.forEach((unreadID) => {
-                if (usr.id === unreadID) {
-                // usr.class += " unread"
-                // usr.class.push("unread")
-                // activeusers.push(usr)
-                usr.newmessage = true
-                }
-            })
+            // unreadUserArray.forEach((unreadID) => {
+            //     if (usr.id === unreadID) {
+            //     // usr.class += " unread"
+            //     // usr.class.push("unread")
+            //     // activeusers.push(usr)
+            //     usr.newmessage = true
+            //     }
+            // })
         })
         usersList.forEach((usr) => {
             if (!activeusers.includes(usr) && !passiveusers.includes(usr)) {
