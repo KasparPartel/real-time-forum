@@ -184,14 +184,18 @@ export function webSocketConnect(port) {
         socket.send(JSON.stringify(msg));
     }
 
-    function wsSortUsers(mainUser, usersList, activeUsersList, unreadUsersList) {
+    function wsSortUsers(mainUser, usersList, activeUsersList) {
 
         // console.log("wsSortUsers(mainUser, usersList, activeUsersList, unreadUsersList):",
         // mainUser, usersList, activeUsersList, unreadUsersList);
 
-        if (!mainUser || !usersList || !activeUsersList /* || !unreadUsersList */) {
+        if (!mainUser || !usersList || !activeUsersList) {
             console.log("Error: user sorting data missing");
             return
+        }
+
+        if (mainUser.history.length === 0) {
+            return usersList.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))    
         }
 
         console.log("wsSortUsers started!");
@@ -200,95 +204,130 @@ export function webSocketConnect(port) {
         console.log("activeUsersList:", activeUsersList);
         // console.log("unreadUsersList:", unreadUsersList);
 
-        let activeusers = []
-        let passiveusers = []
-        let activehistory = []
-        let passivehistory = []
-        let activenames = []
-        let passivenames = []
-        let activesorted = []
-        let passivesorted = []
+        // let activeusers = []
+        // let passiveusers = []
+        // let activehistory = []
+        // let passivehistory = []
+        let historyUsers = []
+        let strangerUsers = []
+        let orderedUsers = []
+        // let activenames = []
+        // let passivenames = []
+        // let activesorted = []
+        // let passivesorted = []
         let combinedUsers = []
         let historyarray = []
         let activeUserArray = activeUsersList.split(",").map(function(item) {return parseInt(item, 10);})
         // let unreadUserArray = unreadUsersList.split(",").map(function(item) {return parseInt(item, 10);})
+        let unreadUserArray = []
+        let historySplit = mainUser.history.split(",")
 
-        console.log("activeUserArray", activeUserArray);
-        // console.log("unreadUserArray", unreadUserArray);
-
-        usersList.forEach((usr) => {
-            // usr.class = []
-            activeUserArray.forEach((loginID) => {
-                if (usr.id === loginID) {
-                // usr.class = "active"
-                // usr.class.push("reactive")
-                usr.active = true
-                activeusers.push(usr)
-                }
-            })
-            // unreadUserArray.forEach((unreadID) => {
-            //     if (usr.id === unreadID) {
-            //     // usr.class += " unread"
-            //     // usr.class.push("unread")
-            //     // activeusers.push(usr)
-            //     usr.newmessage = true
-            //     }
-            // })
-        })
-        usersList.forEach((usr) => {
-            if (!activeusers.includes(usr) && !passiveusers.includes(usr)) {
-                usr.class = "passive"
-                passiveusers.push(usr)
+        console.log("historySplit", historySplit);
+        
+        historySplit.forEach((el) => {
+            console.log("el.split("-")[1]", el.split("-")[1]);
+            if (el.split("-")[1] === "1") {
+                console.log("el.split("-")[0]", el.split("-")[0]);
+                unreadUserArray.push(parseInt(el.split("-")[0]))
             }
         })
 
-        if (mainUser.history.length === 0) {
-            console.log("This user has no prior chat history!");
-            activesorted = activeusers.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
-            passivesorted = passiveusers.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
-            combinedUsers = activesorted.concat(passivesorted)    
-            return combinedUsers
-        }
+        console.log("activeUserArray", activeUserArray);
+        console.log("unreadUserArray", unreadUserArray);
+
+        usersList.forEach((usr) => {
+            activeUserArray.forEach((loginID) => {
+                if (usr.id === loginID) {
+                usr.active = true
+                // activeusers.push(usr)
+                }
+            })
+            unreadUserArray.forEach((unreadID) => {
+                if (usr.id === unreadID) {
+                usr.newmessage = true
+                }
+            })
+        })
+
+        // usersList.forEach((usr) => {
+        //     if (!activeusers.includes(usr) && !passiveusers.includes(usr)) {
+        //         usr.class = "passive"
+        //         passiveusers.push(usr)
+        //     }
+        // })
+
+        // if (mainUser.history.length === 0) {
+        //     console.log("This user has no prior chat history!");
+        //     activesorted = activeusers.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+        //     passivesorted = passiveusers.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+        //     combinedUsers = activesorted.concat(passivesorted)    
+        //     return combinedUsers
+        // }
 
         // if (user && user.history !== undefined && user != null) {
         //     historyarray = user.history.split(",").flatMap((item) => item === "" ? [] : parseInt(item, 10));
         // }
-        historyarray = mainUser.history.split(",").flatMap((item) => item === "" ? [] : parseInt(item, 10));
+        // historyarray = mainUser.history.split(",").split("-")[0].flatMap((item) => item === "" ? [] : parseInt(item, 10));
+        historySplit.forEach((el) => {
+            historyarray.push(parseInt(el.split("-")[0], 10));
+        }) 
 
         console.log("historyarray", historyarray);
-        console.log("activeusers", activeusers);
-        console.log("passiveusers", passiveusers);
-        console.log("activenames", activenames);
-        console.log("activehistory", activehistory);
-        console.log("passivenames", passivenames);
-        console.log("passivehistory", passivehistory);
+        // console.log("activeusers", activeusers);
+        // console.log("passiveusers", passiveusers);
+        // console.log("activenames", activenames);
+        // console.log("activehistory", activehistory);
+        // console.log("passivenames", passivenames);
+        // console.log("passivehistory", passivehistory);
         
-        historyarray.forEach((item) => {
-            console.log("historyarray item", item);
-            console.log("typeof historyarray item", typeof(item));
-            activeusers.forEach((usr) => {
-                if (usr.id === item) {
-                    activehistory.push(usr)
-                } else if (!historyarray.includes(usr.id)) {
-                    let includes = false
-                    activenames.forEach((el) => {
-                        if (usr.id === el.id) includes = true;
-                    })
-                    if (!includes) activenames.push(usr);
+        usersList.forEach((usr) => {
+            historyarray.forEach((loginID) => {
+                if (usr.id === loginID) {
+                    historyUsers.push(usr)
                 }
             })
-            passiveusers.forEach((usr) => {
-                if (usr.id === item) {
-                    passivehistory.push(usr)
-                } else if (!historyarray.includes(usr.id)) {
-                    let includes = false
-                    passivenames.forEach((el) => {
-                        if (usr.id === el.id) includes = true;
-                    })
-                    if (!includes) passivenames.push(usr);
+            historyarray.forEach(() => {
+                if (!strangerUsers.includes(usr) && !historyUsers.includes(usr)) {
+                    strangerUsers.push(usr)
                 }
             })
         })
+        
+        orderedUsers = strangerUsers.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+        combinedUsers = historyUsers.concat(orderedUsers);
+
+        console.log("historyUsers", historyUsers);
+        console.log("strangerUsers", strangerUsers);
+        console.log("orderedUsers", orderedUsers);
+
+        // historyarray.forEach((item) => {
+            // console.log("historyarray item", item);
+            // console.log("typeof historyarray item", typeof(item));
+            
+                     
+            // activeusers.forEach((usr) => {
+            //     if (usr.id === item) {
+            //         activehistory.push(usr)
+            //     } else if (!historyarray.includes(usr.id)) {
+            //         let includes = false
+            //         activenames.forEach((el) => {
+            //             if (usr.id === el.id) includes = true;
+            //         })
+            //         if (!includes) activenames.push(usr);
+            //     }
+            // })
+            // passiveusers.forEach((usr) => {
+            //     if (usr.id === item) {
+            //         passivehistory.push(usr)
+            //     } else if (!historyarray.includes(usr.id)) {
+            //         let includes = false
+            //         passivenames.forEach((el) => {
+            //             if (usr.id === el.id) includes = true;
+            //         })
+            //         if (!includes) passivenames.push(usr);
+            //     }
+            // })
+        // })
         
         // console.log("historyarray", historyarray);
         // console.log("activenames", activenames);
@@ -296,10 +335,10 @@ export function webSocketConnect(port) {
         // console.log("passivenames", passivenames);
         // console.log("passivehistory", passivehistory);
 
-        activesorted = activenames.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
-        passivesorted = passivenames.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+        // activesorted = activenames.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+        // passivesorted = passivenames.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
 
-        combinedUsers = activehistory.concat(activesorted, passivehistory, passivesorted)
+        // combinedUsers = activehistory.concat(activesorted, passivehistory, passivesorted)
         
         return combinedUsers
     }
