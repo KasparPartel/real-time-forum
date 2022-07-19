@@ -1,4 +1,4 @@
-import React, { /* useEffect, */ useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import classes from "./ChatModal.module.css";
 import ChatText from "./ChatText";
 import { webSocketConnect, wsMessageList/* , wsConnected */ } from "../../websocket.js"
@@ -30,9 +30,9 @@ function ChatModal(props) {
   //   }
   // }
 
-  // useEffect(() => {
-  //   webSocketConnect.wsGetChatMessages(user.id, props.id); 
-  // }, [user.id, props.id])
+  useEffect(() => {
+    webSocketConnect.wsGetChatMessages(user.id, props.id); 
+  }, [user.id, props.id])
 
   // useEffect(() => {
   //   if (wsConnected) {
@@ -58,6 +58,7 @@ function ChatModal(props) {
       webSocketConnect.sendModal(user.id, props.id)
       console.log("modal sent");
     }
+    webSocketConnect.wsGetChatMessages(user.id, props.id)
     setModal(!modal);
     // if (modal) {
     //   webSocketConnect.wsGetChatMessages(user.id, props.id)
@@ -163,7 +164,9 @@ export function msgUpdate(/* messages */) {
   //   ChatModal.msgBubble = "newstuff" //classes.newmsg
   // }
   // ChatModal.orderMsg = false
-  ChatModal.setMessagelist([...wsMessageList])
+  if (wsMessageList) {
+    ChatModal.setMessagelist([...wsMessageList])
+  }
   // ChatModal.setMessagelist(wsMessageList)
 }
 

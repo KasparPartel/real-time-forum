@@ -138,7 +138,8 @@ func (pool *Pool) Start() {
 				for client := range pool.Clients {
 
 					// if received user Id conn is same as in Client struct, send confirmation back
-					if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) {
+					if fmt.Sprintf("%d", client.UserID) == dat["user_id"].(string) ||
+						fmt.Sprintf("%d", client.UserID) == dat["target_id"].(string) {
 
 						if err := client.Conn.WriteMessage(websocket.TextMessage, []byte(`{"type":"wsMessageSaved"}`)); err != nil {
 							log.Println(err)
