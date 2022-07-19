@@ -7,7 +7,7 @@ import { loggedUser } from "./App";
 
 export let wsUserList = []
 export let wsActiveUserList
-// export let wsMessageList = []
+export let wsMessageList = []
 export let wsConnected = false
 
 // let activeUser
@@ -31,7 +31,7 @@ export function webSocketConnect(port) {
         // socket.send(JSON.stringify(`"activeUserID":"${activeUser.id}"`))
         sendActiveUserID(loggedUser.id)
         wsGetUsers(loggedUser.id)
-        usrUpdate()
+        // usrUpdate()
         
         if (loggedUser) {
             sendActiveUserID(loggedUser.id)
@@ -57,21 +57,9 @@ export function webSocketConnect(port) {
 
         if (incomingJson.type === "wsReturnedUsers") {
             // wsUserList = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool, incomingJson.unread)
-            console.log("loggedUser", loggedUser);
+            console.log("loggedUser", loggedUser);   
 
-            let unreadstring = ""
-            incomingJson.body.forEach((usr) => {
-                console.log("usr.id", usr.id);
-                console.log("loggedUser.id", loggedUser.id);
-                if (usr.id === loggedUser.id) {
-                    unreadstring = usr.unread
-                    console.log("usr.unread", usr.unread);
-                    console.log("unreadstring", unreadstring);
-                }
-            })
-            
-
-            let sortedUsers = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool, unreadstring)
+            let sortedUsers = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool/* , unreadstring */)
             // wsUserList = incomingJson.body
             // wsActiveUserList = incomingJson.pool
             console.log("incomingJson", incomingJson)
@@ -80,10 +68,12 @@ export function webSocketConnect(port) {
         }
         if (incomingJson.type === "wsReturnedMessages") {
             console.log("returned messages incomingJson.body:", incomingJson.body);
-            // wsMessageList = incomingJson.body
-            msgUpdate(incomingJson.body)
+            wsMessageList = incomingJson.body
+            // let messages = incomingJson.body
+
+            // msgUpdate(messages)
             // usrUpdate()
-            // msgUpdate()
+            msgUpdate()
         }
 
         console.log("wsUserList =", wsUserList);
