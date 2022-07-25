@@ -113,6 +113,20 @@ func (pool *Pool) Start() {
 				// _, dbMessages := WsReadMessages(database, user, target)
 				_, history := getHistory(database, int(dat["activeUser"].(float64)))
 				updateHistory(database, history, int(dat["activeUser"].(float64)), int(dat["targetUser"].(float64)), 0)
+
+				// returnedusers := WsReturnUsers(database, strconv.Itoa(int(dat["activeUser"].(float64))), pool)
+
+				// this send userlist from db back to frontend that sent request
+				for client := range pool.Clients {
+					// if received user Id conn is same as in Client struct, send users back to this user
+					if fmt.Sprintf("%d", client.UserID) == strconv.Itoa(int(dat["activeUser"].(float64))) {
+						if err := client.Conn.WriteMessage(websocket.TextMessage, []byte(`{"type":"wsModalSaved"}`)); err != nil {
+							log.Println(err)
+							return
+						}
+					}
+				}
+
 			}
 
 			// // dev - this overwrites all history strings to ""

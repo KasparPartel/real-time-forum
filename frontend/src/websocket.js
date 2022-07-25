@@ -82,6 +82,9 @@ export function webSocketConnect(port) {
         if (incomingJson.type === "wsMessageSaved") {
             wsGetUsers(loggedUser.id)
         }
+        if (incomingJson.type === "wsModalSaved") {
+            wsGetUsers(loggedUser.id)
+        }
 
         console.log("wsUserList =", wsUserList);
         // console.log("wsMessageList =", wsMessageList);
