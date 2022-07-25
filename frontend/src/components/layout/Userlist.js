@@ -1,23 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState/* , useEffect */ } from "react";
 import classes from "./Userlist.module.css";
 import ChatModal from "./ChatModal";
-import { wsUserList, /* wsActiveUserList, */ /* webSocketConnect, wsConnected */ } from "../../websocket.js"
+import { /* wsUserList, */ /* wsActiveUserList, */ /* webSocketConnect, wsConnected */ } from "../../websocket.js"
 
 function Userlist({user}) {
   
-  console.log("Rendering Userlist!");
+  console.log("Rendering Userlist!", user);
   
   const [userlist, setUserlist] = useState([])
+  const [render, setRender] = useState(false)
   // const [activeuserlist, setActiveUserlist] = useState(wsActiveUserList)
   
   console.log("userlist:", userlist)
   // console.log("wsUserList:", wsUserList)
 
-  useEffect(() => {
-    setUserlist(wsUserList)
-  }, [])
+  // useEffect(() => {
+  //   setUserlist([...wsUserList])
+  //   // setRender(!render)
+  // }, [])
 
   Userlist.setUserlist = setUserlist;
+  Userlist.toggleRender = toggleRender;
+  // Userlist.setRender = setRender;
+  // Userlist.render = render;
+
+  function toggleRender() {
+    setRender(!render)
+  }
 
   if (user && userlist) {
     return (
@@ -41,8 +50,12 @@ function Userlist({user}) {
   }
 }
 
-export function usrUpdate(userlist) {
-  Userlist.setUserlist([...userlist])
+export function usrUpdate(list) {
+  console.log("usrUpdate", list);
+  if (list) {
+    Userlist.setUserlist([...list])
+  }
+  Userlist.toggleRender()
   // Userlist.setActiveUserlist(wsActiveUserList)
 }
 

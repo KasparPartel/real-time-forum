@@ -59,12 +59,16 @@ export function webSocketConnect(port) {
             // wsUserList = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool, incomingJson.unread)
             console.log("loggedUser", loggedUser);   
 
-            let sortedUsers = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool/* , unreadstring */)
+            let tempBody = [...incomingJson.body]
+            // let tempPool = [...incomingJson.pool]
+
+            let sortedUsers = wsSortUsers(loggedUser, tempBody, incomingJson.pool/* , unreadstring */)
             // wsUserList = incomingJson.body
+            // wsUserList = [...sortedUsers]
             // wsActiveUserList = incomingJson.pool
             console.log("incomingJson", incomingJson)
             console.log("sortedUsers", sortedUsers)
-            usrUpdate(sortedUsers)
+            usrUpdate([...sortedUsers])
         }
         if (incomingJson.type === "wsReturnedMessages") {
             console.log("returned messages incomingJson.body:", incomingJson.body);
@@ -74,6 +78,9 @@ export function webSocketConnect(port) {
             // msgUpdate(messages)
             // usrUpdate()
             msgUpdate()
+        }
+        if (incomingJson.type === "wsMessageSaved") {
+            wsGetUsers(loggedUser.id)
         }
 
         console.log("wsUserList =", wsUserList);
@@ -161,6 +168,8 @@ export function webSocketConnect(port) {
         } else {
             console.log("Error: Modal attribute missing when sending");
         }
+
+        // wsGetUsers(usrID);
     }
     
     function wsGetChatMessages(usr, trgt) {
@@ -210,7 +219,16 @@ export function webSocketConnect(port) {
         let activeUserArray = activeUsersList.split(",").map(function(item) {return parseInt(item, 10);})
         // let unreadUserArray = unreadUsersList.split(",").map(function(item) {return parseInt(item, 10);})
         let unreadUserArray = []
-        let historySplit = mainUser.history.split(",")
+        // let historySplit = mainUser.history.split(",") // Error! Main User has old history!!!
+        let historySplit = []
+        let mainUserHistory
+
+        usersList.forEach((usr) => {
+            if (usr.id === mainUser.id) {
+                mainUserHistory = usr.history
+            }
+        })
+        historySplit = mainUserHistory.split(",")
 
         console.log("historySplit", historySplit);
         
