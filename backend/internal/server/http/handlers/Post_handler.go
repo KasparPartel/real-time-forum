@@ -42,6 +42,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	var postID int
 	var title string
 	var body string
+	var categoryID int
 	var userID int
 	var filename string
 	var createdDate string
@@ -81,6 +82,20 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Category id validation - check if input is number and validate category
+		categoryID, err = strconv.Atoi(post["category_id"])
+		if err != nil {
+			logger.ErrorLogger.Printf("Category ID - %s - is not a number!\n", post["category_id"])
+			http.Error(w, "Category ID is not a number!", http.StatusBadRequest)
+			return
+		}
+		row = db.QueryRow("SELECT id FROM category WHERE id=?", categoryID)
+		if err = row.Scan(&categoryID); err == sql.ErrNoRows {
+			logger.ErrorLogger.Printf("Category with id %d does not exist\n", categoryID)
+			http.Error(w, fmt.Sprintf("Category with id %d does not exist\n", categoryID), http.StatusBadRequest)
+			return
+		}
+
 		// If there is id in URI then update a specific post
 		// Else create a new post
 		if len(id) != 0 {
@@ -95,6 +110,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 					ID:           postID,
 					Title:        post["title"],
 					Body:         post["body"],
+					CategoryID:   categoryID,
 					UserID:       userID,
 					Filename:     post["filename"],
 					CreationTime: createdDate,
@@ -115,14 +131,16 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			post := model.Post{
 				Title:        post["title"],
 				Body:         post["body"],
+				CategoryID:   categoryID,
 				UserID:       userID,
 				Filename:     post["filename"],
 				CreationTime: time.Now().Format(LongForm),
 				UpdatedTime:  time.Now().Format(LongForm),
 			}
 
-			_, err := db.Exec("INSERT INTO post(title, body, user_id, filename, created_date, updated_date)"+
-				"VALUES(?, ?, ?, ?, ?, ?)", post.Title, post.Body, post.UserID, post.Filename, post.CreationTime, post.UpdatedTime)
+			_, err := db.Exec("INSERT INTO post(title, body, category_id, user_id, filename, created_date, updated_date)"+
+				"VALUES(?, ?, ?, ?, ?, ?, ?)", post.Title, post.Body, post.CategoryID,
+				post.UserID, post.Filename, post.CreationTime, post.UpdatedTime)
 			if err != nil {
 				logger.ErrorLogger.Println(err)
 				w.WriteHeader(http.StatusBadRequest)
@@ -136,7 +154,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			// Send back post id for recirect
+			// Send back post id for redirect
 			json, err := json2.Marshal(id)
 			if err != nil {
 				logger.ErrorLogger.Println(err)
@@ -174,13 +192,14 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 
 			row := db.QueryRow("SELECT * FROM post WHERE id=?", id)
 
-			if err = row.Scan(&postID, &title, &body, &userID, &filename, &createdDate, &updatedDate); err == sql.ErrNoRows {
+			if err = row.Scan(&postID, &title, &body, &categoryID, &userID, &filename, &createdDate, &updatedDate); err == sql.ErrNoRows {
 				logger.ErrorLogger.Printf("Post with id %d does not exist", id)
 			} else {
 				post := model.Post{
 					ID:           postID,
 					Title:        title,
 					Body:         body,
+					CategoryID:   categoryID,
 					UserID:       userID,
 					Filename:     filename,
 					CreationTime: createdDate,
@@ -200,7 +219,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 
 			// Loop over every row
 			for rows.Next() {
-				err := rows.Scan(&postID, &title, &body, &userID, &filename, &createdDate, &updatedDate)
+				err := rows.Scan(&postID, &title, &body, &categoryID, &userID, &filename, &createdDate, &updatedDate)
 				if err != nil {
 					logger.ErrorLogger.Println(err)
 				}
@@ -209,6 +228,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 					ID:           postID,
 					Title:        title,
 					Body:         body,
+					CategoryID:   categoryID,
 					UserID:       userID,
 					Filename:     filename,
 					CreationTime: createdDate,

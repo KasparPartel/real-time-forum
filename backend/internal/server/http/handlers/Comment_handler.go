@@ -41,6 +41,8 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		var comment map[string]string
 
+		logger.InfoLogger.Println("POST comment")
+
 		// Read json body into map
 		b, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
@@ -76,7 +78,7 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		row = db.QueryRow("SELECT id FROM post WHERE id=?", postID)
-		if err = row.Scan(&userID); err == sql.ErrNoRows {
+		if err = row.Scan(&postID); err == sql.ErrNoRows {
 			logger.ErrorLogger.Printf("Post with id %d does not exist\n", postID)
 			http.Error(w, fmt.Sprintf("Post with id %d does not exist\n", postID), http.StatusBadRequest)
 			return

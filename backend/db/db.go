@@ -73,12 +73,21 @@ func CreateDB() {
 			id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 			title text NOT NULL,
 			body text NOT NULL,
+			category_id integer NOT NULL,
 			user_id integer,
 			filename text,
 			created_date text NOT NULL,
 			updated_date text,
-			FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL 
+			FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL,
+			FOREIGN KEY(category_id) REFERENCES category(id) ON DELETE SET NULL 
 		);
+
+		CREATE TABLE category (
+			id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+			title text NOT NULL
+		);
+
+		INSERT INTO category(title) VALUES("Web Development"), ("App Development"), ("Food"), ("Travel"), ("Health"), ("Muu");
 
 		CREATE TABLE messages (
 			id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,

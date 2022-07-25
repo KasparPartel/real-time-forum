@@ -1,13 +1,13 @@
 package model
 
 type User struct {
-	ID           int    `json:"id,omitempty"`
-	Email        string `json:"email,omitempty"`
-	Gender       string `json:"gender,omitempty"`
-	FirstName    string `json:"first_name,omitempty"`
-	LastName     string `json:"last_name,omitempty"`
-	Age          int    `json:"age,omitempty"`
-	Username     string `json:"username,omitempty"`
+	ID           int    `json:"id"`
+	Email        string `json:"email"`
+	Gender       string `json:"gender"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	Age          int    `json:"age"`
+	Username     string `json:"username"`
 	PasswordHash string `json:"-"`
 	CreationTime string `json:"creation_time"`
 	LoginTime    string `json:"login_Time"`
@@ -17,11 +17,12 @@ type User struct {
 }
 
 type Post struct {
-	ID           int    `json:"id,omitempty"`
-	Title        string `json:"title,omitempty"`
-	Body         string `json:"body,omitempty"`
-	UserID       int    `json:"user_id,omitempty"`
-	Filename     string `json:"filename,omitempty"`
+	ID           int    `json:"id"`
+	Title        string `json:"title"`
+	Body         string `json:"body"`
+	CategoryID   int    `json:"category_id"`
+	UserID       int    `json:"user_id"`
+	Filename     string `json:"filename"`
 	CreationTime string `json:"creation_time"`
 	UpdatedTime  string `json:"updated_time"`
 }
@@ -33,6 +34,21 @@ type Comment struct {
 	PostID       int    `json:"post_id"`
 	Body         string `json:"body"`
 	CreationTime string `json:"creation_time"`
-	//LikeAmount    int    `json:"likeAmount"`
-	//DislikeAmount int    `json:"dislikeAmount"`
+}
+
+type Like struct {
+	ID     int `json:"id"`
+	UserID int `json:"user_id"`
+	PostID int `json:"post_id"`
+}
+
+type Dislike struct {
+	ID     int `json:"id"`
+	UserID int `json:"user_id"`
+	PostID int `json:"post_id"`
+}
+
+type Category struct {
+	ID    int    `json:"id"`
+	Title string `json:"title"`
 }
