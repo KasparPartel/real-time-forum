@@ -1,54 +1,22 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { /* useEffect, */ useState, useContext } from "react";
 import classes from "./ChatModal.module.css";
 import ChatText from "./ChatText";
-import { webSocketConnect, wsMessageList/* , wsConnected */ } from "../../websocket.js"
+import { webSocketConnect/* , wsMessageList *//* , wsConnected */ } from "../../websocket.js"
 import { UserContext } from "../../UserContext";
 
 // let orderMsg = false
 function ChatModal(props) {
 
-  console.log("Rendering ChatModal!", props.targetkey, props.target);
-
-  const {user} = useContext(UserContext)
-  // webSocketConnect.wsGetChatMessages(user.id, props.id)
   
-  // let msgBubble = "nonew"
-
-  // getActiveUser(user)
-
-  // const [render, setRender] = useState(false)
-  // console.log("render:", render);
-
-  // const toggleRender = () => {
-  //   if (wsConnected) {
-  //     setRender(!render)
-  //     // setRender(render + 1)
-  //     // orderMsg = true
-  //     webSocketConnect.sendModal(user.id, props.id, messagelist?.length)
-  //     webSocketConnect.wsGetChatMessages(user.id, props.id)
-  //     webSocketConnect.wsGetUsers(user.id)
-  //   }
-  // }
-
-  useEffect(() => {
-    webSocketConnect.wsGetChatMessages(user.id, props.id); 
-  }, [user.id, props.id])
+  const {user} = useContext(UserContext)
+  console.log("Rendering ChatModal!", user.id, props.target);
 
   // useEffect(() => {
-  //   if (wsConnected) {
-  //     orderMsg = true
-  //     webSocketConnect.wsGetChatMessages(user.id, props.id);
-  //     // webSocketConnect.sendActiveUserID(user.id); // fires too often, but works
-  //     if (user.id > 0) {
-  //       webSocketConnect.wsGetUsers()
-  //     }
-  //     console.log("Asked for messages:", user.id, props.id);
-  //   }
+  //   webSocketConnect.wsGetChatMessages(user.id, props.id); 
   // }, [user.id, props.id])
 
-  
-  // const [messagelist, setMessagelist] = useState([])
   const [messagelist, setMessagelist] = useState([])
+  const [render, setRender] = useState(false)
   
   const [modal, setModal] = useState(false);
   const toggleModal = () => {
@@ -58,13 +26,19 @@ function ChatModal(props) {
       webSocketConnect.sendModal(user.id, props.id)
       console.log("modal sent");
     }
-    webSocketConnect.wsGetChatMessages(user.id, props.id)
+    getMessages()
     setModal(!modal);
-    // if (modal) {
-    //   webSocketConnect.wsGetChatMessages(user.id, props.id)
-    //   // setMessagelist(wsMessageList)
-    // }
   };
+  
+  function getMessages() {
+    webSocketConnect.wsGetChatMessages(user.id, props.id)
+
+  }
+
+  function sendClick() {
+    webSocketConnect.sendMessage()
+    getMessages()
+  }
 
   if (modal) {
     document.body.classList.add("active-modal");
@@ -82,33 +56,19 @@ function ChatModal(props) {
 
   ChatModal.setMessagelist = setMessagelist;
   ChatModal.user = user;
+  // ChatModal.render = render;
+  // ChatModal.setRender = setRender;
   // ChatModal.orderMsg = orderMsg;
   // ChatModal.msgBubble = msgBubble;
   ChatModal.msgLength = messagelist?.length
+  
+  ChatModal.toggleRender = toggleRender;
+  function toggleRender() {
+    setRender(!render)
+    console.log("toggleRender fired!");
+  }
 
-  console.log("ChatModal.msgLength", ChatModal.msgLength);
-  // ChatModal.setRender = setRender;
-  // ChatModal.render = render;
-
-  // console.log("user history:", user.username, user.id, user.history);
-  // console.log("target name, id:", props.name, props.id);
-
-  // let historySplit = user.history.split(',')
-  // historySplit.forEach(element => {
-  //   if (parseInt(element.split('-')[0]) === props.id) {
-
-  //     console.log("history messages vs messagelist", parseInt(element.split('-')[1]) < messagelist?.length);
-  //     console.log("history messages", parseInt(element.split('-')[1]));
-  //     console.log("messagelist",  messagelist?.length);
-      
-  //     if (parseInt(element.split('-')[1]) < messagelist?.length) {
-  //       document.body.classList.add("unread");
-  //     }
-  //   }
-  // });
-
-
-  // let textList = messagelist
+  console.log("ChatModal.msgLength, user.id, target.id", ChatModal.msgLength, user.id, props.id);
 
 
   return (
@@ -140,7 +100,7 @@ function ChatModal(props) {
               <textarea id="chat-text" name="chat-text" rows="4" cols="50" placeholder="Enter your message here">
               </textarea>
               <br></br>
-              <button id="send-button" onClick={webSocketConnect.sendMessage} 
+              <button id="send-button" onClick={sendClick} 
                 data-user-id={props.user.id} data-target-id={props.id}>
                 Submit
                 </button>
@@ -157,16 +117,17 @@ function ChatModal(props) {
   );
 }
 
-export function msgUpdate(/* messages */) {
+export function msgUpdate(messages) {
   // ChatModal.setMessagelist(messages)
   // ChatModal.setRender(!ChatModal.render)
   // if (ChatModal.orderMsg === false) {
   //   ChatModal.msgBubble = "newstuff" //classes.newmsg
   // }
   // ChatModal.orderMsg = false
-  if (wsMessageList) {
-    ChatModal.setMessagelist([...wsMessageList])
+  if (messages) {
+    ChatModal.setMessagelist([...messages])
   }
+  // ChatModal.toggleRender()
   // ChatModal.setMessagelist(wsMessageList)
 }
 

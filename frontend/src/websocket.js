@@ -1,5 +1,5 @@
 import { msgUpdate } from "./components/layout/ChatModal";
-import { usrUpdate } from "./components/layout/Userlist";
+import { usrUpdate/* , userRender */ } from "./components/layout/Userlist";
 import { loggedUser } from "./App";
 
 // import { UserContext } from "../../UserContext";
@@ -9,6 +9,7 @@ export let wsUserList = []
 export let wsActiveUserList
 export let wsMessageList = []
 export let wsConnected = false
+let sortedUsers = []
 
 // let activeUser
 
@@ -62,7 +63,7 @@ export function webSocketConnect(port) {
             let tempBody = [...incomingJson.body]
             // let tempPool = [...incomingJson.pool]
 
-            let sortedUsers = wsSortUsers(loggedUser, tempBody, incomingJson.pool/* , unreadstring */)
+            sortedUsers = wsSortUsers(loggedUser, tempBody, incomingJson.pool/* , unreadstring */)
             // wsUserList = incomingJson.body
             // wsUserList = [...sortedUsers]
             // wsActiveUserList = incomingJson.pool
@@ -77,13 +78,17 @@ export function webSocketConnect(port) {
 
             // msgUpdate(messages)
             // usrUpdate()
-            msgUpdate()
+            msgUpdate(wsMessageList)
         }
         if (incomingJson.type === "wsMessageSaved") {
             wsGetUsers(loggedUser.id)
         }
         if (incomingJson.type === "wsModalSaved") {
+            // wsGetChatMessages(parseInt(incomingJson.user), parseInt(incomingJson.target))
             wsGetUsers(loggedUser.id)
+            // msgUpdate(wsMessageList)
+            // usrUpdate([...sortedUsers])
+            // userRender()
         }
 
         console.log("wsUserList =", wsUserList);
@@ -123,7 +128,7 @@ export function webSocketConnect(port) {
             document.querySelector("#send-button").getAttribute("data-user-id"),
             document.querySelector("#send-button").getAttribute("data-target-id")
         )
-        msgUpdate()
+        // msgUpdate()
 
         document.getElementById("chat-text").textContent = "";
     }
@@ -291,18 +296,29 @@ export function webSocketConnect(port) {
         // console.log("passivenames", passivenames);
         // console.log("passivehistory", passivehistory);
         
-        usersList.forEach((usr) => {
-            historyarray.forEach((loginID) => {
-                if (usr.id === loginID) {
-                    historyUsers.push(usr)
-                }
-            })
-            historyarray.forEach(() => {
-                if (!strangerUsers.includes(usr) && !historyUsers.includes(usr)) {
-                    strangerUsers.push(usr)
-                }
-            })
+        historyarray.forEach((historyID) => {
+            for (let i = 0; i < usersList.length; i++) {
+                if (historyID === usersList[i].id) {
+                    historyUsers.push(usersList[i])
+                    usersList.splice(i, 1)
+                } 
+            }
         })
+        strangerUsers = [...usersList]
+
+        // this is wonky!!!
+        // usersList.forEach((usr) => {
+        //     historyarray.forEach((loginID) => {
+        //         if (usr.id === loginID) {
+        //             historyUsers.push(usr)
+        //         }
+        //     })
+        //     historyarray.forEach(() => {
+        //         if (!strangerUsers.includes(usr) && !historyUsers.includes(usr)) {
+        //             strangerUsers.push(usr)
+        //         }
+        //     })
+        // })
         
         orderedUsers = strangerUsers.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
         combinedUsers = historyUsers.concat(orderedUsers);

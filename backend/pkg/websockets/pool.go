@@ -120,7 +120,11 @@ func (pool *Pool) Start() {
 				for client := range pool.Clients {
 					// if received user Id conn is same as in Client struct, send users back to this user
 					if fmt.Sprintf("%d", client.UserID) == strconv.Itoa(int(dat["activeUser"].(float64))) {
-						if err := client.Conn.WriteMessage(websocket.TextMessage, []byte(`{"type":"wsModalSaved"}`)); err != nil {
+						modalString := fmt.Sprintf(`{"type":"wsModalSaved","user":"%d","target":"%d"}`,
+							int(dat["activeUser"].(float64)),
+							int(dat["targetUser"].(float64)))
+
+						if err := client.Conn.WriteMessage(websocket.TextMessage, []byte(modalString)); err != nil {
 							log.Println(err)
 							return
 						}

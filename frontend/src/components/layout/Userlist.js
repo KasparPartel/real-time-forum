@@ -55,8 +55,11 @@ export function usrUpdate(list) {
   if (list) {
     Userlist.setUserlist([...list])
   }
-  Userlist.toggleRender()
+  // Userlist.toggleRender()
   // Userlist.setActiveUserlist(wsActiveUserList)
+}
+export function userRender() {
+  Userlist.toggleRender()
 }
 
 export default Userlist;
