@@ -2,7 +2,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { UserContext } from "./UserContext";
-import { webSocketConnect, /* getActiveUser */ } from "./websocket";
+import { webSocketConnect } from "./websocket";
 
 import Layout from "./components/layout/Layout";
 import Feed from "./pages/Feed";
@@ -27,10 +27,6 @@ function App() {
     cookies["session_token"] ? getUser() : setUser(null);
   }, [cookies]);
 
-  // useEffect(() => {
-  //   webSocketConnect("ws://localhost:4000/v1/api/ws");
-  // }, []);
-
   const getUser = async () => {
     const res = await fetch("http://localhost:4000/v1/api/user/me", {
       method: "GET",
@@ -47,16 +43,7 @@ function App() {
     const user = await res.json();
     setUser(user);
     loggedUser = user
-    // getActiveUser(user);
-    // webSocketConnect.sendActiveUserID(user.id) // temp turned off... sometimes fires before socket connection is complete
     webSocketConnect("ws://localhost:4000/v1/api/ws"); // starts websocket after user is fetched
-    // if (webSocketConnect.socket) {
-    //   webSocketConnect.sendActiveUserID(user.id)
-    //   if (user.id > 0) {
-    //     webSocketConnect.wsGetUsers()
-    //   }
-    // }
-    console.log("User object", user);
   };
 
   const Logout = () => {

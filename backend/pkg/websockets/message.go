@@ -1,20 +1,14 @@
 package websockets
 
 import (
-	"fmt"
-	// "io"
 	"database/sql"
-	"log"
-	"strconv"
-	"strings"
-
-	// "net/http"
-	// db2 "real-time-forum/db"
 	json2 "encoding/json"
-
-	// "github.com/gorilla/websocket"
+	"fmt"
+	"log"
 	"real-time-forum/pkg/helper"
 	"real-time-forum/pkg/logger"
+	"strconv"
+	"strings"
 )
 
 func CreateMessageTable(db *sql.DB) {
@@ -25,7 +19,6 @@ func CreateMessageTable(db *sql.DB) {
 	    "target_id" TEXT,
 	    "creation_time" TEXT);`
 	query, err := db.Prepare(messages_table)
-	// query, err := db.Prepare(`DELETE FROM messages;`) // dev_only: this clears messages table data
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,7 +26,7 @@ func CreateMessageTable(db *sql.DB) {
 	log.Println("Messages Table created successfully!")
 }
 
-func WsReadUsers(db *sql.DB /* , unreadstring string */) ([]byte, []int) {
+func WsReadUsers(db *sql.DB) ([]byte, []int) {
 
 	type Wsuser struct {
 		ID         int    `json:"id"`
@@ -41,7 +34,6 @@ func WsReadUsers(db *sql.DB /* , unreadstring string */) ([]byte, []int) {
 		LoginDate  string `json:"login_date"`
 		LogoutDate string `json:"logout_date"`
 		History    string `json:"history"`
-		// Unread     string `json:"unread"`
 	}
 	var data []Wsuser
 	var json []byte
@@ -62,10 +54,7 @@ func WsReadUsers(db *sql.DB /* , unreadstring string */) ([]byte, []int) {
 	helper.CheckError(err)
 	defer rows.Close()
 
-	// log.Println("data1:", data)
-	// Loop over every row
 	for rows.Next() {
-
 		rows.Scan(&id, &username, &loginDate, &logoutDate, &history)
 		user := Wsuser{
 			ID:         id,
@@ -75,13 +64,9 @@ func WsReadUsers(db *sql.DB /* , unreadstring string */) ([]byte, []int) {
 			History:    history,
 		}
 
-		// user.Unread = unreadstring
 		data = append(data, user)
 		userArray = append(userArray, user.ID)
-		// log.Println("data2:", data)
-
 	}
-	// log.Println("data3:", data)
 
 	if len(data) == 0 {
 		logger.WarningLogger.Println("There are 0 users")
@@ -99,75 +84,18 @@ func WsReadUsers(db *sql.DB /* , unreadstring string */) ([]byte, []int) {
 
 func WsReturnUsers(database *sql.DB, user_id string, pool *Pool) []byte {
 
-	log.Println("Got wsGetUsers request from frontend")
-	var userInt int
-
-	if i, err := strconv.Atoi(user_id); err == nil {
-		userInt = i
-	}
-
-	// unreadArray := []int{}
-	_, userArray := WsReadUsers(database /* , "" */)
-
-	// user := strconv.Itoa(int(dat["activeUser"].(float64)))
-	_, history := getHistory(database, userInt)
-
-	log.Println("userArray:", userArray)
-	log.Println("history:", history)
-
-	// for i := 0; i < len(userArray); i++ {
-	// 	if userArray[i] != userInt {
-	// 		target := strconv.Itoa(userArray[i])
-	// 		_, dbMsgLength := WsReadMessages(database, user_id, target)
-	// 		// _, historyMsgLength := WsReadMessages(database, user, target)
-	// 		if compareHistory(history, userArray[i], dbMsgLength) {
-	// 			unreadArray = append(unreadArray, userArray[i])
-	// 			// log.Println("Found messages for unreadArray:", userInt, unreadArray)
-	// 		}
-	// 	}
-	// }
-	// log.Println("Unread array:", userInt, unreadArray)
-
 	userpool := []byte(`,"pool":"`)
 	for client := range pool.Clients {
-		// userpool = append(userpool, client.UserID)
 		userpool = append(userpool, []byte(strconv.Itoa(client.UserID))...)
 		userpool = append(userpool, []byte(`,`)...)
 	}
 	userpool = userpool[:len(userpool)-1]
 	userpool = append(userpool, []byte(`"`)...)
-
-	// fmt.Println("pool.Clients")
-	// fmt.Println(pool.Clients)
-
-	// unreadpool := []byte(`,"unread":"`)
-	// var unreadstring string
-	// if len(unreadArray) > 0 {
-	// 	for _, user := range unreadArray {
-	// 		// unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
-	// 		// unreadpool = append(unreadpool, []byte(`,`)...)
-	// 		unreadstring += strconv.Itoa(user)
-	// 		unreadstring += ","
-	// 	}
-	// 	unreadstring = unreadstring[:len(unreadstring)-1]
-	// }
-	// unreadpool = append(unreadpool, []byte(`"`)...)
-	// unreadpool := []byte(`,"unread":"`)
-	// if len(unreadArray) > 0 {
-	// 	for _, user := range unreadArray {
-	// 		unreadpool = append(unreadpool, []byte(strconv.Itoa(user))...)
-	// 		unreadpool = append(unreadpool, []byte(`,`)...)
-	// 	}
-	// 	unreadpool = unreadpool[:len(unreadpool)-1]
-	// }
-	// unreadpool = append(unreadpool, []byte(`"`)...)
-
-	userJson, _ := WsReadUsers(database /* , unreadstring */)
+	userJson, _ := WsReadUsers(database)
 
 	returnedusers := []byte(`{"type":"wsReturnedUsers","body":`)
 	returnedusers = append(returnedusers, userJson...)
 	returnedusers = append(returnedusers, userpool...)
-	// returnedusers = append(returnedusers, unreadpool...)
 	returnedusers = append(returnedusers, []byte(`}`)...)
 
 	return returnedusers
@@ -198,8 +126,6 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) ([]byt
 		Creation_time string `json:"creation_time"`
 	}
 
-	// returnedmessages := []byte(fmt.Sprintf(`{"type":"wsReturnedMessages","sender":"%s","body":`, messageUser))
-
 	var data []Wsmessage
 	var json []byte
 	var err error
@@ -211,8 +137,6 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) ([]byt
 	var msgTarget string
 	var msgCreationTime string
 
-	// logger.InfoLogger.Println("GET: all messages with current user and target")
-
 	queryString := fmt.Sprintf("%s%s%s%s%s%s%s%s",
 		"SELECT * from messages WHERE user_id=",
 		messageUser,
@@ -222,8 +146,6 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) ([]byt
 		messageTarget,
 		" AND target_id=",
 		messageUser)
-
-	// log.Println("queryString:", queryString)
 
 	rows, err := db.Query(queryString)
 	helper.CheckError(err)
@@ -253,15 +175,8 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) ([]byt
 	if err != nil {
 		logger.ErrorLogger.Println(err)
 	}
-
 	messagelength := len(data)
 
-	// log.Println("WsReadMessages length:", len(data))
-
-	// returnedmessages = append(returnedmessages, json...)
-	// returnedmessages = append(returnedmessages, []byte(`}`)...)
-
-	// return returnedmessages
 	return json, messagelength
 
 }
@@ -420,23 +335,3 @@ func getHistory(db *sql.DB, user int) (int, string) {
 	}
 	return history.ID, history.Data
 }
-
-// func compareHistory(history string, user int, length int) bool {
-// 	// this function compares target user messages count with given length count in history string
-
-// 	userStr := strconv.Itoa(user)
-// 	userSplit := strings.Split(history, ",")
-// 	var messages int
-
-// 	for i := 0; i < len(userSplit); i++ {
-// 		if strings.Split(userSplit[i], "-")[0] == userStr {
-// 			if i, err := strconv.Atoi(strings.Split(userSplit[i], "-")[1]); err == nil {
-// 				messages = i
-// 			}
-// 			if length > messages {
-// 				return true
-// 			}
-// 		}
-// 	}
-// 	return false
-// }

@@ -1,39 +1,19 @@
-import React, { useState/* , useEffect */ } from "react";
+import React, { useState } from "react";
 import classes from "./Userlist.module.css";
 import ChatModal from "./ChatModal";
 import { wsMessageList } from "../../websocket.js"
 
 function Userlist({user}) {
-  
-  console.log("Rendering Userlist!", user);
-  
+  // monitors change of userlist (set onmessage in websocket.js)
   const [userlist, setUserlist] = useState([])
-  const [render, setRender] = useState(false)
-  // const [activeuserlist, setActiveUserlist] = useState(wsActiveUserList)
-  
-  console.log("userlist:", userlist)
-  // console.log("wsUserList:", wsUserList)
-
-  // useEffect(() => {
-  //   setUserlist([...wsUserList])
-  //   // setRender(!render)
-  // }, [])
-
+  // exposes setUserlist function to usrUpdate
   Userlist.setUserlist = setUserlist;
-  Userlist.toggleRender = toggleRender;
-  // Userlist.setRender = setRender;
-  // Userlist.render = render;
-
-  function toggleRender() {
-    setRender(!render)
-  }
 
   if (user && userlist) {
     return (
       <div className="user-list">
         <ul className={classes.userlist}>
           {userlist.map((target) => (target.id !== user.id &&
-              // <ChatModal class={target.class} key={target.id} id={target.id} name={target.username} user={user}/>
               <ChatModal messages={wsMessageList} active={target.active} newmessage={target.newmessage} targetkey={target.id} key={target.id} id={target.id} name={target.username} target={target} user={user}/>
           ))}
         </ul>
@@ -51,15 +31,10 @@ function Userlist({user}) {
 }
 
 export function usrUpdate(list) {
-  console.log("usrUpdate", list);
+  // called from websocket.js with userlist change from db (onmessage)
   if (list) {
     Userlist.setUserlist(list)
   }
-  // Userlist.toggleRender()
-  // Userlist.setActiveUserlist(wsActiveUserList)
-}
-export function userRender() {
-  Userlist.toggleRender()
 }
 
 export default Userlist;
