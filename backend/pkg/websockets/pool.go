@@ -208,7 +208,7 @@ func (pool *Pool) Start() {
 				// }
 
 				// log.Println("WsReadMessages length:", len(data))
-				returnedmessages := []byte(fmt.Sprintf(`{"type":"wsReturnedMessages","sender":"%s","body":`, dat["user_id"].(string)))
+				returnedmessages := []byte(fmt.Sprintf(`{"type":"wsReturnedMessages","user":"%s","target":"%s","body":`, dat["user_id"].(string), dat["target_id"].(string)))
 				returnedmessages = append(returnedmessages, jsonmessages...)
 				returnedmessages = append(returnedmessages, []byte(`}`)...)
 

@@ -1,4 +1,4 @@
-import { msgUpdate } from "./components/layout/ChatModal";
+// import { msgUpdate } from "./components/layout/ChatModal";
 import { usrUpdate/* , userRender */ } from "./components/layout/Userlist";
 import { loggedUser } from "./App";
 
@@ -7,7 +7,7 @@ import { loggedUser } from "./App";
 
 export let wsUserList = []
 export let wsActiveUserList
-export let wsMessageList = []
+export let wsMessageList = {}
 export let wsConnected = false
 let sortedUsers = []
 
@@ -60,25 +60,28 @@ export function webSocketConnect(port) {
             // wsUserList = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool, incomingJson.unread)
             console.log("loggedUser", loggedUser);   
 
-            let tempBody = [...incomingJson.body]
+            // let tempBody = [...incomingJson.body]
             // let tempPool = [...incomingJson.pool]
 
-            sortedUsers = wsSortUsers(loggedUser, tempBody, incomingJson.pool/* , unreadstring */)
+            sortedUsers = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool/* , unreadstring */)
             // wsUserList = incomingJson.body
             // wsUserList = [...sortedUsers]
             // wsActiveUserList = incomingJson.pool
             console.log("incomingJson", incomingJson)
             console.log("sortedUsers", sortedUsers)
-            usrUpdate([...sortedUsers])
+            usrUpdate(sortedUsers)
         }
         if (incomingJson.type === "wsReturnedMessages") {
             console.log("returned messages incomingJson.body:", incomingJson.body);
-            wsMessageList = incomingJson.body
+            let key = parseInt(incomingJson.target)
+            wsMessageList[key] = incomingJson.body
+            console.log("wsMessagelist object:", wsMessageList);
+
             // let messages = incomingJson.body
 
             // msgUpdate(messages)
             // usrUpdate()
-            msgUpdate(wsMessageList)
+            // msgUpdate(wsMessageList)
         }
         if (incomingJson.type === "wsMessageSaved") {
             wsGetUsers(loggedUser.id)
@@ -101,6 +104,7 @@ export function webSocketConnect(port) {
     webSocketConnect.sendActiveUserID = sendActiveUserID;
     webSocketConnect.sendModal = sendModal;
     webSocketConnect.wsSortUsers = wsSortUsers;
+    // webSocketConnect.removeUnread = removeUnread;
 
     function sendMessage() {
         function composeMessage(Type, Body, User_id, Target_id, Creation_time) {
@@ -132,6 +136,38 @@ export function webSocketConnect(port) {
 
         document.getElementById("chat-text").textContent = "";
     }
+
+    // function removeUnread(string) {
+    //     let liElements = document.getElementsByTagName("li")
+    //     let userLi
+    //     let classes
+
+    //     console.log("removeUnread started!");
+    //     console.log("removeUnread string", string);
+    //     console.log("removeUnread liElements", liElements);
+        
+    //     for (let i = 0; i < liElements.length; i++) {
+    //         // eslint-disable-next-line
+    //         if (liElements[i].textContent == string) {
+    //             console.log("removeUnread found!");
+    //             userLi = liElements[i]
+    //             break
+    //         }
+    //     }
+    //     console.log("removeUnread userLi", userLi);
+
+    //     if (userLi !== undefined) {
+    //         classes = userLi.classList
+
+    //         console.log("removeUnread classes", classes);
+
+    //         for (let j = 0; j < classes.length; j++) {
+    //             if (classes[j].includes("unread")) {
+    //                 userLi.classList.remove(classes[j])
+    //             }
+    //         }
+    //     }
+    // }
 
     function wsGetUsers(usrID) {
         //JSON for getting users from db query

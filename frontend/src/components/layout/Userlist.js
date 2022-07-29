@@ -1,7 +1,7 @@
 import React, { useState/* , useEffect */ } from "react";
 import classes from "./Userlist.module.css";
 import ChatModal from "./ChatModal";
-import { /* wsUserList, */ /* wsActiveUserList, */ /* webSocketConnect, wsConnected */ } from "../../websocket.js"
+import { wsMessageList } from "../../websocket.js"
 
 function Userlist({user}) {
   
@@ -34,7 +34,7 @@ function Userlist({user}) {
         <ul className={classes.userlist}>
           {userlist.map((target) => (target.id !== user.id &&
               // <ChatModal class={target.class} key={target.id} id={target.id} name={target.username} user={user}/>
-              <ChatModal active={target.active} newmessage={target.newmessage} targetkey={target.id} key={target.id} id={target.id} name={target.username} target={target} user={user}/>
+              <ChatModal messages={wsMessageList} active={target.active} newmessage={target.newmessage} targetkey={target.id} key={target.id} id={target.id} name={target.username} target={target} user={user}/>
           ))}
         </ul>
       </div>
@@ -53,7 +53,7 @@ function Userlist({user}) {
 export function usrUpdate(list) {
   console.log("usrUpdate", list);
   if (list) {
-    Userlist.setUserlist([...list])
+    Userlist.setUserlist(list)
   }
   // Userlist.toggleRender()
   // Userlist.setActiveUserlist(wsActiveUserList)
