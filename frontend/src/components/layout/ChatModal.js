@@ -52,11 +52,11 @@ function ChatModal(props) {
   const toggleModal = () => {
     // toggleRender()
     console.log("toggleModal:", modal);
-    if (modal === false) {
+    //if (modal === false) {
       webSocketConnect.sendModal(user.id, props.id)
       console.log("modal sent");
       // webSocketConnect.removeUnread([props.name])
-    }
+    //}
     getMessages()
     setModal(!modal);
   };
