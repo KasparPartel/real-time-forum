@@ -44,7 +44,10 @@ export function webSocketConnect(port) {
         // if messages are returned over websocket, they are saved into wsMessageList object with id as key
         if (incomingJson.type === "wsReturnedMessages") {
             let key = parseInt(incomingJson.target)
-            wsMessageList[key] = incomingJson.body
+            wsMessageList[key] = {}
+            wsMessageList[key].body = incomingJson.body
+            wsMessageList[key].count = incomingJson.body.length
+            console.log(wsMessageList);
         }
         // saving message into db changes order of userlist, therefore new query
         if (incomingJson.type === "wsMessageSaved") {
@@ -87,11 +90,6 @@ export function webSocketConnect(port) {
 
         socket.send(newMessage);
         
-        // updates modal messagelist after sending new message
-        wsGetChatMessages(
-            document.querySelector("#send-button").getAttribute("data-user-id"),
-            document.querySelector("#send-button").getAttribute("data-target-id")
-        )
         // clears modal message field
         document.getElementById("chat-text").textContent = "";
     }
@@ -134,13 +132,17 @@ export function webSocketConnect(port) {
         }
     }
     
-    function wsGetChatMessages(usr, trgt) {
+    function wsGetChatMessages(usr, trgt, count) {
         // JSON query to db for a list of messages between users
         let msg = {
             type: "wsGetChatMessages",
             user_id: String(usr),
             target_id: String(trgt),
+            count: String(count),
         };     
+
+        console.log("wsGetChatMessages", msg);
+
         socket.send(JSON.stringify(msg));
     }
 
@@ -238,9 +240,15 @@ export function webSocketConnect(port) {
     //     };
     // }
       
-    // const onScroll = wsThrottle(() => {
-    //     // do something
-    // }, 100);
-      
-    // // document.addEventListener('resize', onScroll)
+    // const onScroll = () => {
+    //     console.log("Scrolling");
+    // };
+    // // const onScroll = wsThrottle(() => {
+    // //     console.log("Scrolling");
+    // // }, 100);
+    
+    // // if (currentModal) {
+    // //     document.addEventListener('scroll', onScroll)
+    // // }
+    // document.addEventListener('scroll', onScroll)
 }

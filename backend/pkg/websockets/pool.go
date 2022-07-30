@@ -150,7 +150,7 @@ func (pool *Pool) Start() {
 
 			if dat["type"] == "wsGetChatMessages" && dat["user_id"] != "undefined" && dat["target_id"] != "undefined" {
 
-				jsonmessages, _ := WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string))
+				jsonmessages, _ := WsReadMessages(database, dat["user_id"].(string), dat["target_id"].(string), dat["count"].(string))
 
 				returnedmessages := []byte(fmt.Sprintf(`{"type":"wsReturnedMessages","user":"%s","target":"%s","body":`, dat["user_id"].(string), dat["target_id"].(string)))
 				returnedmessages = append(returnedmessages, jsonmessages...)

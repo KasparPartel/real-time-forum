@@ -116,7 +116,7 @@ func WsSaveMessage(db *sql.DB, body string, user_id string, target_id string, cr
 	log.Println("Saved message to db: ", body)
 }
 
-func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) ([]byte, int) {
+func WsReadMessages(db *sql.DB, messageUser string, messageTarget string, count string) ([]byte, int) {
 
 	type Wsmessage struct {
 		ID            int    `json:"id"`
@@ -137,7 +137,7 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) ([]byt
 	var msgTarget string
 	var msgCreationTime string
 
-	queryString := fmt.Sprintf("%s%s%s%s%s%s%s%s",
+	queryString := fmt.Sprintf("%s%s%s%s%s%s%s%s%s%s",
 		"SELECT * from messages WHERE user_id=",
 		messageUser,
 		" AND target_id=",
@@ -145,7 +145,19 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) ([]byt
 		" OR user_id=",
 		messageTarget,
 		" AND target_id=",
-		messageUser)
+		messageUser,
+		" ORDER BY id DESC LIMIT ",
+		count)
+
+	// queryString := fmt.Sprintf("%s%s%s%s%s%s%s%s",
+	// "SELECT * from messages WHERE user_id=",
+	// messageUser,
+	// " AND target_id=",
+	// messageTarget,
+	// " OR user_id=",
+	// messageTarget,
+	// " AND target_id=",
+	// messageUser)
 
 	rows, err := db.Query(queryString)
 	helper.CheckError(err)
@@ -168,6 +180,11 @@ func WsReadMessages(db *sql.DB, messageUser string, messageTarget string) ([]byt
 
 	if len(data) == 0 {
 		logger.WarningLogger.Println("There are 0 corresponding messages")
+	}
+
+	// reversing messages for frontend output in chatbox
+	for i, j := 0, len(data)-1; i < j; i, j = i+1, j-1 {
+		data[i], data[j] = data[j], data[i]
 	}
 
 	// Write json to return
