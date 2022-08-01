@@ -17,9 +17,11 @@ export function webSocketConnect(port) {
         // bool is checked in functions, if websocket is connected or not 
         wsConnected = true
         // tells the backend, which user is connected over this websocket
-        sendActiveUserID(loggedUser.id)
-        // gets userlist from db
-        wsGetUsers(loggedUser.id)
+        if (loggedUser !== undefined) {
+            sendActiveUserID(loggedUser.id)
+            // gets userlist from db
+            wsGetUsers(loggedUser.id)
+        }
     }
     
     socket.onclose = (e) => {
@@ -144,7 +146,9 @@ export function webSocketConnect(port) {
             target_id: String(trgt),
             count: String(count),
         };    
-        socket.send(JSON.stringify(msg));
+        if (wsConnected === true) {
+            socket.send(JSON.stringify(msg));
+        }
     }
 
     function wsSortUsers(mainUser, usersList, activeUsersList) {
