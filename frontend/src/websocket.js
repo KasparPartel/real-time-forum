@@ -43,15 +43,10 @@ export function webSocketConnect(port) {
         }
         // if messages are returned over websocket, they are saved into wsMessageList object with id as key
         if (incomingJson.type === "wsReturnedMessages") {
-            
-            console.log("wsReturnedMessages", incomingJson);
-            
             let key = parseInt(incomingJson.target)
             wsMessageList[key] = {}
             wsMessageList[key].body = incomingJson.body
             wsMessageList[key].count = incomingJson.body?.length
-            console.log(wsMessageList);
-            // wsGetUsers(loggedUser.id)
         }
         // saving message into db changes order of userlist, therefore new query
         if (incomingJson.type === "wsMessageSaved") {
@@ -69,7 +64,6 @@ export function webSocketConnect(port) {
     webSocketConnect.wsGetChatMessages = wsGetChatMessages;
     webSocketConnect.sendActiveUserID = sendActiveUserID;
     webSocketConnect.sendModal = sendModal;
-    webSocketConnect.wsSortUsers = wsSortUsers;
 
     // this sends save chat message to db
     function sendMessage() {
@@ -149,10 +143,7 @@ export function webSocketConnect(port) {
             user_id: String(usr),
             target_id: String(trgt),
             count: String(count),
-        };     
-
-        console.log("wsGetChatMessages", msg);
-
+        };    
         socket.send(JSON.stringify(msg));
     }
 
