@@ -1,32 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import classes from "./Userlist.module.css";
 import ChatModal from "./ChatModal";
-import { wsUserList } from "../../websocket.js"
+import { wsMessageList } from "../../websocket.js"
 
 function Userlist({user}) {
-  
-  const [userlist, setUserlist] = useState(wsUserList)
-  
-  console.log("userlist:", userlist)
-  console.log("wsUserList:", wsUserList)
-
-  useEffect(() => {
-    setUserlist(wsUserList)
-  }, [])
-  
+  // monitors change of userlist (set onmessage in websocket.js)
+  const [userlist, setUserlist] = useState([])
+  // exposes setUserlist function to usrUpdate
   Userlist.setUserlist = setUserlist;
 
-  if (user) {
+  if (user && userlist) {
     return (
       <div className="user-list">
         <ul className={classes.userlist}>
-          {userlist.map((target) => (
-            target.id !== user.id &&
-              <ChatModal key={target.id} id={target.id} name={target.username} user={user}/>
+          {userlist.map((target) => (target.id !== user.id &&
+              <ChatModal messages={wsMessageList} active={target.active} newmessage={target.newmessage} targetkey={target.id} key={target.id} id={target.id} name={target.username} target={target} user={user}/>
           ))}
         </ul>
       </div>
-    );
+    )
   } else {
     // empty user list sidebar if not logged in
     return (
@@ -38,8 +30,11 @@ function Userlist({user}) {
   }
 }
 
-export function usrUpdate() {
-  Userlist.setUserlist(wsUserList)
+export function usrUpdate(list) {
+  // called from websocket.js with userlist change from db (onmessage)
+  if (list) {
+    Userlist.setUserlist(list)
+  }
 }
 
 export default Userlist;

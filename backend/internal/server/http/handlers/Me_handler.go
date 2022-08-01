@@ -40,14 +40,15 @@ func MeHandler(w http.ResponseWriter, r *http.Request) {
 	var passwordHash string
 	var createdDate string
 	var loginDate string
+	var logoutDate string
 	var isAdmin string
 	var token string
-	var logoutDate string
+	var history string
 
 	if r.Method == http.MethodGet {
 		row := db.QueryRow("SELECT * FROM user WHERE token=?", tokenCookie.Value)
 
-		if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token); err == sql.ErrNoRows {
+		if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token, &history); err == sql.ErrNoRows {
 			logger.ErrorLogger.Printf("User with token %d does not exist", tokenCookie.Value)
 		} else {
 			user := model.User{
@@ -64,6 +65,7 @@ func MeHandler(w http.ResponseWriter, r *http.Request) {
 				LogoutTime:   logoutDate,
 				IsAdmin:      isAdmin,
 				Token:        token,
+				History:	  history,
 			}
 
 			json, err := json2.Marshal(user)

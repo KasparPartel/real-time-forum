@@ -16,6 +16,8 @@ import Post from "./pages/Post";
 
 import "./App.module.css";
 
+export let loggedUser
+
 export default function App() {
   const [cookies, setCookie, removeCookie] = useCookies(["session_token"]);
   const [user, setUser] = useState({});
@@ -49,6 +51,8 @@ export default function App() {
     setUser(user);
     sessionStorage.setItem("user_id", user.id);
     console.log("User object", user);
+    loggedUser = user
+    webSocketConnect("ws://localhost:4000/v1/api/ws"); // starts websocket after user is fetched
   };
 
   // Logout sends api request to remove token from db and removes cookie

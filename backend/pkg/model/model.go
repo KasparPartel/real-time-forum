@@ -14,6 +14,7 @@ type User struct {
 	LogoutTime   string `json:"logout_time"`
 	IsAdmin      string `json:"is_admin"`
 	Token        string `json:"-"`
+	History 	 string `json:"history"`
 }
 
 type Post struct {

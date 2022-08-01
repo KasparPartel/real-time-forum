@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../UserContext";
+import { webSocketConnect, wsConnected } from "../websocket.js"
 
 import styles from "./Login.module.css";
 
@@ -13,6 +14,10 @@ export default function Login({ setCookie }) {
 
   if (user) {
     navigate("/", { replace: true });
+    if (wsConnected) {
+
+      webSocketConnect.sendActiveUserID(user.id);
+    }
   }
 
   const handleChange = (e) => {

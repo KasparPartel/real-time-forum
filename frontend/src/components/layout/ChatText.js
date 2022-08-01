@@ -6,17 +6,21 @@ function ChatText(props) {
   if (props.userid === String(props.loginuser)) {
       return (
           <>
-            <p className={classes.usermessage}>
-              {props.body}
-            </p>
+            <li className={classes.usermessage}>
+              {props.body} <br>
+              </br>
+              @ {new Date(Date.parse(props.time)).toLocaleString('en-GB')}
+            </li>
           </>
       );
   } else {
     return (
       <>
-        <p className={classes.targetmessage}>
-          {props.body}
-        </p>
+        <li className={classes.targetmessage}>
+          {props.body} <br>
+            </br>
+            @ {new Date(Date.parse(props.time)).toLocaleString('en-GB')}
+        </li>
       </>
   );
   }
