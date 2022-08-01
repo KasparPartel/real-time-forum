@@ -5,6 +5,7 @@
 .post__heading {
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 
   margin-bottom: 0.65em;
 }
@@ -23,10 +24,6 @@
 
 .post__meta {
   gap: 1em;
-}
-
-.post__category {
-
 }
 
 .post__body {

@@ -1,0 +1,19 @@
+.comment {
+  margin-top: 1em;
+  padding: 0.4em;
+  gap: 0.4em;
+
+  background-color: lightgray;
+}
+
+.username {
+  font-weight: bold;
+}
+
+.username, .dateTime {
+  font-size: 0.88em;
+}
+
+.separator {
+  margin: 0 0.4em;
+}
