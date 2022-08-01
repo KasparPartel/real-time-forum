@@ -43,11 +43,15 @@ export function webSocketConnect(port) {
         }
         // if messages are returned over websocket, they are saved into wsMessageList object with id as key
         if (incomingJson.type === "wsReturnedMessages") {
+            
+            console.log("wsReturnedMessages", incomingJson);
+            
             let key = parseInt(incomingJson.target)
             wsMessageList[key] = {}
             wsMessageList[key].body = incomingJson.body
-            wsMessageList[key].count = incomingJson.body.length
+            wsMessageList[key].count = incomingJson.body?.length
             console.log(wsMessageList);
+            // wsGetUsers(loggedUser.id)
         }
         // saving message into db changes order of userlist, therefore new query
         if (incomingJson.type === "wsMessageSaved") {
@@ -134,6 +138,12 @@ export function webSocketConnect(port) {
     
     function wsGetChatMessages(usr, trgt, count) {
         // JSON query to db for a list of messages between users
+        if (count === undefined || !wsConnected) {
+            return
+        }
+        if (count < 10) {
+            count = 10
+        }
         let msg = {
             type: "wsGetChatMessages",
             user_id: String(usr),
@@ -220,35 +230,4 @@ export function webSocketConnect(port) {
 
         return combinedUsers
     }
-
-    // function wsScroll() {
-        
-    // }
-
-    // function wsThrottle(func, wait) {
-    //     let waiting = false;
-    //     return function () {
-    //         if (waiting) {
-    //             return;
-    //         }
-      
-    //         waiting = true;
-    //         setTimeout(() => {
-    //             func.apply(this, arguments);
-    //             waiting = false;
-    //         }, wait);
-    //     };
-    // }
-      
-    // const onScroll = () => {
-    //     console.log("Scrolling");
-    // };
-    // // const onScroll = wsThrottle(() => {
-    // //     console.log("Scrolling");
-    // // }, 100);
-    
-    // // if (currentModal) {
-    // //     document.addEventListener('scroll', onScroll)
-    // // }
-    // document.addEventListener('scroll', onScroll)
 }

@@ -13,6 +13,15 @@ function ChatModal(props) {
   let messages = props.messages[props.id]?.body
   let basecount = 10
 
+  // causes infinite loop
+  // if (!props.messages[props.id]) {
+  //   webSocketConnect.wsGetUsers(user.id)
+  // }
+  if (!props.messages[props.id]) {
+    console.log("A: !props.messages[props.id] webSocketConnect.wsGetChatMessages");
+    webSocketConnect.wsGetChatMessages(user.id, props.id, basecount)
+  }
+  console.log("props.id", props.id)
   console.log("props.messages[props.id].count = ", props.messages[props.id]?.count);
 
   // if (props.messages[props.id]?.count !== undefined) {
@@ -29,19 +38,34 @@ function ChatModal(props) {
     // gets current messages from db
     console.log(user.id, props.id, props.messages[props.id]?.count)
     console.log("Getting Modal click messages");
+    console.log("B: toggleModal webSocketConnect.wsGetChatMessages");
     webSocketConnect.wsGetChatMessages(user.id, props.id, basecount)
     setModal(!modal);
   };
   
   // handles send message button click
   function sendClick() {
+    console.log("sendClick message sent!", user.id, props.id);
     webSocketConnect.sendMessage()
     console.log("Getting sendclick user messages");
-    webSocketConnect.wsGetChatMessages(user.id, props.id, props.messages[props.id]?.count)
+    console.log("C: sendClick webSocketConnect.wsGetChatMessages");
+
+
+    if (props.messages[props.id].count) {
+      webSocketConnect.wsGetChatMessages(user.id, props.id, props.messages[props.id]?.count)
+    } else {
+      webSocketConnect.wsGetChatMessages(user.id, props.id, basecount)
+    }
+
+
+
+
     if (props.messages[user.id]?.count !== undefined) {
       console.log("Sending sendclick target messages");
       webSocketConnect.wsGetChatMessages(props.id, user.id, props.messages[user.id]?.count)
     }
+    console.log("Z: sendClick webSocketConnect.wsGetUsers");
+    webSocketConnect.wsGetUsers(user.id)
   }
 
   // opens and closes modal on component render
@@ -59,8 +83,10 @@ function ChatModal(props) {
       props.messages[props.id].count = props.messages[props.id].count + 10
       console.log(props.messages[props.id]?.count)
       console.log("Getting scrolling messages!");
+      console.log("D: onScroll webSocketConnect.wsGetChatMessages");
       webSocketConnect.wsGetChatMessages(user.id, props.id, props.messages[props.id]?.count)
     }
+    console.log("Y: onScroll webSocketConnect.wsGetUsers");
     webSocketConnect.wsGetUsers(user.id)
   }, 1000);
 
