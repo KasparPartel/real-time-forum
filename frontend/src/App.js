@@ -26,10 +26,6 @@ export default function App() {
     cookies["session_token"] ? getUser() : setUser(null);
   }, [cookies]);
 
-  useEffect(() => {
-    webSocketConnect("ws://localhost:4000/v1/api/ws");
-  }, []);
-
   // getUser fetches user data from api and populates user object
   const getUser = async () => {
     const res = await fetch("http://localhost:4000/v1/api/user/me", {

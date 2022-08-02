@@ -9,8 +9,10 @@ let sortedUsers = []
 
 // creates a websocket connection to backend
 export function webSocketConnect(port) {
+    wsConnected = false
     let socket = new WebSocket(port)
     console.log("Attempting WebSocket Connection on port:", port);
+    console.log("Attempting wsConnected", wsConnected);
     
     socket.onopen = () => {
         console.log("Successfully Connected to Websocket on port:", port);
@@ -145,8 +147,12 @@ export function webSocketConnect(port) {
             user_id: String(usr),
             target_id: String(trgt),
             count: String(count),
-        };    
-        if (wsConnected === true) {
+        }; 
+        
+        // console.log("wsGetChatMessages wsConnected", wsConnected);
+        // console.log("wsGetChatMessages socket", socket);
+
+        if (wsConnected === true && socket) {
             socket.send(JSON.stringify(msg));
         }
     }
