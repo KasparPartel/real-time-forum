@@ -77,7 +77,6 @@ export default function Feed() {
         name="category_id"
         className={styles.dropdown}
         value={selectedCategoryID || ""}
-        defaultValue=""
         onChange={handleSelectChange}
       >
         <option value="">All</option>
