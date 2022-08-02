@@ -12,7 +12,7 @@ export function webSocketConnect(port) {
     wsConnected = false
     let socket = new WebSocket(port)
     console.log("Attempting WebSocket Connection on port:", port);
-    console.log("Attempting wsConnected", wsConnected);
+    // console.log("Attempting wsConnected", wsConnected);
     
     socket.onopen = () => {
         console.log("Successfully Connected to Websocket on port:", port);

@@ -45,7 +45,7 @@ export default function App() {
     const user = await res.json();
     setUser(user);
     sessionStorage.setItem("user_id", user.id);
-    console.log("User object", user);
+    // console.log("User object", user);
     loggedUser = user;
     webSocketConnect("ws://localhost:4000/v1/api/ws"); // starts websocket after user is fetched
   };
