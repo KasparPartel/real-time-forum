@@ -108,7 +108,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			row := db.QueryRow("SELECT * FROM post WHERE id=?", id)
 
 			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token, &history); err == sql.ErrNoRows {
-				logger.ErrorLogger.Printf("User with id %d does not exist", id)
+				logger.ErrorLogger.Printf("User with id %s does not exist", id)
 			} else {
 				user := model.User{
 					ID:           userID,
@@ -124,7 +124,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					LogoutTime:   logoutDate,
 					IsAdmin:      isAdmin,
 					Token:        token,
-					History:	  history,
+					History:      history,
 				}
 
 				_, err := db.Exec("UPDATE user SET email=?, gender=?, first_name=?, age=?, last_name=?, username=?, password_hash=? WHERE id=?",
@@ -160,7 +160,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 				PasswordHash: passwordHash,
 				CreationTime: time.Now().Format(LongForm),
 				IsAdmin:      "no",
-				History:	  "",
+				History:      "",
 			}
 
 			_, err := db.Exec("INSERT INTO user(email, gender, age, first_name, last_name, username, password_hash, created_date, login_date, logout_date, administrator, token, history)"+
@@ -189,7 +189,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 			row := db.QueryRow("SELECT * FROM user WHERE id=?", id)
 
 			if err = row.Scan(&userID, &email, &gender, &age, &firstName, &lastName, &username, &passwordHash, &createdDate, &loginDate, &logoutDate, &isAdmin, &token, &history); err == sql.ErrNoRows {
-				logger.ErrorLogger.Printf("User with id %d does not exist", id)
+				logger.ErrorLogger.Printf("User with id %s does not exist", id)
 			} else {
 
 				user := model.User{
@@ -206,7 +206,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					LogoutTime:   logoutDate,
 					IsAdmin:      isAdmin,
 					Token:        token,
-					History:	  history,
+					History:      history,
 				}
 
 				data = append(data, user)
@@ -237,7 +237,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 					LogoutTime:   logoutDate,
 					IsAdmin:      isAdmin,
 					Token:        token,
-					History:	  history,
+					History:      history,
 				}
 
 				data = append(data, user)

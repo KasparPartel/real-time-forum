@@ -2,14 +2,16 @@ package helper
 
 import (
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strings"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // CheckError checks for error and panics
 func CheckError(err error) {
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 }
