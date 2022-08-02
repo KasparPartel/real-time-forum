@@ -54,7 +54,7 @@ export default function Feed() {
     console.log("category id selected", selectedCategoryID);
     if (selectedCategoryID) {
       setSelectedPosts(
-        posts.filter((post) => selectedCategoryID == post["category_id"])
+        posts.filter((post) => selectedCategoryID === post["category_id"])
       );
     } else {
       setSelectedPosts(posts);

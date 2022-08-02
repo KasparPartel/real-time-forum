@@ -16,9 +16,6 @@ export default function PagesNavigation({ user }) {
               <Link to="/create-post">Create new post</Link>
             </li>
             <li>
-              <Link to="/messages">Private messages</Link>
-            </li>
-            <li>
               <Link to="/profile">User profile</Link>
             </li>
             <li>

@@ -7,7 +7,6 @@ import { webSocketConnect } from "./websocket";
 import Layout from "./components/layout/Layout";
 import Feed from "./pages/Feed";
 import CreatePost from "./pages/CreatePost";
-import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -16,7 +15,7 @@ import Post from "./pages/Post";
 
 import "./App.module.css";
 
-export let loggedUser
+export let loggedUser;
 
 export default function App() {
   const [cookies, setCookie, removeCookie] = useCookies(["session_token"]);
@@ -51,7 +50,7 @@ export default function App() {
     setUser(user);
     sessionStorage.setItem("user_id", user.id);
     console.log("User object", user);
-    loggedUser = user
+    loggedUser = user;
     webSocketConnect("ws://localhost:4000/v1/api/ws"); // starts websocket after user is fetched
   };
 
@@ -80,7 +79,6 @@ export default function App() {
           <Route path="register" element={<Register />} />
           <Route path="create-post" element={<CreatePost />} />
           <Route path="post/:id" element={<Post />} />
-          <Route path="messages" element={<Messages />} />
           <Route path="profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
