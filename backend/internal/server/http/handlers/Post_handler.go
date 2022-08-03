@@ -104,7 +104,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			row := db.QueryRow("SELECT * FROM post WHERE id=?", id)
 
 			if err = row.Scan(&postID, &title, &body, &userID, &filename, &createdDate, &updatedDate); err == sql.ErrNoRows {
-				logger.ErrorLogger.Printf("Post with id %d does not exist", id)
+				logger.ErrorLogger.Printf("Post with id %s does not exist", id)
 			} else {
 				post := model.Post{
 					ID:           postID,
