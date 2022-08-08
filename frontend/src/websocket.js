@@ -171,7 +171,11 @@ export function webSocketConnect(port) {
         }
 
         if (mainUser.history.length === 0) {
-            return usersList.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))    
+            return usersList.sort(
+                // (a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0)
+                (a,b) => (a.username.charAt(0).toUpperCase() + a.username.slice(1) > b.username.charAt(0).toUpperCase() + b.username.slice(1))
+                ? 1 : ((b.username.charAt(0).toUpperCase() + b.username.slice(1) > a.username.charAt(0).toUpperCase() + a.username.slice(1)) ? -1 : 0)
+            )    
         }
 
         let historyUsers = []
@@ -225,7 +229,9 @@ export function webSocketConnect(port) {
         })
         // orders users with no history aplhabetically
         strangerUsers = [...usersList]
-        orderedUsers = strangerUsers.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+        // orderedUsers = strangerUsers.sort((a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0))
+        orderedUsers = strangerUsers.sort((a,b) => (a.username.charAt(0).toUpperCase() + a.username.slice(1) > b.username.charAt(0).toUpperCase() + b.username.slice(1))
+        ? 1 : ((b.username.charAt(0).toUpperCase() + b.username.slice(1) > a.username.charAt(0).toUpperCase() + a.username.slice(1)) ? -1 : 0))
         // combines users arrays with and without prior history
         combinedUsers = historyUsers.concat(orderedUsers);
 
