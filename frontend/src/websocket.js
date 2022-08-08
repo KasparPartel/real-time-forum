@@ -43,7 +43,7 @@ export function webSocketConnect(port) {
         if (incomingJson.type === "wsReturnedUsers") {
             // .body is userlist, .pool is string of active websocket users connected to backend
             sortedUsers = wsSortUsers(loggedUser, incomingJson.body, incomingJson.pool)
-            usrUpdate(sortedUsers)
+            usrUpdate([...sortedUsers])
         }
         // if messages are returned over websocket, they are saved into wsMessageList object with id as key
         if (incomingJson.type === "wsReturnedMessages") {
@@ -170,13 +170,13 @@ export function webSocketConnect(port) {
             return
         }
 
-        if (mainUser.history.length === 0) {
-            return usersList.sort(
-                // (a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0)
-                (a,b) => (a.username.charAt(0).toUpperCase() + a.username.slice(1) > b.username.charAt(0).toUpperCase() + b.username.slice(1))
-                ? 1 : ((b.username.charAt(0).toUpperCase() + b.username.slice(1) > a.username.charAt(0).toUpperCase() + a.username.slice(1)) ? -1 : 0)
-            )    
-        }
+        // if (mainUser.history.length === 0) {
+        //     return usersList.sort(
+        //         // (a,b) => (a.username > b.username) ? 1 : ((b.username > a.username) ? -1 : 0)
+        //         (a,b) => (a.username.charAt(0).toUpperCase() + a.username.slice(1) > b.username.charAt(0).toUpperCase() + b.username.slice(1))
+        //         ? 1 : ((b.username.charAt(0).toUpperCase() + b.username.slice(1) > a.username.charAt(0).toUpperCase() + a.username.slice(1)) ? -1 : 0)
+        //     )    
+        // }
 
         let historyUsers = []
         let strangerUsers = []
