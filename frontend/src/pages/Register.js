@@ -154,7 +154,7 @@ function Register() {
             type="password"
             className={styles.form__input}
             name="password"
-            minLength="5"
+            minLength="8"
             onChange={handleChange}
             required
           />

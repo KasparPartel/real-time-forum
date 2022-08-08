@@ -65,10 +65,6 @@ func CreateDB() {
 		token text,
 		history text);
 
-		INSERT INTO user (email, gender, age, first_name, last_name, username, password_hash, created_date, login_date, logout_date, administrator, token, history)
-		VALUES("test@gmail.com", "male", 25, "Test", "Test", "Test1",
-		"$2a$10$zTl.sQ6T9JEREXTR3K7z3u/AP53bO.UxIRapugFNTiObfAxNr.Xy2", ?, "", "", "yes", "", "");
-
 		CREATE TABLE post (
 			id integer NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 			title text NOT NULL,
