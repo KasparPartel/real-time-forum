@@ -21,6 +21,8 @@ export function webSocketConnect(port) {
         // tells the backend, which user is connected over this websocket
         if (loggedUser !== undefined) {
             sendActiveUserID(loggedUser.id)
+            // sends new logged user status to backend (triggers wsGetUsers on other socket conns)
+            wsUserStatusChange(loggedUser.id)
             // gets userlist from db
             wsGetUsers(loggedUser.id)
         }
@@ -28,6 +30,8 @@ export function webSocketConnect(port) {
     
     socket.onclose = (e) => {
         console.log("WebSocket Connection Closed: ", e);
+        // sends new logged user status to backend (triggers wsGetUsers on other socket conns)
+        // wsUserStatusChange(loggedUser.id)
         wsConnected = false;
     }
     
@@ -68,6 +72,14 @@ export function webSocketConnect(port) {
     webSocketConnect.wsGetChatMessages = wsGetChatMessages;
     webSocketConnect.sendActiveUserID = sendActiveUserID;
     webSocketConnect.sendModal = sendModal;
+    webSocketConnect.wsUserStatusChange = wsUserStatusChange;
+    webSocketConnect.wsCloseSocket = wsCloseSocket;
+
+    // this closes websocket on logout
+    function wsCloseSocket() {
+        wsUserStatusChange(loggedUser.id)
+        socket.close()
+    }
 
     // this sends save chat message to db
     function sendMessage() {
@@ -104,6 +116,16 @@ export function webSocketConnect(port) {
         };
 
         socket.send(JSON.stringify(msg));
+    }
+
+    function wsUserStatusChange(usrID) {
+       //JSON for letting backend know that user looged in or out
+       let msg = {
+        type: "wsUserStatusChange",
+        changedUser: usrID,
+        };
+
+        socket.send(JSON.stringify(msg)); 
     }
     
     function sendActiveUserID(usrID) {

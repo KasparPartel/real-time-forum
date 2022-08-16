@@ -59,6 +59,7 @@ export default function App() {
         removeCookie("session_token");
         sessionStorage.removeItem("user_id");
         navigate("/", { replace: true });
+        webSocketConnect.wsCloseSocket();
       } else {
         console.log("Cannot logout user!");
       }

@@ -9,6 +9,8 @@ import (
 	"real-time-forum/pkg/logger"
 	"strconv"
 	"strings"
+
+	"github.com/gorilla/websocket"
 )
 
 func CreateMessageTable(db *sql.DB) {
@@ -23,7 +25,7 @@ func CreateMessageTable(db *sql.DB) {
 		log.Fatal(err)
 	}
 	query.Exec()
-	log.Println("Messages Table created successfully!")
+	// log.Println("Messages Table created successfully!")
 }
 
 func WsReadUsers(db *sql.DB) ([]byte, []int) {
@@ -80,6 +82,19 @@ func WsReadUsers(db *sql.DB) ([]byte, []int) {
 
 	return json, userArray
 
+}
+
+func WsSendUsers(database *sql.DB, user_id string, pool *Pool) {
+	returnedusers := WsReturnUsers(database, user_id, pool)
+
+	// this send userlist from db back to all frontends
+	for client := range pool.Clients {
+		// if received user Id conn is same as in Client struct, send users back to this user
+		if err := client.Conn.WriteMessage(websocket.TextMessage, returnedusers); err != nil {
+			log.Println(err)
+			return
+		}
+	}
 }
 
 func WsReturnUsers(database *sql.DB, user_id string, pool *Pool) []byte {

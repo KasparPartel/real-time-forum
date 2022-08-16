@@ -133,19 +133,13 @@ func (pool *Pool) Start() {
 					}
 				}
 			}
-
+			// sends users to all frontends when asked
 			if dat["type"] == "wsGetUsers" && dat["activeUser"] != "undefined" /* && dat["target_id"] != "undefined" */ {
-
-				returnedusers := WsReturnUsers(database, strconv.Itoa(int(dat["activeUser"].(float64))), pool)
-
-				// this send userlist from db back to frontend that sent request
-				for client := range pool.Clients {
-					// if received user Id conn is same as in Client struct, send users back to this user
-					if err := client.Conn.WriteMessage(websocket.TextMessage, returnedusers); err != nil {
-						log.Println(err)
-						return
-					}
-				}
+				WsSendUsers(database, strconv.Itoa(int(dat["activeUser"].(float64))), pool)
+			}
+			// sends users to all frontends on user login/logout status change
+			if dat["type"] == "wsUserStatusChange" {
+				WsSendUsers(database, strconv.Itoa(int(dat["changedUser"].(float64))), pool)
 			}
 
 			if dat["type"] == "wsGetChatMessages" && dat["user_id"] != "undefined" && dat["target_id"] != "undefined" {
